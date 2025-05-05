@@ -54,7 +54,7 @@ export default function HomePage() {
         alignItems: "center",
         overflow: "hidden",
         position: "relative",
-        fontFamily: "Inter, sans-serif",
+        fontFamily: "Poppins, sans-serif",
       }}
     >
       {stars.map((star) => (
