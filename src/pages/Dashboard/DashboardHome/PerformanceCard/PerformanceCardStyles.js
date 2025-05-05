@@ -1,0 +1,65 @@
+export const styles = {
+    card: {
+      mt: 3,
+      height: { xs: "auto", sm: "546px" },
+      borderRadius: "16px",
+      p: { xs: 2, sm: 3 },
+      backgroundColor: "#fff",
+    },
+    title: {
+      fontWeight: 600,
+      fontSize: { xs: 20, sm: 22 },
+      color: "#0C0B18",
+      mb: 3,
+    },
+    cryptoContainer: {
+      marginTop: "-5px",
+      display: "flex",
+      flexDirection: { xs: "column", sm: "row" },
+      justifyContent: "space-between",
+      flexWrap: "wrap",
+      alignItems: "flex-start",
+    },
+    cryptoColumn: {
+      width: { xs: "100%", sm: "48%" },
+      mb: { xs: 3, sm: 0 },
+    },
+    cryptoItem: {
+      display: "flex",
+      alignItems: "center",
+      mb: 2,
+    },
+    cryptoAvatar: {
+      width: 40,
+      height: 40,
+      backgroundColor: "#E7854D",
+      opacity: 0.2,
+      borderRadius: "50%",
+      mr: 2,
+    },
+    cryptoName: {
+      fontWeight: 500,
+      fontSize: { xs: 16, sm: 16 },
+      color: "#0C0B18",
+    },
+    cryptoPrice: {
+      fontWeight: 400,
+      fontSize: { xs: 14, sm: 14 },
+      color: "#646464",
+      mt: 0.4,
+    },
+    cryptoChange: {
+      color: "#377DFF",
+      fontSize: { xs: 14, sm: 12 },
+      fontWeight: 400,
+      lineHeight: "16px",
+      ml: 2,
+      mt: 2.5,
+    },
+    cryptoAmount: {
+      color: "#646464",
+      fontWeight: 400,
+      fontSize: { xs: 16, sm: 14 },
+      ml: 2,
+    },
+  };

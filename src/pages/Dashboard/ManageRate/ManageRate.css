@@ -1,0 +1,68 @@
+
+.manage-rate-container {
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+
+  .manage-rate-title {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 100%;
+    letter-spacing: 0px;
+    color: #333333;
+    margin-bottom: 20px;
+  }
+  
+
+  .manage-rate-content-box {
+    padding: 10px 20px;
+  }
+  
+  @media (min-width: 600px) {
+    .manage-rate-content-box {
+      padding: 20px 40px;
+    }
+  }
+  
+  @media (min-width: 900px) {
+    .manage-rate-content-box {
+      padding: 40px 60px;
+    }
+  }
+  
+
+  .table-text {
+    font-family: "Raleway", sans-serif;
+    line-height: 20px;
+    letter-spacing: 0.3%;
+    color: #73757C;
+  }
+  
+  .table-text.font-weight-700 {
+    font-weight: 700;
+  }
+  
+  .table-text.font-weight-400 {
+    font-weight: 400;
+  }
+  
+  .table-text.font-weight-500 {
+    font-weight: 500;
+  }
+  
+  .table-action {
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    min-width: 60px;
+  }
+  
+  @media (min-width: 600px) {
+    .table-action {
+      justify-content: flex-end;
+    }
+  }
+  

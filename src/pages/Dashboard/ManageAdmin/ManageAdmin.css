@@ -1,0 +1,79 @@
+.manage-admin-container {
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .manage-admin-box {
+    padding: 10px 20px;
+  }
+  
+  @media (min-width: 600px) {
+    .manage-admin-box {
+      padding: 20px 40px;
+    }
+  }
+  
+  @media (min-width: 960px) {
+    .manage-admin-box {
+      padding: 40px 60px;
+    }
+  }
+  
+  .custom-table-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border: 2px solid #DCE7EC;
+    border-radius: 24px;
+  }
+  
+  .table-name {
+    font-family: "Inter";
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 20px;
+    letter-spacing: 0.3%;
+    color: #73757C;
+  }
+  
+  .table-userId {
+    font-family: "Inter";
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 20px;
+    letter-spacing: 0.3%;
+    color: #363853;
+  }
+  
+  .table-role {
+    font-family: "Inter";
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 16px;
+    letter-spacing: 0.3%;
+    color: #73757C;
+  }
+  
+  .table-dateAdded {
+    font-family: "Inter";
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 20px;
+    letter-spacing: 0.3%;
+    color: #73757C;
+  }
+  
+  .table-action {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    min-width: 60px;
+    align-items: center;
+  }
+  
+  .table-icon {
+    color: #C5CEE0;
+    width: 16px;
+    height: 16px;
+  }
+  
