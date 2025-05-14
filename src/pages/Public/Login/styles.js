@@ -127,8 +127,8 @@ export const styles = {
         color: '#252525',
     },
     signupButton: {
-        width: '375px',
-        height: '44px',
+        width: '350px',
+        height: '40px',
         borderRadius: '100px',
         backgroundColor: '#218DC9',
         display: 'flex',
@@ -136,10 +136,6 @@ export const styles = {
         justifyContent: 'center',
         marginTop: '20px',
         cursor: 'pointer',
-        transition: 'background-color 0.3s',
-        '&:hover': {
-            backgroundColor: '#1A6FA5',
-        },
     },
     signupText: {
         fontSize: '14px',
