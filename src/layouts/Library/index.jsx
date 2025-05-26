@@ -5,6 +5,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import PublicIcon from '@mui/icons-material/Public';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 export const drawerWidth = 260;
 export const layoutPad = 22;
@@ -33,9 +34,14 @@ const navTextStyle = {
   cursor: 'pointer',
 };
 
-export const navList = [
+const logoutTextStyle = {
+  ...navTextStyle,
+  fontSize: '14px',
+};
+
+export const mainNavList = [
   { label: 'Dashboard', link: '/dashboard', subNav: [] },
-  { label: 'Manage User', link: '/dashboard/User', subNav: [] },
+  { label: 'Manage User', link: '/dashboard/user', subNav: [] },
   { label: 'Manage Admin', link: '/dashboard/Admin', subNav: [] },
   { label: 'Manage Fees', link: '/dashboard/Fees', subNav: [] },
   { label: 'Manage Rate', link: '/dashboard/Rate', subNav: [] },
@@ -43,25 +49,33 @@ export const navList = [
   { label: 'Manage Currency', link: '/dashboard/Currency', subNav: [] },
 ];
 
+export const bottomNavList = [
+  { label: 'Logout', link: null, subNav: [] },
+];
+
 export const getIconForNav = (item) => {
+  const style = item.label === 'Logout' ? { ...iconStyle, width: '18px', height: '18px' } : iconStyle;
   switch (item.label) {
     case 'Dashboard':
-      return <DashboardRoundedIcon style={iconStyle} />;
+      return <DashboardRoundedIcon style={style} />;
     case 'Manage User':
-      return <PeopleIcon style={iconStyle} />;
+      return <PeopleIcon style={style} />;
     case 'Manage Admin':
-      return <AdminPanelSettingsIcon style={iconStyle} />;
+      return <AdminPanelSettingsIcon style={style} />;
     case 'Manage Fees':
-      return <AccountBalanceIcon style={iconStyle} />;
+      return <AccountBalanceIcon style={style} />;
     case 'Manage Rate':
-      return <CurrencyExchangeIcon style={iconStyle} />;
+      return <CurrencyExchangeIcon style={style} />;
     case 'Manage Countries':
-      return <PublicIcon style={iconStyle} />;
+      return <PublicIcon style={style} />;
     case 'Manage Currency':
-      return <MonetizationOnIcon style={iconStyle} />;
+      return <MonetizationOnIcon style={style} />;
+    case 'Logout':
+      return <ExitToAppIcon style={style} />;
     default:
-      return <DashboardRoundedIcon style={iconStyle} />; 
+      return <DashboardRoundedIcon style={style} />;
   }
 };
 
 export const navTextStyleExport = navTextStyle;
+export const logoutTextStyleExport = logoutTextStyle;

@@ -1,14 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { toast } from 'react-toastify';
-import { styles } from './styles';
 import { useVerifyLogin } from '../../../Hooks/authentication';
-import OtpInputs from '../Otp/OtpInputs';
+import { styles } from './styles';
 import VerifyButton from '../Otp/VerifyButton';
+import OtpInput from '../Otp/OtpInputs';
 
 const OtpPage = () => {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const inputsRef = useRef([]);
+  const [otp, setOtp] = useState('');
   const { verifyLogin, loading } = useVerifyLogin();
 
   const email = localStorage.getItem('email');
@@ -21,35 +20,13 @@ const OtpPage = () => {
     }
   }, []);
 
-  const handleChange = (e, index) => {
-    const value = e.target.value;
-    if (/^\d?$/.test(value)) {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
-      if (value && index < 5) {
-        inputsRef.current[index + 1]?.focus();
-      }
-    }
-  };
-
-  const handleKeyDown = (e, index) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      const newOtp = [...otp];
-      newOtp[index - 1] = '';
-      setOtp(newOtp);
-      inputsRef.current[index - 1]?.focus();
-    }
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    const otpValue = otp.join('');
-    if (otpValue.length !== 6) {
+    if (otp.length !== 6) {
       toast.error('Please enter a valid 6-digit OTP.');
       return;
     }
-    verifyLogin({ email, password, otp_type, otp: otpValue });
+    verifyLogin({ email, password, otp_type, otp });
   };
 
   return (
@@ -65,12 +42,7 @@ const OtpPage = () => {
           Enter the 6-digit code sent to your email or phone.
         </Typography>
 
-        <OtpInputs
-          otp={otp}
-          inputsRef={inputsRef}
-          handleChange={handleChange}
-          handleKeyDown={handleKeyDown}
-        />
+        <OtpInput value={otp} onChange={setOtp} />
 
         <VerifyButton loading={loading} styles={styles} />
 

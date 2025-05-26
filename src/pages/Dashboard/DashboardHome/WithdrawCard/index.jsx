@@ -3,21 +3,30 @@ import { Card, Typography, Box } from "@mui/material";
 import { styles, getMinCardHeight } from "./WithdrawCardStyles";
 
 const WithdrawCard = ({ withdrawals, cardShadow }) => {
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(true);
 
   const handleToggle = () => {
     setShowAll(!showAll);
   };
 
+  const visibleItems = showAll ? withdrawals : [];
+
   return (
-    <Card sx={{ ...styles.card, boxShadow: cardShadow, minHeight: `${getMinCardHeight(withdrawals.length)}px` }}>
+    <Card
+      sx={{
+        ...styles.card,
+        boxShadow: cardShadow,
+        minHeight: `${getMinCardHeight(visibleItems.length)}px`,
+      }}
+    >
       <Box sx={styles.header}>
         <Typography sx={styles.title}>Withdraw</Typography>
         <Typography sx={styles.toggle} onClick={handleToggle}>
           {showAll ? "View Less" : "View All"}
         </Typography>
       </Box>
-      {(showAll ? withdrawals : withdrawals.slice(0, 2)).map((item, index) => (
+
+      {visibleItems.map((item, index) => (
         <Box key={index} sx={styles.item}>
           <Box sx={styles.avatar} />
           <Box sx={styles.itemDetails}>

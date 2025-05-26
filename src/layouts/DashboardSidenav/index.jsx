@@ -5,14 +5,16 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { styles } from '../DashboardNav/styles';
-import { logoLayoutProps, navList, getIconForNav, navTextStyleExport } from '../Library/index';
+import { logoLayoutProps, mainNavList, bottomNavList, getIconForNav, navTextStyleExport, logoutTextStyleExport } from '../Library/index';
 import DashboardNavigLink from '../DashboardNavLink';
 import { useLocation } from 'react-router-dom';
 import { dashboardDrawerWidth } from '../../constants/dimensions';
+import { useLogout } from '../../Hooks/authentication';
 
 const DashboardSideNav = ({ mobileOpen, onClose, onTransitionEnd }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const location = useLocation();
+  const { logout, loading } = useLogout();
 
   const isActive = (path, subMenu) => {
     const currentPath = location.pathname;
@@ -28,7 +30,7 @@ const DashboardSideNav = ({ mobileOpen, onClose, onTransitionEnd }) => {
           <Stack spacing={1} direction={{ xs: 'row', md: 'row' }}>
             <img
               src="/image 5.png"
-              style={{ height: '40px', objectFit: 'contain', marginTop: '25px', marginLeft: '15px', }}
+              style={{ height: '40px', objectFit: 'contain', marginTop: '25px', marginLeft: '15px' }}
               alt="logo"
             />
           </Stack>
@@ -43,12 +45,13 @@ const DashboardSideNav = ({ mobileOpen, onClose, onTransitionEnd }) => {
       <Box
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           height: '100%',
           overflowY: { xs: 'auto', sm: 'visible' },
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px', mt: 4 }}>
-          {navList.map((item, index) => {
+          {mainNavList.map((item, index) => {
             const isActiveItem = isActive(item.link, item.subNav);
             return (
               <DashboardNavigLink
@@ -61,6 +64,30 @@ const DashboardSideNav = ({ mobileOpen, onClose, onTransitionEnd }) => {
                   <span style={navTextStyleExport}>{item.label}</span>
                 </Box>
               </DashboardNavigLink>
+            );
+          })}
+        </Box>
+
+        <Box sx={{ flex: 1 }} />
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px', mb: 4, mt: 4 }}>
+          {bottomNavList.map((item, index) => {
+            const isActiveItem = isActive(item.link, item.subNav);
+            return (
+              <Box
+                key={index}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  pl: 2,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                }}
+                onClick={logout}
+              >
+                {getIconForNav(item, isActiveItem)}
+                <span style={logoutTextStyleExport}>{item.label}</span>
+              </Box>
             );
           })}
         </Box>

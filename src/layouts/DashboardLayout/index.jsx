@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import DashboardNav from "../DashboardNav";
 import DashboardSideNav from "../DashboardSidenav";
 import { useLocation } from 'react-router-dom';
-import { dashboardDrawerWidth, dashbaordNavHeight, } from '../../constants/dimensions';
+import { dashboardDrawerWidth, dashboardNavHeight, } from '../../constants/dimensions';
 
 const DashboardLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -39,7 +39,7 @@ const DashboardLayout = ({ children }) => {
         sx={{
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
-          mt: `${dashbaordNavHeight}px`,
+          mt: `${dashboardNavHeight}px`,
           ml: { sm: `${dashboardDrawerWidth}px` },
           width: { xs: '100%', sm: `calc(100% - ${dashboardDrawerWidth}px)` },
           minHeight: '100vh',

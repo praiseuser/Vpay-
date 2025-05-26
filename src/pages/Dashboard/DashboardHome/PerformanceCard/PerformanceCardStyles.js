@@ -60,6 +60,7 @@ export const styles = {
       color: "#646464",
       fontWeight: 400,
       fontSize: { xs: 16, sm: 14 },
-      ml: 2,
+      ml: 7,
+      mt: 1.5,
     },
   };

@@ -7,12 +7,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Pagination,
   Box,
-  Typography,
-  useMediaQuery,
 } from '@mui/material';
-import TableHeader from '../TableHeader/TableHeader';
+import TableHeader from '../CustomTable/TableHeader';
+import PaginationComponent from '../CustomTable/PaginationComponent';
 
 const CustomTable = ({
   columns = [],
@@ -27,20 +25,18 @@ const CustomTable = ({
   searchTerm: propSearchTerm = '',
   handleSearchChange: propHandleSearchChange,
   searchPlaceholder = 'Search...',
-  onAddButtonClick = () => {},
+  onAddButtonClick = () => { },
   onFilterApply,
   countryOptions = [],
   networkOptions = [],
   statusOptions = [],
-  onRowClick = () => {},
+  onRowClick = () => { },
 }) => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(propSearchTerm);
-  const isSmallScreen = useMediaQuery('(max-width: 600px)');
 
   const rowsPerPage = 5;
 
-  // Sync searchTerm with parent
   useEffect(() => {
     setSearchTerm(propSearchTerm);
   }, [propSearchTerm]);
@@ -62,8 +58,6 @@ const CustomTable = ({
     page * rowsPerPage
   );
 
-  const start = (page - 1) * rowsPerPage + 1;
-  const end = start + currentRows.length - 1;
   const totalEntries = rows.length;
 
   return (
@@ -78,7 +72,7 @@ const CustomTable = ({
         p: 3,
         display: 'flex',
         flexDirection: 'column',
-        maxHeight: { xs: 'calc(100vh - 200px)', md: 'auto' },
+        maxHeight: { xs: 'calc(100vh - 200px)', md: '80vh' }, // Adjusted for better fit
         overflow: 'hidden',
       }}
     >
@@ -89,7 +83,7 @@ const CustomTable = ({
         handleSearchChange={handleSearchChange}
         searchPlaceholder={searchPlaceholder}
         showAddButton={showAddButton}
-        showFilterButton={!isSmallScreen && showFilterButton}
+        showFilterButton={showFilterButton}
         addButtonTitle={addButtonTitle}
         addButtonStyle={addButtonStyle}
         onAddButtonClick={onAddButtonClick}
@@ -102,15 +96,35 @@ const CustomTable = ({
       <TableContainer
         sx={{
           width: '100%',
-          maxHeight: { xs: 'calc(100vh - 300px)', md: 467 },
+          maxHeight: { xs: 'calc(100vh - 300px)', md: 400 },
           borderRadius: '24px',
-          overflowX: { xs: 'scroll', md: 'hidden' },
-          overflowY: { xs: 'scroll', md: 'hidden' },
+          overflowX: 'auto',
+          overflowY: 'auto',
           border: 2,
           borderColor: '#DCE7EC',
           flexGrow: 1,
+          scrollbarWidth: 'thin', 
+          scrollbarColor: '#ccc transparent', 
+          '&::-webkit-scrollbar': {
+            width: '1px',
+            height: '1px', 
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'transparent',
+            borderRadius: '10px',
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'transparent',
+          },
+          '&:hover': {
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#aaa', 
+            },
+          },
         }}
       >
+
+
         <Table stickyHeader aria-label="custom table">
           <TableHead>
             <TableRow>
@@ -150,41 +164,14 @@ const CustomTable = ({
         </Table>
       </TableContainer>
 
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mt: 2,
-          flexShrink: 0,
-        }}
-      >
-        <Typography
-          sx={{
-            fontFamily: 'Raleway',
-            fontWeight: 400,
-            fontSize: '12px',
-            lineHeight: '100%',
-            letterSpacing: '0px',
-            color: '#73757C',
-          }}
-        >
-          Showing {start} to {end} of {totalEntries} entries
-        </Typography>
-        <Pagination
-          count={Math.ceil(totalEntries / rowsPerPage)}
-          page={page}
-          onChange={handlePageChange}
-          sx={{
-            '& .MuiPaginationItem-root.Mui-selected': {
-              backgroundColor: '#28C3FF',
-              color: 'white',
-            },
-          }}
-        />
-      </Box>
+      <PaginationComponent
+        currentPage={page}
+        totalEntries={totalEntries}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handlePageChange}
+      />
     </Paper>
   );
 };
 
-export default CustomTable;
+export default CustomTable; 

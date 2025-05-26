@@ -1,4 +1,5 @@
-import { dashbaordNavHeight, dashboardLayoutPad, dashboardDrawerWidth } from '../../constants/dimensions';
+// styles.js
+import { dashboardNavHeight, dashboardLayoutPad, dashboardDrawerWidth } from '../../constants/dimensions';
 
 export const styles = {
   nav: {
@@ -8,7 +9,7 @@ export const styles = {
     right: 0,
     pl: { xs: `${dashboardLayoutPad}px`, md: `${dashboardLayoutPad}px` },
     pr: `${dashboardLayoutPad}px`,
-    height: `${dashbaordNavHeight}px`,
+    height: `${dashboardNavHeight}px`,
     backgroundColor: 'white',
     display: 'flex',
     alignItems: 'center',
@@ -34,7 +35,7 @@ export const styles = {
   },
   contanier: {
     position: 'absolute',
-    left: '300px',
+    left: `${dashboardDrawerWidth}px`,
     right: 0,
     display: 'flex',
     justifyContent: 'center',
@@ -42,12 +43,11 @@ export const styles = {
   navRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
+    gap: '15px',
     maxWidth: '100%',
     flexWrap: 'wrap',
     justifyContent: 'center',
   },
-
   searchBox: {
     display: { xs: 'none', md: 'flex' },
     alignItems: 'center',
@@ -58,7 +58,6 @@ export const styles = {
     width: '270px',
     padding: '0 12px',
     gap: '8px',
-
   },
   searchIcon: {
     width: '18px',
@@ -78,44 +77,17 @@ export const styles = {
     height: '40px',
     borderRadius: '50%',
     border: '1px solid #D9D9D9',
-    cursor: 'Pointer'
+    cursor: 'pointer',
   },
   iconSize: {
     width: '18px',
     height: '18px',
     color: '#6D6C6B',
   },
-
-  navRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px',
-  },
-  searchBox: {
-    display: { xs: 'none', md: 'flex' },
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: '32px',
-    border: '1px solid #E2E2E2',
-    height: '40px',
-    width: '270px',
-    padding: '0 12px',
-    gap: '8px',
-  },
-  searchIcon: {
-    width: '18px',
-    height: '18px',
-    color: '#646464',
-  },
-  searchInput: {
-    fontFamily: 'Mada, sans-serif',
-    fontSize: '14px',
-    color: '#646464',
-  },
   notificationDropdown: {
     position: 'absolute',
     top: '50px',
-    right: 0,
+    right: '0px',
     backgroundColor: '#fff',
     border: '1px solid #e0e0e0',
     borderRadius: '8px',
@@ -125,22 +97,6 @@ export const styles = {
     minWidth: '200px',
     maxWidth: '250px',
   },
-  
-  notificationIcon: {
-    display: { xs: 'none', md: 'flex' },
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    border: '1px solid #D9D9D9',
-    cursor: 'Pointer'
-  },
-  iconSize: {
-    width: '18px',
-    height: '18px',
-    color: '#6D6C6B',
-  },
   userInfo: {
     display: 'flex',
     alignItems: 'center',
@@ -148,14 +104,29 @@ export const styles = {
     cursor: 'pointer',
   },
   userAvatar: {
-    width: '50px',
-    height: '50px',
-    borderRadius: '60%',
-    backgroundColor: '#FFFFFF',
-    border: '1px solid #000',
+    width: 40,
+    height: 40,
+    borderRadius: '50%',
+    backgroundColor: '#007bff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 1,
+  },
+  userAvatarText: {
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: 0, 
+    right: 2,
+    width: 14,
+    height: 14,
+    borderRadius: '50%',
+    backgroundColor: '#28a745',
+    border: '2px solid white',
   },
   userDetails: {
     display: { xs: 'none', md: 'flex' },
@@ -205,6 +176,10 @@ export const styles = {
       backgroundColor: '#f5f5f5',
     },
   },
-
+  welcomeMessage: {
+    color: '#0C0B18',
+    fontSize: '0.9rem',
+    marginRight: 1,
+    display: { xs: 'none', md: 'block' },
+  },
 };
-

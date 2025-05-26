@@ -1,138 +1,145 @@
-import React, { useState } from 'react';
-import { Box, Grid, Button,  Typography  } from '@mui/material';
-import {
-  pageStyles,
-  titleStyles,
-  cardStyles,
-  headerBarStyles,
-  sectionTitleStyles,
-  labelStyles,
-  textFieldStyles,
-  selectStyles,
-  menuPropsStyles,
-  switchLabelStyles,
-  buttonStyles,
-  sessionItemStyles,
-  sessionTextStyles,
-  sessionSubTextStyles,
-  apiKeyItemStyles,
-  apiKeyTextStyles,
-  widgetItemStyles,
-  widgetTextStyles,
-  backupTextStyles,
-} from './SettingsPageStyles';
-import GlobalSettings from '../SettingsPage/GlobalSettings';
-import PersonalPreferences from '../SettingsPage/PersonalPreferences';
-import SecuritySettings from '../SettingsPage/SecuritySettings';
-import DashboardCustomization from '../SettingsPage/DashboardCustomization';
-import BackupExport from '../SettingsPage/BackupExport';
+import React, { useState, useEffect } from 'react';
+import { Box, Grid, Typography } from '@mui/material';
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useFetchSettings } from '../../../Hooks/useSetting';
+import { useUpdateSettings } from '../../../Hooks/useSetting';
+import LogoSection from '../SettingsPage/LogoSection';
+import SettingsForm from '../SettingsPage/SettingsForm';
+import ActionButtons from '../SettingsPage/ActionButtons';
+import { pageStyles, titleStyles, cardStyles, headerBarStyles, sectionTitleStyles } from './SettingsPageStyles';
 
 const SettingsPage = () => {
+  const { settings: fetchedSettings, loading, error: fetchError, refetch } = useFetchSettings();
+  const { updateSettings, isSaving, error: updateError } = useUpdateSettings();
   const [settings, setSettings] = useState({
-    currency: 'USD',
-    feeRate: '2.5',
-    emailNotifications: true,
-    newPassword: '',
-    theme: 'light',
-    twoFactorAuth: false,
-    ipWhitelist: '',
-    activeSessions: [
-      { id: 1, device: 'MacBook Pro', browser: 'Chrome', location: 'New York, USA', lastActive: 'April 23, 2025, 12:30 AM' },
-      { id: 2, device: 'iPhone 14', browser: 'Safari', location: 'London, UK', lastActive: 'April 22, 2025, 3:15 PM' },
-    ],
-    widgets: [
-      { id: 1, name: 'Recent Activity', enabled: true },
-      { id: 2, name: 'Stats Overview', enabled: true },
-      { id: 3, name: 'User Growth Chart', enabled: false },
-    ],
+    name: '',
+    logo: null,
+    email: '',
+    phone: '',
+    facebook: '',
+    linkedin: '',
+    instagram: '',
+    youtube: '',
   });
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleSave = () => {
-    alert('Settings saved successfully!');
+  const userState = useSelector((state) => state.user);
+  const token = userState.token;
+
+  useEffect(() => {
+    console.log("Fetched settings:", fetchedSettings);
+    if (fetchedSettings && Object.keys(fetchedSettings).length > 0) {
+      setSettings(prevSettings => ({
+        ...prevSettings,
+        ...fetchedSettings,
+        logo: fetchedSettings.logo ? { url: fetchedSettings.logo } : null,
+      }));
+      setIsEditing(true);
+      console.log("Mode: Edit mode");
+    } else {
+      setIsEditing(false);
+      console.log("Mode: Create mode");
+    }
+  }, [fetchedSettings]);
+
+  const handleChange = (field) => (event) => {
+    if (field === 'logo') {
+      const file = event.target.files[0];
+      if (file) {
+        const imageUrl = URL.createObjectURL(file);
+        setSettings(prevSettings => ({
+          ...prevSettings,
+          [field]: { file, url: imageUrl },
+        }));
+      }
+    } else {
+      setSettings(prevSettings => ({
+        ...prevSettings,
+        [field]: event.target.value || '',
+      }));
+    }
   };
+
+  const handleSave = async () => {
+    if (!isEditing || !token) {
+      toast.error("Invalid state or no token found, please log in");
+      return;
+    }
+
+    const success = await updateSettings(settings);
+    if (success) {
+      console.log("Update successful, settings:", settings);
+      toast.success("Settings updated successfully");
+      refetch();
+    }
+  };
+
+  const handleCreate = async () => {
+    if (!token) {
+      toast.error("No token found, please log in");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('name', settings.name);
+      formData.append('email', settings.email);
+      formData.append('phone', settings.phone);
+      formData.append('facebook', settings.facebook);
+      formData.append('linkedin', settings.linkedin);
+      formData.append('instagram', settings.instagram);
+      formData.append('youtube', settings.youtube);
+
+      if (settings.logo && settings.logo.file) {
+        formData.append('logo', settings.logo.file);
+      }
+
+      const response = await axios.post(`${API_BASE_URL}/v1/admin/settings`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log("Settings create response:", response.data);
+      toast.success("Settings created successfully");
+      setIsEditing(true);
+      refetch();
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || "Failed to create settings";
+      console.error("Error creating settings:", err.response ? { status: err.response.status, data: err.response.data } : err.message);
+      toast.error(`Error: ${errorMessage}`);
+    }
+  };
+
+  if (loading) return <div>Loading settings...</div>;
+  if (fetchError) return <div>Error: {fetchError}</div>;
+  if (updateError) return <div>Error: {updateError}</div>;
+
+  console.log("Rendering buttons, isEditing:", isEditing, "isSaving:", isSaving);
 
   return (
     <Box sx={pageStyles}>
       <Typography sx={titleStyles}>Settings</Typography>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <GlobalSettings
-            cardStyles={cardStyles}
-            headerBarStyles={headerBarStyles}
-            sectionTitleStyles={sectionTitleStyles}
-            labelStyles={labelStyles}
-            selectStyles={selectStyles}
-            menuPropsStyles={menuPropsStyles}
-            settings={settings}
-            setSettings={setSettings}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <PersonalPreferences
-            cardStyles={cardStyles}
-            headerBarStyles={headerBarStyles}
-            sectionTitleStyles={sectionTitleStyles}
-            labelStyles={labelStyles}
-            textFieldStyles={textFieldStyles}
-            switchLabelStyles={switchLabelStyles}
-            buttonStyles={buttonStyles}
-            settings={settings}
-            setSettings={setSettings}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <SecuritySettings
-            cardStyles={cardStyles}
-            headerBarStyles={headerBarStyles}
-            sectionTitleStyles={sectionTitleStyles}
-            labelStyles={labelStyles}
-            textFieldStyles={textFieldStyles}
-            switchLabelStyles={switchLabelStyles}
-            buttonStyles={buttonStyles}
-            sessionItemStyles={sessionItemStyles}
-            sessionTextStyles={sessionTextStyles}
-            sessionSubTextStyles={sessionSubTextStyles}
-            apiKeyItemStyles={apiKeyItemStyles}
-            apiKeyTextStyles={apiKeyTextStyles}
-            settings={settings}
-            setSettings={setSettings}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <DashboardCustomization
-            cardStyles={cardStyles}
-            headerBarStyles={headerBarStyles}
-            sectionTitleStyles={sectionTitleStyles}
-            widgetItemStyles={widgetItemStyles}
-            widgetTextStyles={widgetTextStyles}
-            settings={settings}
-            setSettings={setSettings}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <BackupExport
-            cardStyles={cardStyles}
-            headerBarStyles={headerBarStyles}
-            sectionTitleStyles={sectionTitleStyles}
-            backupTextStyles={backupTextStyles}
-            buttonStyles={buttonStyles}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button
-              variant="contained"
-              onClick={handleSave}
-              sx={{
-                ...buttonStyles.contained,
-                position: 'sticky',
-                bottom: 20,
-                zIndex: 1000,
-              }}
-            >
-              Save Changes
-            </Button>
+          <Box sx={cardStyles}>
+            <Box sx={headerBarStyles} />
+            <Typography sx={sectionTitleStyles}>General Settings</Typography>
+            <Grid container spacing={4}>
+              <LogoSection settings={settings} handleChange={handleChange} />
+              <SettingsForm settings={settings} handleChange={handleChange} />
+            </Grid>
           </Box>
+        </Grid>
+        <Grid item xs={12}>
+          <ActionButtons
+            isEditing={isEditing}
+            isSaving={isSaving}
+            handleCreate={handleCreate}
+            handleSave={handleSave}
+          />
         </Grid>
       </Grid>
     </Box>

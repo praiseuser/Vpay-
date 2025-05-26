@@ -20,19 +20,19 @@ const DashboardRoutes = () => {
   return (
     <DashboardLayout>
       <Routes>
-        <Route path="/dasboard" element={<DashboardHome />} /> 
-        <Route path="/Currency" element={<ManageCurrency />} />
-        <Route path="/Rate" element={<ManageRate />} />
-        <Route path="/Countries" element={<ManageCountries />} />
-        <Route path="/Fees" element={<ManageFees />} />
-        <Route path="/Admin" element={<ManageAdmin />} />
-        <Route path="/User" element={<ManageUser />} />
-        <Route path="/add-roles-page" element={<AddRolesPage />} />
-        <Route path="/add-fiat-page" element={<AddFiatPage />} />
-        <Route path="/add-Crypto-page" element={<AddCryptoPage />} />
-        <Route path="/user" element={<User />} />
-        <Route path="/profile-page" element={<ProfilePage />} />
-        <Route path="/settings-page" element={<SettingsPage />} />
+        <Route path="/dashboard" element={<DashboardHome />} />
+        <Route path="/dashboard/currency" element={<ManageCurrency />} />
+        <Route path="/dashboard/rate" element={<ManageRate />} />
+        <Route path="/dashboard/countries" element={<ManageCountries />} />
+        <Route path="/dashboard/fees" element={<ManageFees />} />
+        <Route path="/dashboard/admin" element={<ManageAdmin />} />
+        <Route path="/dashboard/user" element={<ManageUser />} />
+        <Route path="/dashboard/add-roles" element={<AddRolesPage />} />
+        <Route path="/dashboard/add-fiat" element={<AddFiatPage />} />
+        <Route path="/dashboard/add-crypto" element={<AddCryptoPage />} />
+        <Route path="/dashboard/user" element={<User />} />
+        <Route path="/dashboard/profile" element={<ProfilePage />} />
+        <Route path="/dashboard/settings" element={<SettingsPage />} />
       </Routes>
     </DashboardLayout>
   );

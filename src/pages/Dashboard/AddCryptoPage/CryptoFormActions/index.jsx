@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import styles from '../AddCryptoPageStyles';
 
-const CryptoFormActions = ({ onCancel, onSubmit }) => {
+const CryptoFormActions = ({ onCancel, onSubmit, loading, error }) => {
   return (
     <Box sx={styles.buttonsContainer}>
       <Typography
@@ -15,9 +15,19 @@ const CryptoFormActions = ({ onCancel, onSubmit }) => {
         variant="contained"
         onClick={onSubmit}
         sx={styles.addButton}
+        disabled={loading}
       >
-        Add Crypto
+        {loading ? (
+          <CircularProgress size={24} color="inherit" />
+        ) : (
+          'Add Crypto'
+        )}
       </Button>
+      {error && (
+        <Typography sx={{ color: 'red', fontSize: '12px', mt: 1 }}>
+          {error}
+        </Typography>
+      )}
     </Box>
   );
 };

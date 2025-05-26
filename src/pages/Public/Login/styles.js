@@ -136,7 +136,8 @@ export const styles = {
         justifyContent: 'center',
         marginTop: '20px',
         cursor: 'pointer',
-    },
+        border: 'none',
+      },
     signupText: {
         fontSize: '14px',
         fontWeight: '700',

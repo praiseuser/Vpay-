@@ -6,7 +6,7 @@ import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import { styles } from "./DepositCardStyles";
 
 const DepositCard = ({ pieData, cardShadow }) => {
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(true);
   const [currentMonth, setCurrentMonth] = useState("August");
 
   const handleToggle = () => {

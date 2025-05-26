@@ -8,13 +8,35 @@ import {
     MenuItem,
     Button,
 } from '@mui/material';
+import { useCreateFiatCurrency } from '../../../Hooks/useFiatCurrency';
 
 const AddFiatPage = ({ onCancel }) => {
-    const [roleName, setRoleName] = useState('');
-    const [selectedOption, setSelectedOption] = useState('');
+    const [fiatCurrency, setFiatCurrency] = useState('');
+    const [status, setStatus] = useState(1);
+    const { createFiatCurrency, loading, error, success } = useCreateFiatCurrency();
 
-    const handleDropdownChange = (e) => {
-        setSelectedOption(e.target.value);
+    const handleSubmit = async () => {
+        if (!fiatCurrency.trim()) {
+            alert("Please enter a Fiat Currency.");
+            return;
+        }
+
+        const fiatData = {
+            fiat_currency: fiatCurrency,
+            status: status,
+        };
+
+        console.log("Data before sending to hook:", fiatData);
+
+        await createFiatCurrency(fiatData);
+
+        if (success) {
+            setFiatCurrency('');
+            setStatus(1);
+            onCancel();
+        } else if (error) {
+            alert(error);
+        }
     };
 
     return (
@@ -25,7 +47,7 @@ const AddFiatPage = ({ onCancel }) => {
                 mx: 'auto',
                 mt: 4,
                 height: 'auto',
-                px: 2, // Padding for small screens
+                px: 2,
             }}
         >
             <Paper
@@ -67,12 +89,12 @@ const AddFiatPage = ({ onCancel }) => {
                 <Box
                     sx={{
                         display: 'flex',
-                        flexDirection: { xs: 'column', md: 'row' }, // Stack on small screens, row on medium and up
+                        flexDirection: { xs: 'column', md: 'row' },
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         mt: 6,
                         px: { xs: 0, sm: 4 },
-                        gap: { xs: 2, md: 4 }, // Add gap between columns on larger screens
+                        gap: { xs: 2, md: 4 },
                     }}
                 >
                     <Box sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', sm: '45%' } }}>
@@ -85,16 +107,15 @@ const AddFiatPage = ({ onCancel }) => {
                                 mb: '8px',
                             }}
                         >
-                            Select FIAT Currency
+                            Fiat Currency
                         </Typography>
                         <TextField
-                            select
-                            value={selectedOption}
-                            onChange={handleDropdownChange}
+                            value={fiatCurrency}
+                            onChange={(e) => setFiatCurrency(e.target.value)}
                             variant="outlined"
-                            placeholder="Choose..."
+                            placeholder="Enter Fiat Currency (e.g., NGN)"
                             sx={{
-                                width: '100%', // Full width on smaller screens
+                                width: '100%',
                                 maxWidth: '261px',
                                 height: '40px',
                                 backgroundColor: '#FAFAFA',
@@ -109,58 +130,107 @@ const AddFiatPage = ({ onCancel }) => {
                                     },
                                 },
                             }}
-                        >
-                            <MenuItem value="Option 1">US Dollar (USD)</MenuItem>
-                            <MenuItem value="Option 2">Uganda (UGX)</MenuItem>
-                            <MenuItem value="Option 3">Nigeria Naira (NGN)</MenuItem>
-                        </TextField>
+                            disabled={loading}
+                        />
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', sm: '45%' } }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', width: { xs: '100%', sm: '45%' } }}>
+                        <Typography
+                            sx={{
+                                fontFamily: 'Raleway',
+                                fontWeight: 600,
+                                fontSize: '14px',
+                                color: '#363853',
+                                mb: '8px',
+                            }}
+                        >
+                            Status
+                        </Typography>
+                        <TextField
+                            select
+                            value={status}
+                            onChange={(e) => setStatus(parseInt(e.target.value))}
+                            variant="outlined"
+                            sx={{
+                                width: '100%',
+                                maxWidth: '261px',
+                                height: '40px',
+                                backgroundColor: '#FAFAFA',
+                                borderRadius: '10px',
+                                '& .MuiOutlinedInput-root': {
+                                    height: '40px',
+                                    borderRadius: '10px',
+                                    backgroundColor: '#FAFAFA',
+                                    '& fieldset': {
+                                        borderColor: '#D9D9D9',
+                                        borderWidth: '1px',
+                                    },
+                                },
+                            }}
+                            disabled={loading}
+                        >
+                            <MenuItem value={1}>Enabled</MenuItem>
+                            <MenuItem value={0}>Disabled</MenuItem>
+                        </TextField>
+                    </Box>
+                </Box>
+
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        alignItems: 'center',
+                        gap: 2,
+                        mt: 4,
+                        px: { xs: 0, sm: 4 },
+                    }}
+                >
+                    <Typography
+                        sx={{
+                            fontFamily: 'Inter',
+                            fontWeight: 700,
+                            fontSize: '12px',
+                            lineHeight: '100%',
+                            letterSpacing: '0%',
+                            textAlign: 'center',
+                            textTransform: 'capitalize',
+                            color: '#73757C',
+                            cursor: 'pointer',
+                        }}
+                        onClick={onCancel}
+                    >
+                        Cancel
+                    </Typography>
+
+                    <Button
+                        variant="contained"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        sx={{
+                            fontFamily: 'Inter',
+                            fontWeight: 700,
+                            fontSize: '12px',
+                            textTransform: 'capitalize',
+                            borderRadius: '10px',
+                            backgroundColor: '#208BC9',
+                            padding: '10px 30px',
+                            boxShadow: 'none',
+                            opacity: loading ? 0.6 : 1,
+                        }}
+                    >
                         <Typography
                             sx={{
                                 fontFamily: 'Inter',
-                                fontWeight: 700,
+                                fontWeight: '700',
                                 fontSize: '12px',
                                 lineHeight: '100%',
                                 letterSpacing: '0%',
-                                textAlign: 'center',
-                                textTransform: 'capitalize',
-                                color: '#73757C',
-                                cursor: 'pointer',
+                                color: '#FFFFFF',
                             }}
-                            onClick={onCancel}
                         >
-                            Cancel
+                            {loading ? 'Adding...' : 'Add Fiat'}
                         </Typography>
-
-                        <Button
-                            variant="contained"
-                            sx={{
-                                fontFamily: 'Inter',
-                                fontWeight: 700,
-                                fontSize: '12px',
-                                textTransform: 'capitalize',
-                                borderRadius: '10px',
-                                backgroundColor: '#208BC9',
-                                padding: '10px 30px',
-                                boxShadow: 'none',
-                            }}
-                        >
-                            <Typography
-                                sx={{
-                                    fontFamily: 'Inter',
-                                    fontWeight: '700',
-                                    fontSize: '12px',
-                                    lineHeight: '100%',
-                                    letterSpacing: '0%',
-                                    color: '#FFFFFF',
-                                }}
-                            >
-                                Add Fiat
-                            </Typography>
-                        </Button>
-                    </Box>
+                    </Button>
                 </Box>
             </Paper>
         </Box>

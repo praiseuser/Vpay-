@@ -1,58 +1,55 @@
 import { useMediaQuery } from '@mui/material';
-import CustomTable from "../../../components/CustomTable/CustomTable";
-import CustomButton from "../../../components/CustomButton/CustomButton";
-import CustomTabs from "../../../components/CustomTabs/CustomTabs";
-import { useState } from "react";
+import CustomTabs from '../../../components/CustomTabs/CustomTabs';
+import { useState } from 'react';
+import CreateRateForm from '../ManageRate/CreateRateForm';
+import CryptoRate from '../ManageRate/CryptoRate';
+import FiatRate from '../ManageRate/FiatRate';
 
-const columns = [
-  { id: 'currency', label: 'CURRENCY', minWidth: 150 },
-  { id: 'network', label: 'NETWORK', minWidth: 150 },
-  { id: 'rate', label: 'RATE', minWidth: 180 },
-  { id: 'action', label: '', minWidth: 180 },
-];
-
-const rowStyle = {
-  fontFamily: 'Raleway, sans-serif',
-  fontSize: '15px',
-  lineHeight: '20px',
-  letterSpacing: '0.3%',
-};
-
-const rows = [
-  {
-    currency: <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>Bitcoin (BTC)</span>,
-    network: <span style={{ ...rowStyle, fontWeight: 400, color: '#363853' }}>BEP 20</span>,
-    rate: <span style={{ ...rowStyle, fontWeight: 500, color: '#73757C' }}>1 USD - 0.00012 BTC  </span>,
-    action: (
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-        <CustomButton type="edit" />
-      </div>
-    ),
-  },
-  {
-    currency: <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>Binance (BNB)</span>,
-    network: <span style={{ ...rowStyle, fontWeight: 400, color: '#363853' }}>BEP 20</span>,
-    rate: <span style={{ ...rowStyle, fontWeight: 500, color: '#73757C' }}>1 USD - 0.00012 BTC  </span>,
-    action: (
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-        <CustomButton type="edit" />
-      </div>
-    ),
-  },
-
-];
-
-export default function ManageRate() {
+const ManageRate = () => {
   const [tabValue, setTabValue] = useState(0);
+  const [showAddRateForm, setShowAddRateForm] = useState(false);
+  const [rates, setRates] = useState([]);
+  const [formData, setFormData] = useState({
+    Currency_Id: '',
+    Rate: '',
+    status: '1',
+  });
+
   const isMobile = useMediaQuery('(max-width: 600px)');
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
+  const handleAddRateForm = () => {
+    setShowAddRateForm(true);
+  };
+
+  const handleCreateRate = () => {
+    if (!formData.Currency_Id || !formData.Rate) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    const newRate = {
+      Currency_Id: formData.Currency_Id,
+      Rate: formData.Rate,
+      status: parseInt(formData.status),
+    };
+
+    setRates((prev) => [...prev, newRate]);
+    setFormData({ Currency_Id: '', Rate: '', status: '1' });
+    setShowAddRateForm(false);
+  };
+
+  const handleCancel = () => {
+    setFormData({ Currency_Id: '', Rate: '', status: '1' });
+    setShowAddRateForm(false);
+  };
+
   return (
     <div
-      className={`p-${isMobile ? '2' : '6'} w-full`}
+      className="manage-rate-container"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -60,42 +57,32 @@ export default function ManageRate() {
         overflow: 'hidden',
       }}
     >
-
       <div style={{ flexShrink: 0 }}>
         <CustomTabs
-         tabLabels={["Crypto Currency", "FIAT Currency"]} 
-         value={tabValue}
-         onChange={handleTabChange}
-         />
+          tabLabels={['Crypto Currency', 'FIAT Currency']}
+          value={tabValue}
+          onChange={handleTabChange}
+        />
       </div>
 
-      <div
-        style={{
-          flexGrow: 1,
-          overflowY: 'auto',
-          marginTop: '32px',
-        }}
-      >
-        <CustomTable
-          columns={columns}
-          rows={rows}
-          showAddButton={false}
-          addButtonTitle=""
-          addButtonStyle={{ marginTop: '40px' }}
-          title="Manage Rates"
-          titleStyle={{
-            fontFamily: 'Inter',
-            fontWeight: 700,
-            fontSize: '24px',
-            lineHeight: '100%',
-            letterSpacing: '0px',
-            color: '#333333',
-            marginLeft: '24px',
-            marginBottom: '7px',
-          }}
-          searchPlaceholder="search"
-        />
+      <div className="manage-rate-content-box">
+        <h1 className="manage-rate-title">Manage Rates</h1>
+
+        {showAddRateForm ? (
+          <CreateRateForm
+            formData={formData}
+            setFormData={setFormData}
+            handleCreateRate={handleCreateRate}
+            handleCancel={handleCancel}
+          />
+        ) : tabValue === 0 ? (
+          <CryptoRate rates={rates} onAddButtonClick={handleAddRateForm} />
+        ) : (
+          <FiatRate rates={rates} onAddButtonClick={handleAddRateForm} />
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default ManageRate;

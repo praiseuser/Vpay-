@@ -1,1 +1,1 @@
-export const API_BASE_URL = "https://vpay-backend.onrender.com/v1"
+export const API_BASE_URL = "https://vpay-backend-3g0p.onrender.com/v1"

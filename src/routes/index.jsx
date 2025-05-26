@@ -12,7 +12,7 @@ export default function Router() {
   const isDashboardRoute = pathname.startsWith(dashboardPath);
 
   if (isDashboardRoute && !isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return isDashboardRoute ? <DashboardRoutes /> : <PublicRoutes />;

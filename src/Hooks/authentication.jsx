@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from "../config/path";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { storeUser } from "../store/Slices/userSlice";
+import { logoutUser } from "../store/Slices/userSlice";
 
 const useAuthentication = () => {
   const [loading, setLoading] = useState(false);
@@ -102,6 +103,56 @@ const useVerifyLogin = () => {
   return { verifyLogin, loading, error };
 };
 
+const useLogout = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.user.token);
 
+  useEffect(() => {
+    console.log('Current token in useLogout:', token);
+  }, [token]);
 
-export { useAuthentication, useVerifyLogin }
+  const logout = async () => {
+    setLoading(true);
+    setError(null);
+
+    console.log('Token at logout:', token);
+
+    try {
+      if (!token) throw new Error('No authentication token found');
+
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/user/logout`,
+        null,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('Logout API response:', response.data);
+
+      localStorage.removeItem('email');
+      localStorage.removeItem('password');
+      localStorage.removeItem('otp_type');
+
+      dispatch(logoutUser());
+
+      toast.success('User logged out successfully');
+      navigate("/");
+      
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Logout failed';
+      setError(errorMessage);
+      console.error('Logout failed:', err.response ? err.response.data : err.message);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { logout, loading, error };
+};
+export { useAuthentication, useVerifyLogin, useLogout }

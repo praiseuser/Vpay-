@@ -1,32 +1,35 @@
 import React from 'react';
-import { TextField, Box } from '@mui/material';
+import { MuiOtpInput } from 'mui-one-time-password-input';
 
-const OtpInputs = ({ otp, inputsRef, handleChange, handleKeyDown }) => {
+const OtpInput = ({ value, onChange, length = 6 }) => {
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: '10px', mb: 2 }}>
-      {otp.map((digit, index) => (
-        <TextField
-          key={index}
-          value={digit}
-          onChange={(e) => handleChange(e, index)}
-          onKeyDown={(e) => handleKeyDown(e, index)}
-          inputRef={(el) => (inputsRef.current[index] = el)}
-          inputProps={{
-            maxLength: 1,
-            style: {
-              textAlign: 'center',
-              fontSize: '24px',
-              padding: '12px',
-              width: '50px',
-              height: '25px',
-            },
-          }}
-          variant="outlined"
-          required
-        />
-      ))}
-    </Box>
+    <MuiOtpInput
+      value={value}
+      onChange={onChange}
+      length={length}
+      sx={{
+        display: 'flex',
+        gap: '10px',
+        mb: 2,
+        '& .MuiInputBase-root': {
+          fontFamily: 'Inter',
+          fontSize: '24px',
+          width: '50px',
+          height: '50px',
+          textAlign: 'center',
+          borderRadius: '8px',
+          border: '1px solid #E0E0E0',
+          '&:hover': {
+            borderColor: '#218DC9',
+          },
+        },
+        '& .Mui-focused': {
+          borderColor: '#218DC9',
+          boxShadow: '0 0 0 2px rgba(33, 141, 201, 0.2)',
+        },
+      }}
+    />
   );
 };
 
-export default OtpInputs;
+export default OtpInput;

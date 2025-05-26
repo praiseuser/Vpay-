@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
-import CustomTable from '../../../../components/CustomTable/CustomTable';
-import CustomButton from '../../../../components/CustomButton/CustomButton';
+import CustomTable from '../../../../components/CustomTable';
+import CustomButton from '../../../../components/CustomButton';
 import AddRolesPage from '../../AddRolesPage';
 
 const columns = [

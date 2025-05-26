@@ -1,41 +1,113 @@
-import { useMediaQuery } from '@mui/material';
 import { useState } from 'react';
-import CustomTable from "../../../components/CustomTable/CustomTable";
-import CustomButton from "../../../components/CustomButton/CustomButton";
-import CustomTabs from "../../../components/CustomTabs/CustomTabs";
+import { useMediaQuery } from '@mui/material';
+import PropTypes from 'prop-types';
+import FeeTabs from './FeeTabs';
+import FeeTable from './FeeTable';
+import AddFeeForm from './AddFeeForm';
+import EditFeeModal from './EditFeeModal';
+import { useFetchFees, useDeleteTransactionFee } from '../../../Hooks/useFeeCurrency';
 
-const columns = [
-  { id: 'currency', label: 'CURRENCY', minWidth: 150 },
-  { id: 'rate', label: 'RATE', minWidth: 180 },
-  { id: 'action', label: '', minWidth: 180 },
-];
-
-const rowStyle = {
-  fontFamily: 'Raleway, sans-serif',
-  fontSize: '15px',
-  lineHeight: '20px',
-  letterSpacing: '0.3%',
-};
-
-const rows = [
-  {
-    currency: <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>Transfer Transaction Fee</span>,
-    rate: <span style={{ ...rowStyle, fontWeight: 500, color: '#73757C' }}>2%</span>,
-    action: (
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-        <CustomButton type="edit" color='#F7366A' />
-      </div>
-    ),
-  },
-];
 
 export default function ManageFees() {
   const [tabValue, setTabValue] = useState(0);
+  const [showAddFeeForm, setShowAddFeeForm] = useState(false);
+  const [editFee, setEditFee] = useState(null);
+  const [formData, setFormData] = useState({
+    fee_name: '',
+    fee_type: '',
+    fee_amount: '',
+    status: false,
+    has_max_limit: false,
+    max_limit: '',
+  });
   const isMobile = useMediaQuery('(max-width: 600px)');
+  const { fees, fetchFees, loading: fetchLoading, error: fetchError } = useFetchFees();
+  const { deleteTransactionFee, isFeeLoading, error: deleteError, successMessage } = useDeleteTransactionFee();
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
+
+  const handleAddFeeClick = () => {
+    console.log('Add Fee button clicked in ManageFees');
+    setFormData({
+      fee_name: '',
+      fee_type: '',
+      fee_amount: '',
+      status: false,
+      has_max_limit: false,
+      max_limit: '',
+    });
+    setShowAddFeeForm(true);
+  };
+
+  const handleCreateFee = () => {
+    console.log('handleCreateFee called in ManageFees');
+    setFormData({
+      fee_name: '',
+      fee_type: '',
+      fee_amount: '',
+      status: false,
+      has_max_limit: false,
+      max_limit: '',
+    });
+    setShowAddFeeForm(false);
+    fetchFees();
+  };
+
+  const handleCancel = () => {
+    console.log('handleCancel called in ManageFees');
+    setFormData({
+      fee_name: '',
+      fee_type: '',
+      fee_amount: '',
+      status: false,
+      has_max_limit: false,
+      max_limit: '',
+    });
+    setShowAddFeeForm(false);
+    setEditFee(null);
+  };
+
+  const handleEditFee = (fee) => {
+    console.log('Edit fee clicked:', fee);
+    setEditFee(fee);
+  };
+
+  const handleUpdateFee = () => {
+    console.log('handleUpdateFee called in ManageFees');
+    setEditFee(null);
+    fetchFees();
+  };
+
+  const handleDeleteFee = async (feeId) => {
+    console.log('handleDeleteFee started with feeId:', feeId);
+    if (!feeId) {
+      console.error('No feeId provided for deletion in ManageFees');
+      return;
+    }
+
+    const deleteResult = await deleteTransactionFee(feeId);
+    if (deleteResult) {
+      console.log('Delete successful in ManageFees, refreshing fees list');
+      setShowAddFeeForm(false);
+      setEditFee(null);
+      setFormData({
+        fee_name: '',
+        fee_type: '',
+        fee_amount: '',
+        status: false,
+        has_max_limit: false,
+        max_limit: '',
+      });
+      fetchFees();
+    } else {
+      console.log('Delete failed in ManageFees, error already logged in useDeleteTransactionFee');
+    }
+    console.log('handleDeleteFee completed for feeId:', feeId);
+  };
+
+  console.log('ManageFees rendering - fees:', fees, 'showAddFeeForm:', showAddFeeForm, 'editFee:', editFee);
 
   return (
     <div
@@ -47,41 +119,38 @@ export default function ManageFees() {
         overflow: 'hidden',
       }}
     >
-      <div style={{ flexShrink: 0 }}>
-        <CustomTabs
-          tabLabels={["Transaction Fees"]}
-          value={tabValue}
-          onChange={handleTabChange}
-        />
-      </div>
-
-      <div
-        style={{
-          flexGrow: 1,
-          overflowY: 'auto',
-          marginTop: '32px',
-        }}
-      >
-        <CustomTable
-          columns={columns}
-          rows={rows}
-          showAddButton={false}
-          addButtonTitle=""
-          addButtonStyle={{ marginTop: '40px' }}
-          title="Manage Fees"
-          titleStyle={{
-            fontFamily: 'Inter',
-            fontWeight: 700,
-            fontSize: '24px',
-            lineHeight: '100%',
-            letterSpacing: '0px',
-            color: '#333333',
-            marginLeft: '24px',
-            marginBottom: '7px',
-          }}
-          searchPlaceholder="search"
+      <FeeTabs value={tabValue} onChange={handleTabChange} />
+      <div style={{ flexGrow: 1, overflowY: 'auto', marginTop: '32px' }}>
+        {showAddFeeForm ? (
+          <AddFeeForm
+            formData={formData}
+            setFormData={setFormData}
+            handleCreateFee={handleCreateFee}
+            handleCancel={handleCancel}
+          />
+        ) : (
+          <FeeTable
+            fees={fees}
+            fetchLoading={fetchLoading}
+            fetchError={fetchError}
+            deleteError={deleteError}
+            successMessage={successMessage}
+            isFeeLoading={isFeeLoading}
+            onAddFeeClick={handleAddFeeClick}
+            onEditFee={handleEditFee}
+            onDeleteFee={handleDeleteFee}
+          />
+        )}
+        <EditFeeModal
+          open={!!editFee}
+          fee={editFee}
+          onClose={handleCancel}
+          onUpdate={handleUpdateFee}
         />
       </div>
     </div>
   );
 }
+
+ManageFees.propTypes = {
+};

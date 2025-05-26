@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMediaQuery } from '@mui/material';
-import CustomTable from '../../../components/CustomTable/CustomTable';
+import CustomTable from '../../../components/CustomTable';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import User from '../User';
 
@@ -41,9 +41,7 @@ const formatRows = (data) =>
     currency: (
       <div>
         <div style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>{item.username}</div>
-        <div style={{ ...rowStyle, fontWeight: 800, color: '#28C3FF' }}>
-          <span>{item.handle}</span>
-        </div>
+        <div style={{ ...rowStyle, fontWeight: 800, color: '#28C3FF' }}>{item.handle}</div>
       </div>
     ),
     network: (
@@ -76,81 +74,19 @@ const formatRows = (data) =>
   }));
 
 export default function ManageUser() {
-  const [isUserActive, setIsUserActive] = useState(false);
   const isMobile = useMediaQuery('(max-width: 600px)');
+  const [isUserActive, setIsUserActive] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    country: '',
-    email: '',
-    minBalance: '',
-    maxBalance: '',
-    network: '',
-    name: '',
-    userId: '',
-    status: '',
-  });
-  const [filteredData, setFilteredData] = useState(rawData);
+
+  const rows = formatRows(rawData);
 
   const handleRowClick = () => {
     setIsUserActive(true);
   };
 
   const handleSearchChange = (e) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    applyFiltersAndSearch(filters, term);
+    setSearchTerm(e.target.value);
   };
-
-  const handleFilterApply = (newFilters) => {
-    setFilters(newFilters);
-    applyFiltersAndSearch(newFilters, searchTerm);
-  };
-
-  const applyFiltersAndSearch = (filters, term) => {
-    let filtered = [...rawData];
-
-    if (filters.country) {
-      filtered = filtered.filter((item) => item.country.toLowerCase() === filters.country.toLowerCase());
-    }
-    if (filters.email) {
-      filtered = filtered.filter((item) =>
-        item.email.toLowerCase().includes(filters.email.toLowerCase())
-      );
-    }
-    if (filters.minBalance) {
-      filtered = filtered.filter((item) => item.balance >= parseFloat(filters.minBalance));
-    }
-    if (filters.maxBalance) {
-      filtered = filtered.filter((item) => item.balance <= parseFloat(filters.maxBalance));
-    }
-    if (filters.network) {
-      filtered = filtered.filter((item) => item.network.toLowerCase() === filters.network.toLowerCase());
-    }
-    if (filters.name) {
-      filtered = filtered.filter((item) =>
-        item.username.toLowerCase().includes(filters.name.toLowerCase())
-      );
-    }
-    if (filters.userId) {
-      filtered = filtered.filter((item) => item.id === filters.userId);
-    }
-    if (filters.status) {
-      filtered = filtered.filter((item) => item.status.toLowerCase() === filters.status.toLowerCase());
-    }
-
-    if (term) {
-      filtered = filtered.filter(
-        (item) =>
-          item.username.toLowerCase().includes(term) ||
-          item.email.toLowerCase().includes(term) ||
-          item.country.toLowerCase().includes(term) ||
-          item.id.toLowerCase().includes(term)
-      );
-    }
-
-    setFilteredData(filtered);
-  };
-  const rows = formatRows(filteredData);
 
   return (
     <div
@@ -193,11 +129,7 @@ export default function ManageUser() {
             }}
             searchTerm={searchTerm}
             handleSearchChange={handleSearchChange}
-            searchPlaceholder="search by country etc"
-            onFilterApply={handleFilterApply}
-            countryOptions={['Nigeria', 'USA', 'UK', 'Canada', 'Germany']}
-            networkOptions={['Ethereum', 'Bitcoin', 'Polygon', 'Solana']}
-            statusOptions={['Active', 'Inactive', 'Pending']}
+            searchPlaceholder="Search by country, email, etc"
             onRowClick={handleRowClick}
           />
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import CustomTable from '../../../../components/CustomTable/CustomTable';
+import CustomTable from '../../../../components/CustomTable';
 import { Check, Delete, ExpandMore } from '@mui/icons-material';
 
 const columns = [

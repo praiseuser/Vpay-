@@ -3,35 +3,26 @@ import { Box, Typography, TextField, MenuItem } from '@mui/material';
 import styles from '../AddCryptoPageStyles';
 
 const CryptoFormFields = ({ formData, errors, handleChange }) => {
-  const cryptoOptions = ['Bitcoin', 'Ethereum', 'USDT', 'Binance', 'Solana', 'Polygon'];
-  const networkOptions = ['BEP20', 'ERC20', 'TRC20', 'Polygon', 'Solana'];
-  const statusOptions = ['Active', 'Disabled'];
+  const networkOptions = ['mainnet', 'testnet'];
+  const statusOptions = ['Active'];
 
   return (
-    <>
+    <Box sx={styles.inputFields}>
       <Box sx={styles.fieldContainer}>
         <Typography sx={styles.fieldLabel}>
-          Select Cryptocurrency
+          Cryptocurrency
         </Typography>
         <TextField
-          select
           name="selectedCrypto"
           value={formData.selectedCrypto}
           onChange={handleChange}
           variant="outlined"
           fullWidth
-          placeholder="Choose..."
+          placeholder="Enter cryptocurrency..."
           error={!!errors.selectedCrypto}
           helperText={errors.selectedCrypto}
           sx={styles.textField}
-        >
-          <MenuItem value="">Choose...</MenuItem>
-          {cryptoOptions.map((crypto) => (
-            <MenuItem key={crypto} value={crypto}>
-              {crypto}
-            </MenuItem>
-          ))}
-        </TextField>
+        />
       </Box>
 
       <Box sx={styles.fieldContainer}>
@@ -71,6 +62,8 @@ const CryptoFormFields = ({ formData, errors, handleChange }) => {
           variant="outlined"
           fullWidth
           sx={styles.textField}
+          error={!!errors.status}
+          helperText={errors.status}
         >
           {statusOptions.map((status) => (
             <MenuItem key={status} value={status}>
@@ -79,7 +72,7 @@ const CryptoFormFields = ({ formData, errors, handleChange }) => {
           ))}
         </TextField>
       </Box>
-    </>
+    </Box>
   );
 };
 

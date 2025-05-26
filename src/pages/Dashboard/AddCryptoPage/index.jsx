@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Box, Paper, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Paper } from '@mui/material';
 import styles from './AddCryptoPageStyles';
 import CryptoFormHeader from '../AddCryptoPage/CryptoFormHeader';
 import CryptoFormFields from '../AddCryptoPage/CryptoFormFields';
 import CryptoFormActions from '../AddCryptoPage/CryptoFormActions';
+import { useCreateCryptoCurrency } from '../../../Hooks/useCryptoCurrency';
 
 const AddCryptoPage = ({ onCancel, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -12,8 +13,8 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
     status: 'Active',
   });
   const [errors, setErrors] = useState({});
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const { createCryptoCurrency, loading, error, success } = useCreateCryptoCurrency();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,6 +26,7 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
     const newErrors = {};
     if (!formData.selectedCrypto) newErrors.selectedCrypto = 'Cryptocurrency is required';
     if (!formData.selectedNetwork) newErrors.selectedNetwork = 'Network is required';
+    if (!formData.status) newErrors.status = 'Status is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -32,20 +34,16 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
   const handleSubmit = () => {
     if (validateForm()) {
       const newCrypto = {
-        currency: formData.selectedCrypto,
+        crypto_name: formData.selectedCrypto,
         network: formData.selectedNetwork,
-        status: formData.status,
-        date_activated: new Date().toLocaleString('en-US', {
-          year: 'numeric',
-          month: 'numeric',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true,
-        }).replace(',', ' |'),
+        status: formData.status === 'Active' ? '1' : '0',
       };
-      onSubmit(newCrypto);
-      onCancel();
+      console.log("Data being sent to create Crypto Currency:", newCrypto);
+      createCryptoCurrency(newCrypto);
+      if (success) {
+        onSubmit(newCrypto);
+        onCancel();
+      }
     }
   };
 
@@ -63,6 +61,8 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
             <CryptoFormActions
               onCancel={onCancel}
               onSubmit={handleSubmit}
+              loading={loading}
+              error={error}
             />
           </Box>
         </Box>

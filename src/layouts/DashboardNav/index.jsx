@@ -9,10 +9,13 @@ import { styles } from './styles';
 import { dashboardDrawerWidth } from '../../constants/dimensions';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 export default function DashboardNav({ handleDrawerToggle, currentRoute, mobileOpen }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+
+  const user = useSelector((state) => state.user);
 
   const handleToggleDropdown = () => {
     setDropdownOpen(prev => !prev);
@@ -21,6 +24,10 @@ export default function DashboardNav({ handleDrawerToggle, currentRoute, mobileO
   const handleToggleNotification = () => {
     setNotificationOpen(prev => !prev);
   };
+
+  const displayName = user?.user ? user.user.username : 'Gracetrans';
+  const userHandle = user?.user ? `@${user.user.username}` : '@gracetrans';
+  const isActive = user?.user?.status === 1; 
 
   return (
     <Box
@@ -58,23 +65,30 @@ export default function DashboardNav({ handleDrawerToggle, currentRoute, mobileO
             )}
           </Box>
 
-
           <Box sx={{ position: 'relative' }}>
             <Box sx={styles.userInfo} onClick={handleToggleDropdown}>
-              <Box sx={styles.userAvatar}></Box>
+              <Typography sx={styles.welcomeMessage}>Welcome back,</Typography>
+              <Box sx={{ position: 'relative' }}>
+                <Box sx={styles.userAvatar}>
+                  <Typography sx={{ ...styles.userAvatarText, color: 'white' }}>
+                    {user?.user?.username ? user.user.username.charAt(0).toUpperCase() : 'G'}
+                  </Typography>
+                </Box>
+                {isActive && <Box sx={styles.activeIndicator} />}
+              </Box>
               <Box sx={styles.userDetails}>
-                <Typography sx={styles.userName}>Gracetrans</Typography>
-                <Typography sx={styles.userHandle}>@gracetrans</Typography>
+                <Typography sx={styles.userName}>{displayName}</Typography>
+                <Typography sx={styles.userHandle}>{userHandle}</Typography>
               </Box>
               <KeyboardArrowDownIcon sx={styles.arrowIcon} />
             </Box>
 
             {dropdownOpen && (
               <Box sx={styles.dropdownMenu}>
-                <Link to="/dashboard/profile-page" style={{ textDecoration: 'none' }}>
+                <Link to="/dashboard/profile" style={{ textDecoration: 'none' }}>
                   <Typography sx={styles.dropdownItem}>Profile</Typography>
                 </Link>
-                <Link to="/dashboard/settings-page" style={{ textDecoration: 'none' }}>
+                <Link to="/dashboard/settings" style={{ textDecoration: 'none' }}>
                   <Typography sx={styles.dropdownItem}>Settings</Typography>
                 </Link>
                 <Typography sx={styles.dropdownItem}>Logout</Typography>

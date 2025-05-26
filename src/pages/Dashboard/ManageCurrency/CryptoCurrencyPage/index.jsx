@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMediaQuery } from '@mui/material';
-import CustomTable from '../../../../components/CustomTable/CustomTable';
-import CustomButton from '../../../../components/CustomButton/CustomButton';
+import CustomTable from '../../../../components/CustomTable';
+import CustomButton from '../../../../components/CustomButton';
 import AddCryptoPage from '../../AddCryptoPage';
+import EditCryptoModal from '../../ManageCurrency/EditCryptoModal';
+import { useFetchCurrencies } from '../../../../Hooks/useCryptoCurrency';
 
 const rowStyle = {
   fontFamily: 'Raleway, sans-serif',
@@ -12,45 +14,22 @@ const rowStyle = {
 };
 
 const columns = [
-  { id: 'currency', label: 'CURRENCY', minWidth: 150 },
+  { id: 'crypto_name', label: 'CRYPTO NAME', minWidth: 150 },
   { id: 'network', label: 'NETWORK', minWidth: 150 },
   { id: 'status', label: 'STATUS', minWidth: 120 },
-  { id: 'date_activated', label: 'DATE ACTIVATED', minWidth: 180 },
   { id: 'action', label: '', minWidth: 180 },
 ];
 
-// Raw data for filtering
-const initialCryptoData = [
-  {
-    currency: 'Bitcoin',
-    network: 'BEP20',
-    status: 'Active',
-    date_activated: '2024-05-09 | 09:23 am',
-  },
-  {
-    currency: 'Binance',
-    network: 'BEP20',
-    status: 'Active',
-    date_activated: '2024-05-09 | 09:23 am',
-  },
-  {
-    currency: 'USDT',
-    network: 'BEP20',
-    status: 'Active',
-    date_activated: '2024-05-09 | 09:23 am',
-  },
-];
+const initialCryptoData = [];
 
-// Convert raw data to JSX rows for display
-const formatRows = (data) =>
+const formatRows = (data, onEditClick) =>
   data.map((item) => ({
-    currency: <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>{item.currency}</span>,
+    crypto_name: <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>{item.crypto_name}</span>,
     network: <span style={{ ...rowStyle, fontWeight: 400, color: '#363853' }}>{item.network}</span>,
-    status: <CustomButton type={item.status === 'Active' ? 'green' : 'red'} />,
-    date_activated: <span style={{ ...rowStyle, fontWeight: 500, color: '#73757C' }}>{item.date_activated}</span>,
+    status: <CustomButton type={item.status === '1' ? 'green' : 'red'} />,
     action: (
       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-        <CustomButton type="edit" />
+        <CustomButton type="edit" onClick={() => onEditClick(item)} />
         <CustomButton type="disable" />
       </div>
     ),
@@ -58,20 +37,18 @@ const formatRows = (data) =>
 
 export default function CryptoCurrencyPage() {
   const [showAddCryptoForm, setShowAddCryptoForm] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedCrypto, setSelectedCrypto] = useState(null);
   const isMobile = useMediaQuery('(max-width: 600px)');
   const [cryptoData, setCryptoData] = useState(initialCryptoData);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    country: '',
-    email: '',
-    minBalance: '',
-    maxBalance: '',
-    network: '',
-    name: '',
-    userId: '',
-    status: '',
-  });
-  const [filteredData, setFilteredData] = useState(cryptoData);
+
+  const { cryptoCurrencies, loading, error } = useFetchCurrencies();
+
+  useEffect(() => {
+    if (cryptoCurrencies.length > 0) {
+      setCryptoData(cryptoCurrencies);
+    }
+  }, [cryptoCurrencies]);
 
   const handleAddCryptoClick = () => {
     setShowAddCryptoForm(true);
@@ -83,56 +60,33 @@ export default function CryptoCurrencyPage() {
 
   const handleAddCrypto = (newCrypto) => {
     setCryptoData((prev) => [...prev, newCrypto]);
-    setFilteredData((prev) => [...prev, newCrypto]);
   };
 
-  const handleSearchChange = (e) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    applyFiltersAndSearch(filters, term);
+  const handleEditClick = (crypto) => {
+    setSelectedCrypto(crypto);
+    setShowEditModal(true);
   };
 
-  const handleFilterApply = (newFilters) => {
-    setFilters(newFilters);
-    applyFiltersAndSearch(newFilters, searchTerm);
+  const handleEditSave = (updatedCrypto) => {
+    setCryptoData((prev) =>
+      prev.map((item) =>
+        item.crypto_name === selectedCrypto.crypto_name &&
+        item.network === selectedCrypto.network
+          ? { ...item, ...updatedCrypto }
+          : item
+      )
+    );
   };
 
-  const applyFiltersAndSearch = (filters, term) => {
-    let filtered = [...cryptoData];
-
-    // Apply filters
-    if (filters.name) {
-      filtered = filtered.filter((item) =>
-        item.currency.toLowerCase().includes(filters.name.toLowerCase())
-      );
-    }
-    if (filters.network) {
-      filtered = filtered.filter((item) =>
-        item.network.toLowerCase() === filters.network.toLowerCase()
-      );
-    }
-    if (filters.status) {
-      filtered = filtered.filter((item) =>
-        item.status.toLowerCase() === filters.status.toLowerCase()
-      );
-    }
-
-    // Apply search
-    if (term) {
-      filtered = filtered.filter(
-        (item) =>
-          item.currency.toLowerCase().includes(term) ||
-          item.network.toLowerCase().includes(term) ||
-          item.status.toLowerCase().includes(term) ||
-          item.date_activated.toLowerCase().includes(term)
-      );
-    }
-
-    setFilteredData(filtered);
+  const handleEditClose = () => {
+    setShowEditModal(false);
+    setSelectedCrypto(null);
   };
 
-  // Format the filtered data into rows for the table
-  const rows = formatRows(filteredData);
+  const rows = formatRows(cryptoData, handleEditClick);
+
+  if (loading) return <div>Loading Crypto Currencies....</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div
@@ -154,32 +108,31 @@ export default function CryptoCurrencyPage() {
         {showAddCryptoForm ? (
           <AddCryptoPage onCancel={handleBackToList} onSubmit={handleAddCrypto} />
         ) : (
-          <CustomTable
-            columns={columns}
-            rows={rows}
-            showAddButton
-            showFilterButton
-            showSearchBar
-            addButtonTitle="Add Crypto"
-            titleStyle={{
-              fontFamily: 'Inter',
-              fontWeight: 700,
-              fontSize: '24px',
-              lineHeight: '100%',
-              letterSpacing: '0px',
-              color: '#333333',
-              marginLeft: '24px',
-              marginBottom: '7px',
-            }}
-            searchTerm={searchTerm}
-            handleSearchChange={handleSearchChange}
-            searchPlaceholder="Search by currency, network, etc."
-            onAddButtonClick={handleAddCryptoClick}
-            onFilterApply={handleFilterApply}
-            countryOptions={[]}
-            networkOptions={['BEP20', 'ERC20', 'TRC20', 'Polygon', 'Solana']}
-            statusOptions={['Active', 'Disabled']}
-          />
+          <>
+            <CustomTable
+              columns={columns}
+              rows={rows}
+              showAddButton
+              addButtonTitle="Add Crypto"
+              titleStyle={{
+                fontFamily: 'Inter',
+                fontWeight: 700,
+                fontSize: '24px',
+                lineHeight: '100%',
+                letterSpacing: '0px',
+                color: '#333333',
+                marginLeft: '24px',
+                marginBottom: '7px',
+              }}
+              onAddButtonClick={handleAddCryptoClick}
+            />
+            <EditCryptoModal
+              open={showEditModal}
+              onClose={handleEditClose}
+              crypto={selectedCrypto}
+              onSave={handleEditSave}
+            />
+          </>
         )}
       </div>
     </div>
