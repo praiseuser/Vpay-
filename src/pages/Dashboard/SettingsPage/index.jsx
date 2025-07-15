@@ -2,59 +2,51 @@ import React, { useState, useEffect } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useFetchSettings } from '../../../Hooks/useSetting';
+import axios from 'axios';
+
 import { useUpdateSettings } from '../../../Hooks/useSetting';
 import LogoSection from '../SettingsPage/LogoSection';
 import SettingsForm from '../SettingsPage/SettingsForm';
 import ActionButtons from '../SettingsPage/ActionButtons';
-import { pageStyles, titleStyles, cardStyles, headerBarStyles, sectionTitleStyles } from './SettingsPageStyles';
+import {
+  pageStyles,
+  titleStyles,
+  cardStyles,
+  headerBarStyles,
+  sectionTitleStyles
+} from './SettingsPageStyles';
 
 const SettingsPage = () => {
-  const { settings: fetchedSettings, loading, error: fetchError, refetch } = useFetchSettings();
   const { updateSettings, isSaving, error: updateError } = useUpdateSettings();
+
   const [settings, setSettings] = useState({
-    name: '',
+    name: 'My Website',
     logo: null,
-    email: '',
-    phone: '',
+    email: 'info@mywebsite.com',
+    phone: '1234567890',
     facebook: '',
     linkedin: '',
     instagram: '',
     youtube: '',
   });
-  const [isEditing, setIsEditing] = useState(false);
+
+  const [isEditing, setIsEditing] = useState(true); // Assume editing mode by default
 
   const userState = useSelector((state) => state.user);
   const token = userState.token;
-
-  useEffect(() => {
-    console.log("Fetched settings:", fetchedSettings);
-    if (fetchedSettings && Object.keys(fetchedSettings).length > 0) {
-      setSettings(prevSettings => ({
-        ...prevSettings,
-        ...fetchedSettings,
-        logo: fetchedSettings.logo ? { url: fetchedSettings.logo } : null,
-      }));
-      setIsEditing(true);
-      console.log("Mode: Edit mode");
-    } else {
-      setIsEditing(false);
-      console.log("Mode: Create mode");
-    }
-  }, [fetchedSettings]);
 
   const handleChange = (field) => (event) => {
     if (field === 'logo') {
       const file = event.target.files[0];
       if (file) {
         const imageUrl = URL.createObjectURL(file);
-        setSettings(prevSettings => ({
+        setSettings((prevSettings) => ({
           ...prevSettings,
           [field]: { file, url: imageUrl },
         }));
       }
     } else {
-      setSettings(prevSettings => ({
+      setSettings((prevSettings) => ({
         ...prevSettings,
         [field]: event.target.value || '',
       }));
@@ -69,9 +61,7 @@ const SettingsPage = () => {
 
     const success = await updateSettings(settings);
     if (success) {
-      console.log("Update successful, settings:", settings);
       toast.success("Settings updated successfully");
-      refetch();
     }
   };
 
@@ -102,22 +92,15 @@ const SettingsPage = () => {
         },
       });
 
-      console.log("Settings create response:", response.data);
       toast.success("Settings created successfully");
       setIsEditing(true);
-      refetch();
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || "Failed to create settings";
-      console.error("Error creating settings:", err.response ? { status: err.response.status, data: err.response.data } : err.message);
       toast.error(`Error: ${errorMessage}`);
     }
   };
 
-  if (loading) return <div>Loading settings...</div>;
-  if (fetchError) return <div>Error: {fetchError}</div>;
   if (updateError) return <div>Error: {updateError}</div>;
-
-  console.log("Rendering buttons, isEditing:", isEditing, "isSaving:", isSaving);
 
   return (
     <Box sx={pageStyles}>

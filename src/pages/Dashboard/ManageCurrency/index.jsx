@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useMediaQuery } from '@mui/material';
-import CustomTabs from "../../../components/CustomTabs/CustomTabs";
 import CryptoCurrencyPage from './CryptoCurrencyPage';
 import FiatCurrencyPage from './FiatCurrencyPage';
 
 export default function ManageCurrency() {
   const isMobile = useMediaQuery('(max-width: 600px)');
-  const [activeTab, setActiveTab] = useState(0); 
+  const [activeTab, setActiveTab] = useState(0);
 
   return (
     <div
@@ -18,23 +17,26 @@ export default function ManageCurrency() {
         overflow: 'hidden',
       }}
     >
-      <div style={{ flexShrink: 0 }}>
-        <CustomTabs
-          tabLabels={["Crypto Currency", "FIAT Currency"]} 
-          value={activeTab}
-          onChange={(event, newValue) => setActiveTab(newValue)}
-        />
-      </div>
-
       <div
         style={{
           flexGrow: 1,
           overflowY: 'auto',
-          marginTop: '32px',
         }}
       >
-        {activeTab === 0 && <CryptoCurrencyPage />}
-        {activeTab === 1 && <FiatCurrencyPage />} 
+        {activeTab === 0 && (
+          <CryptoCurrencyPage
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            isMobile={isMobile}
+          />
+        )}
+        {activeTab === 1 && (
+          <FiatCurrencyPage
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            isMobile={isMobile}
+          />
+        )}
       </div>
     </div>
   );

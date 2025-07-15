@@ -2,6 +2,8 @@ import React from 'react';
 import { Button, Chip, CircularProgress } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import LockIcon from '@mui/icons-material/Lock'; // Added for permission type
 
 const CustomButton = ({
   type = 'edit',
@@ -13,12 +15,14 @@ const CustomButton = ({
   loading = false,
 }) => {
   const buttonStyles = {
-    width: type === 'add' ? '119px' : '83px',
-    height: type === 'add' ? '40px' : '32px',
+    width: type === 'add' ? '119px' : type === 'permission' ? '100px' : '83px', 
+    height: type === 'add' ? '40px' : type === 'permission' ? '32px' : '32px',
     borderRadius: type === 'green' || type === 'red' ? '20px' : '10px',
     backgroundColor:
       type === 'green' ? '#B4FBBD' :
       type === 'red' ? '#FFB4B4' :
+      type === 'view' ? '#FF0000' :
+      type === 'permission' ? '#208BC9' :
       color,
     border:
       type === 'green' ? '1px solid #009512' :
@@ -27,7 +31,7 @@ const CustomButton = ({
     fontFamily: type === 'green' || type === 'red' ? '"Raleway", sans-serif' : '"Inter", sans-serif',
     fontWeight: type === 'green' || type === 'red' ? 500 : type === 'add' ? 800 : 700,
     fontSize: 
-      type === 'delete' ? '9px' : // Reduced font size for delete
+      type === 'delete' ? '9px' :
       type === 'green' || type === 'red' ? '12px' : 
       type === 'add' ? '22px' : '10px',
     lineHeight: type === 'green' || type === 'red' ? '16px' : type === 'add' ? '54px' : '100%',
@@ -37,6 +41,7 @@ const CustomButton = ({
     color:
       type === 'green' ? '#009512' :
       type === 'red' ? '#950000' :
+      type === 'permission' ? '#333333' :
       '#fff',
     display: 'flex',
     justifyContent: 'center',
@@ -46,10 +51,15 @@ const CustomButton = ({
       backgroundColor:
         type === 'green' ? '#B4FBBD' :
         type === 'red' ? '#FFB4B4' :
+        type === 'view' ? '#FF0000' :
         color,
     },
     '&:disabled': {
-      backgroundColor: type === 'delete' ? '#FFB4B4' : color,
+      backgroundColor: 
+        type === 'delete' ? '#FFB4B4' :
+        type === 'view' ? '#FF0000' :
+        type === 'permission' ? '#FFD700' : 
+        color,
       color: '#fff',
       opacity: 0.6,
     },
@@ -90,7 +100,19 @@ const CustomButton = ({
       return loading ? (
         <CircularProgress size={16} sx={{ color: iconColor }} />
       ) : (
-        <DeleteIcon sx={{ color: iconColor, fontSize: '16px' }} /> // Reduced icon size
+        <DeleteIcon sx={{ color: iconColor, fontSize: '16px' }} />
+      );
+    } else if (type === 'view' && icon) {
+      return loading ? (
+        <CircularProgress size={16} sx={{ color: iconColor }} />
+      ) : (
+        <VisibilityIcon sx={{ color: iconColor, fontSize: '16px' }} />
+      );
+    } else if (type === 'permission' && icon) {
+      return loading ? (
+        <CircularProgress size={16} sx={{ color: iconColor }} />
+      ) : (
+        <LockIcon sx={{ color: iconColor, fontSize: '16px' }} />
       );
     }
     return null;
@@ -110,6 +132,10 @@ const CustomButton = ({
         return text;
       case 'delete':
         return 'Delete';
+      case 'view':
+        return 'View';
+      case 'permission':
+        return 'Permission';
       default:
         return text;
     }

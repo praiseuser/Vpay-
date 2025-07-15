@@ -6,6 +6,7 @@ import AnalyticsCard from "../DashboardHome/AnalyticsCard";
 import PerformanceCard from "../DashboardHome/PerformanceCard";
 import WithdrawCard from "../DashboardHome/WithdrawCard";
 import DepositCard from "../DashboardHome/DepositCard";
+import Cards from "../DashboardHome/Cards";
 
 const theme = createTheme({
   typography: {
@@ -44,8 +45,11 @@ const DashboardHome = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ flexGrow: 1, paddingTop: 0, marginTop: 0 }}>
+      <Box sx={{ flexGrow: 1, padding: '1.5px', marginTop: 0 }}>
         <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Cards cardShadow={cardShadow} />
+          </Grid>
           <Grid item xs={12} md={8}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={4}>

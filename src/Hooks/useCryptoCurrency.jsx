@@ -30,10 +30,6 @@ const useFetchCurrencies = () => {
         const data = response.data.result || response.data || [];
         setCryptoCurrencies(Array.isArray(data) ? data : []);
 
-        if (!hasFetched.current) {
-          toast.success("Crypto currencies found");
-          hasFetched.current = true;
-        }
       } catch (err) {
         const errorMessage = err.response?.data?.message || err.message || "Failed to fetch crypto currencies";
         console.error("Error fetching crypto:", errorMessage);

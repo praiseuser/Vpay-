@@ -1,22 +1,54 @@
-import React from "react";
-import { Card, Typography, Button, Divider, Box } from "@mui/material";
-import { styles } from "./BalanceCardStyles";
+import React from 'react';
+import { Card, Typography, Box } from '@mui/material';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { styles } from './BalanceCardStyles';
+
+const withdrawalData = [
+  { name: 'Savings', value: 5000 },
+  { name: 'Investments', value: 3000 },
+  { name: 'Checking', value: 2000 },
+];
+const colors = ['#26A69A', '#4DD0E1', '#80DEEA'];
+const total = withdrawalData.reduce((sum, item) => sum + item.value, 0);
+const percentage = Math.round((withdrawalData[0].value / total) * 100);
 
 const BalanceCard = ({ cardShadow }) => {
   return (
     <Card sx={{ ...styles.card, boxShadow: cardShadow }}>
-      <Box sx={styles.greetingContainer}>
-        <Typography sx={styles.greeting}>Good morning</Typography>
-        <img src="/logo.png" alt="Logo" style={styles.logo} />
+      <Typography sx={styles.withdrawerText}>Withdrawer</Typography>
+      <Box sx={styles.chartContainer}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={withdrawalData}
+              dataKey="value"
+              cx="50%"
+              cy="50%"
+              outerRadius={60}
+              innerRadius={40}
+              fill="#8884d8"
+              stroke="#FFFFFF"
+              strokeWidth={1}
+            >
+              {withdrawalData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+              ))}
+            </Pie>
+            <text
+              x="50%"
+              y="50%"
+              dy={4}
+              textAnchor="middle"
+              fill="#0C0B18"
+              fontFamily="Mada, sans-serif"
+              fontSize="12px"
+              fontWeight="600"
+            >
+              {percentage}%
+            </text>
+          </PieChart>
+        </ResponsiveContainer>
       </Box>
-      <Typography sx={styles.name}>Gracetrans</Typography>
-      <Divider sx={styles.divider} />
-      <Typography sx={styles.balanceLabel}>Balance</Typography>
-      <Typography sx={styles.balanceAmount}>$23,365.00</Typography>
-      <Button variant="contained" fullWidth sx={styles.button}>
-        <img src="/Vector.png" alt="Vector icon" width={21.57} height={17.5} />
-        <Typography sx={styles.buttonText}>Transfer</Typography>
-      </Button>
     </Card>
   );
 };

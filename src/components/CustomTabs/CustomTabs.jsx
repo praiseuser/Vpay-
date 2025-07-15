@@ -1,93 +1,71 @@
-import React from "react";
-import { Box, Tab, Tabs, Typography } from "@mui/material";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Box, Button, Typography } from '@mui/material';
 
 const CustomTabs = ({ tabLabels, value, onChange }) => {
   return (
     <Box
       sx={{
-        width: "100%",
-        maxWidth: "1075px",
-        borderRadius: "22px",
-        border: "1px solid #D9D9D9",
-        backgroundColor: "white",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: { xs: "12px", sm: "16px" },
-        margin: "0 auto",
+        display: 'flex',
+        alignItems: 'center',
+        padding: { xs: '8px 0', sm: '12px 0' },
+        width: '100%',
+        justifyContent: 'flex-start',
       }}
     >
       <Box
         sx={{
-          width: "100%",
-          height: "42px",
-          borderRadius: "14px",
-          backgroundColor: "#EBF1F4",
-          display: "flex",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          padding: "15px",
+          display: 'flex',
+          alignItems: 'center',
+          gap: { xs: 1, sm: 2 },
+          border: '1px solid #EAEAEA',
+          borderRadius: '10px',
+          padding: { xs: '4px 8px', sm: '6px 12px' },
+          justifyContent: 'center',
         }}
       >
-        <Tabs
-          value={value}
-          onChange={onChange}
-          textColor="primary"
-          indicatorColor="primary"
-          TabIndicatorProps={{ style: { display: "none" } }}
-          sx={{
-            width: "fit-content",
-            display: "flex",
-            alignItems: "center",
-            borderRadius: "8px",
-            padding: 0,
-            minHeight: "0",
-            gap: "12px",
-            "& .MuiTab-root": {
-              minWidth: "auto",
-              minHeight: "0",
-              padding: "6px 14px",
-              backgroundColor: "transparent",
-              transition: "all 0.3s ease",
-              borderRadius: "8px",
-            },
-            "& .Mui-selected": {
-              backgroundColor: "white",
-              padding: "6px 14px",
-              margin: "8px 0",
-              borderRadius: "8px",
-              border: 1,
-              borderColor: "#EAEAEA",
-            },
-          }}
-        >
-          {tabLabels.map((label, index) => (
-            <Tab
-              key={index}
-              label={
-                <Typography
-                  sx={{
-                    fontFamily: "Raleway, sans-serif",
-                    fontWeight: 700,
-                    fontSize: { xs: "12px", sm: "13px" },
-                    lineHeight: "20px",
-                    textAlign: "center",
-                    color: value === index ? "#000000" : "#73757C",
-                  }}
-                >
-                  {label}
-                </Typography>
-              }
+        {tabLabels.map((label, index) => (
+          <Button
+            key={index}
+            variant={value === index ? 'contained' : 'outlined'}
+            color={value === index ? 'primary' : 'inherit'}
+            onClick={() => onChange(null, index)}
+            sx={{
+              padding: { xs: '4px 8px', sm: '6px 12px' },
+              borderRadius: '4px',
+              textTransform: 'uppercase',
+              borderColor: value === index ? 'transparent' : '#EAEAEA',
+              backgroundColor: value === index ? 'primary.main' : 'transparent',
+              minWidth: { xs: '80px', sm: '100px' },
+            }}
+          >
+            <Typography
               sx={{
-                textTransform: "none",
-                justifyContent: "center",
+                fontFamily: 'Raleway, sans-serif',
+                fontWeight: 700,
+                fontSize: { xs: '12px', sm: '13px' },
+                lineHeight: '20px',
+                color: value === index ? '#FFFFFF' : '#333333',
+                letterSpacing: '0.5px',
               }}
-            />
-          ))}
-        </Tabs>
+            >
+              {label}
+            </Typography>
+          </Button>
+        ))}
       </Box>
     </Box>
   );
+};
+
+CustomTabs.propTypes = {
+  tabLabels: PropTypes.arrayOf(PropTypes.string).isRequired,
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
+CustomTabs.defaultProps = {
+  tabLabels: [],
 };
 
 export default CustomTabs;

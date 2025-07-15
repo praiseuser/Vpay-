@@ -1,132 +1,104 @@
 import React, { useState } from 'react';
-import CustomTable from '../../../../components/CustomTable';
-import { Check, Delete, ExpandMore } from '@mui/icons-material';
-
-const columns = [
-  { id: 'name', label: 'NAME', minWidth: 150 },
-  { id: 'userId', label: 'USER ID', minWidth: 150 },
-  { id: 'role', label: 'ROLE', minWidth: 150 },
-  { id: 'dateAdded', label: 'DATE ADDED', minWidth: 180 },
-  { id: 'action', label: '', minWidth: 100 },
-];
-
-const rowStyle = {
-  fontFamily: 'Raleway, sans-serif',
-  fontSize: '15px',
-  lineHeight: '20px',
-  letterSpacing: '0.3%',
-};
-
-const rawData = [
-  {
-    id: '1',
-    name: 'Praise Nwachukwu',
-    userId: 'ADMEDITS',
-    role: 'Super Admin',
-    dateAdded: '2024-05-09 | 09:23 am',
-  },
-];
-
-const formatRows = (data) =>
-  data.map((item) => ({
-    name: <span style={{ ...rowStyle, fontWeight: 700, color: '#333' }}>{item.name}</span>,
-    userId: <span style={{ ...rowStyle, fontWeight: 500, color: '#73757C' }}>{item.userId}</span>,
-    role: <span style={{ ...rowStyle, fontWeight: 500, color: '#73757C' }}>{item.role}</span>,
-    dateAdded: <span style={{ ...rowStyle, fontWeight: 500, color: '#73757C' }}>{item.dateAdded}</span>,
-    action: (
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-        <Check sx={{ color: '#00B894', cursor: 'pointer' }} />
-        <Delete sx={{ color: '#E74C3C', cursor: 'pointer' }} />
-        <ExpandMore sx={{ color: '#636E72', cursor: 'pointer' }} />
-      </div>
-    ),
-  }));
+import { Typography } from '@mui/material';
+import { styles } from './ViewRolesPermissions/styles';
+import { useFetchAdmin, useAddAdmin } from '../../../../Hooks/useRolesPermission';
+import ViewRolesPermissions from '../AllAdminPage/ViewRolesPermissions';
+import PermissionForm from '../AllAdminPage/PermissionForm';
+import AddAdminForm from '../AllAdminPage/AddAdminForm';
+import AdminTable from '../AllAdminPage/AdminTable';
 
 export default function AllAdminPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    country: '',
-    email: '',
-    minBalance: '',
-    maxBalance: '',
-    network: '',
-    name: '',
-    userId: '',
-    status: '',
-  });
-  const [filteredData, setFilteredData] = useState(rawData);
+  const [showPermissions, setShowPermissions] = useState(false);
+  const [showAddPermissionForm, setShowAddPermissionForm] = useState(false);
+  const [selectedAdminId, setSelectedAdminId] = useState(null);
+  const [selectedAdminLastName, setSelectedAdminLastName] = useState('');
 
-  const handleSearchChange = (e) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    applyFiltersAndSearch(filters, term);
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const { admins, loading } = useFetchAdmin();
+  const { adminTypes, countries } = useAddAdmin();
+
+  const handleShowPermissions = (id) => {
+    const admin = admins.find((a) => a.admin_id === id || a.id === id);
+    console.log('Admin selected for permissions:', admin);
+
+    if (admin) {
+      const lastName = admin.lastname || 'Unknown Last Name';
+      setSelectedAdminId(admin.admin_id);
+      setSelectedAdminLastName(lastName);
+      setShowPermissions(true);
+    } else { 
+      console.warn('Admin not found for id:', id);
+    }
   };
 
-  const handleFilterApply = (newFilters) => {
-    setFilters(newFilters);
-    applyFiltersAndSearch(newFilters, searchTerm);
-  };
-
-  const applyFiltersAndSearch = (filters, term) => {
-    let filtered = [...rawData];
-
-    if (filters.name) {
-      filtered = filtered.filter((item) =>
-        item.name.toLowerCase().includes(filters.name.toLowerCase())
-      );
-    }
-    if (filters.userId) {
-      filtered = filtered.filter((item) =>
-        item.userId.toLowerCase().includes(filters.userId.toLowerCase())
-      );
-    }
-    if (filters.status) { 
-      filtered = filtered.filter((item) =>
-        item.role.toLowerCase() === filters.status.toLowerCase()
-      );
-    }
-
-    if (term) {
-      filtered = filtered.filter(
-        (item) =>
-          item.name.toLowerCase().includes(term) ||
-          item.userId.toLowerCase().includes(term) ||
-          item.role.toLowerCase().includes(term) ||
-          item.dateAdded.toLowerCase().includes(term)
-      );
-    }
-
-    setFilteredData(filtered);
-  };
-
-  const rows = formatRows(filteredData);
 
   return (
-    <CustomTable
-      columns={columns}
-      rows={rows}
-      showAddButton={true}
-      addButtonTitle="Add admin"
-      addButtonStyle={{}}
-      showFilterButton={true}
-      title="Users"
-      titleStyle={{
-        fontFamily: 'Inter',
-        fontWeight: 700,
-        fontSize: '24px',
-        lineHeight: '100%',
-        letterSpacing: '0px',
-        color: '#208BC9',
-        marginLeft: '24px',
-        marginBottom: '7px',
-      }}
-      searchTerm={searchTerm}
-      handleSearchChange={handleSearchChange}
-      searchPlaceholder="search"
-      onFilterApply={handleFilterApply}
-      countryOptions={[]} 
-      networkOptions={[]} 
-      statusOptions={['Super Admin', 'Admin', 'Editor']} 
-    />
+    <div style={{ ...styles.container, overflow: 'none', position: 'relative', zIndex: 1 }}>
+      {showPermissions ? (
+        <ViewRolesPermissions
+          adminId={selectedAdminId}
+          lastName={selectedAdminLastName}
+          onBack={() => setShowPermissions(false)}
+        />
+      ) : showAddPermissionForm ? (
+        <PermissionFormSection
+          selectedAdminId={selectedAdminId}
+          adminTypes={adminTypes}
+          onCancel={() => setShowAddPermissionForm(false)}
+        />
+      ) : showAddForm ? (
+        <AddAdminFormSection
+          adminTypes={adminTypes}
+          countries={countries}
+        />
+      ) : (
+        <AdminTable
+          admins={admins}
+          loading={loading}
+          onAddAdmin={() => setShowAddForm(true)}
+          onShowPermissions={handleShowPermissions}
+          onAddPermission={(id) => {
+            const admin = admins.find((a) => a.admin_id === id || a.id === id);
+            console.log('Selected Admin for Add Permission:', admin, 'ID:', id);
+            setSelectedAdminId(admin ? admin.admin_id : null);
+            setShowAddPermissionForm(true);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function PermissionFormSection({ selectedAdminId, adminTypes, onCancel }) {
+  return (
+    <div style={{ overflow: 'none', position: 'relative', zIndex: 1301, }}>
+      <Header title="Add Permission" onCancel={onCancel} />
+      <PermissionForm
+        selectedAdminId={selectedAdminId}
+        adminTypes={adminTypes}
+        loadingTypes={false}
+        onCancel={onCancel}
+      />
+    </div>
+  );
+}
+
+function AddAdminFormSection({ adminTypes, countries }) {
+  return (
+    <div style={{ overflow: 'none', position: 'relative', zIndex: 1301, }}>
+      <Header title="Add Admin"/>
+      <AddAdminForm adminTypes={adminTypes} countries={countries}/>
+    </div>
+  );
+}
+
+function Header({ title, }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+      <Typography variant="h5" style={{ marginLeft: '16px', fontWeight: 600 }}>
+        {title}
+      </Typography>
+    </div>
   );
 }

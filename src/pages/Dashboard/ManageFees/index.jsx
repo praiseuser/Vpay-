@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useMediaQuery } from '@mui/material';
 import PropTypes from 'prop-types';
-import FeeTabs from './FeeTabs';
-import FeeTable from './FeeTable';
-import AddFeeForm from './AddFeeForm';
-import EditFeeModal from './EditFeeModal';
+import FeeTable from '../ManageFees/FeeTable';
+import AddFeeForm from '../ManageFees/AddFeeForm';
+import EditFeeModal from '../ManageFees/EditFeeModal';
+import Box from '@mui/material/Box';
 import { useFetchFees, useDeleteTransactionFee } from '../../../Hooks/useFeeCurrency';
 
 
 export default function ManageFees() {
-  const [tabValue, setTabValue] = useState(0);
   const [showAddFeeForm, setShowAddFeeForm] = useState(false);
   const [editFee, setEditFee] = useState(null);
   const [formData, setFormData] = useState({
@@ -102,15 +101,11 @@ export default function ManageFees() {
       });
       fetchFees();
     } else {
-      console.log('Delete failed in ManageFees, error already logged in useDeleteTransactionFee');
     }
-    console.log('handleDeleteFee completed for feeId:', feeId);
   };
 
-  console.log('ManageFees rendering - fees:', fees, 'showAddFeeForm:', showAddFeeForm, 'editFee:', editFee);
-
   return (
-    <div
+    <Box
       className={`p-${isMobile ? '2' : '6'} w-full`}
       style={{
         display: 'flex',
@@ -119,8 +114,7 @@ export default function ManageFees() {
         overflow: 'hidden',
       }}
     >
-      <FeeTabs value={tabValue} onChange={handleTabChange} />
-      <div style={{ flexGrow: 1, overflowY: 'auto', marginTop: '32px' }}>
+      <Box style={{ flexGrow: 1, overflowY: 'auto', marginTop: '32px' }}>
         {showAddFeeForm ? (
           <AddFeeForm
             formData={formData}
@@ -147,8 +141,8 @@ export default function ManageFees() {
           onClose={handleCancel}
           onUpdate={handleUpdateFee}
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 

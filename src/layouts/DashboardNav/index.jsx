@@ -1,102 +1,57 @@
-import { Box, IconButton, Typography, InputBase } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Search as SearchIcon,
-  NotificationsNone as NotificationsNoneIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon,
-} from '@mui/icons-material';
-import { styles } from './styles';
+import { Box } from '@mui/material';
 import { dashboardDrawerWidth } from '../../constants/dimensions';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { styles } from './styles';
+import NavRight from '../DashboardNav/NavRight';
+import NavLeft from '../DashboardNav/NavLeft';
 
-export default function DashboardNav({ handleDrawerToggle, currentRoute, mobileOpen }) {
+export default function DashboardNav({ handleDrawerToggle, currentRoute, titleStyle, collapsed }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [messageOpen, setMessageOpen] = useState(false);
 
   const user = useSelector((state) => state.user);
+  const displayName = user?.user ? user.user.username : 'Guest';
+  const userHandle = user?.user ? `@${user.user.username}` : '@guest';
+  const isActive = user?.user?.status === 1;
 
-  const handleToggleDropdown = () => {
-    setDropdownOpen(prev => !prev);
-  };
-
+  const handleToggleDropdown = () => setDropdownOpen((prev) => !prev);
   const handleToggleNotification = () => {
-    setNotificationOpen(prev => !prev);
+    setNotificationOpen((prev) => !prev);
+    setMessageOpen(false);
   };
-
-  const displayName = user?.user ? user.user.username : 'Gracetrans';
-  const userHandle = user?.user ? `@${user.user.username}` : '@gracetrans';
-  const isActive = user?.user?.status === 1; 
+  const handleToggleMessages = () => {
+    setMessageOpen((prev) => !prev);
+    setNotificationOpen(false);
+  };
 
   return (
     <Box
-      position="fixed"
       sx={{
         ...styles.nav,
-        ml: { xs: mobileOpen ? `${dashboardDrawerWidth}px` : '0px', md: `${dashboardDrawerWidth}px` },
-        transition: 'margin-left 0.3s',
+        left: { xs: 0, md: collapsed ? '80px' : `${dashboardDrawerWidth}px` },
+        width: { xs: '100%', md: collapsed ? `calc(100% - 80px)` : `calc(100% - ${dashboardDrawerWidth}px)` },
       }}
     >
-      <Box sx={styles.navLeft}>
-        <IconButton sx={{ display: { xs: 'block', md: 'none' } }} onClick={handleDrawerToggle}>
-          <MenuIcon />
-        </IconButton>
-        <Typography sx={styles.navTitle}>{currentRoute}</Typography>
-      </Box>
+      <NavLeft
+        handleDrawerToggle={handleDrawerToggle}
+        currentRoute={currentRoute}
+        titleStyle={titleStyle}
+        userHandle={userHandle}
+      />
 
-      <Box sx={styles.contanier}>
-        <Box sx={styles.navRight}>
-          <Box sx={styles.searchBox}>
-            <SearchIcon sx={styles.searchIcon} />
-            <InputBase placeholder="Search" fullWidth sx={styles.searchInput} />
-          </Box>
-
-          <Box sx={{ position: 'relative' }}>
-            <Box sx={styles.notificationIcon} onClick={handleToggleNotification}>
-              <NotificationsNoneIcon sx={styles.iconSize} />
-            </Box>
-
-            {notificationOpen && (
-              <Box sx={styles.notificationDropdown}>
-                <Typography sx={styles.dropdownItem}>New user registered</Typography>
-                <Typography sx={styles.dropdownItem}>New message from admin</Typography>
-              </Box>
-            )}
-          </Box>
-
-          <Box sx={{ position: 'relative' }}>
-            <Box sx={styles.userInfo} onClick={handleToggleDropdown}>
-              <Typography sx={styles.welcomeMessage}>Welcome back,</Typography>
-              <Box sx={{ position: 'relative' }}>
-                <Box sx={styles.userAvatar}>
-                  <Typography sx={{ ...styles.userAvatarText, color: 'white' }}>
-                    {user?.user?.username ? user.user.username.charAt(0).toUpperCase() : 'G'}
-                  </Typography>
-                </Box>
-                {isActive && <Box sx={styles.activeIndicator} />}
-              </Box>
-              <Box sx={styles.userDetails}>
-                <Typography sx={styles.userName}>{displayName}</Typography>
-                <Typography sx={styles.userHandle}>{userHandle}</Typography>
-              </Box>
-              <KeyboardArrowDownIcon sx={styles.arrowIcon} />
-            </Box>
-
-            {dropdownOpen && (
-              <Box sx={styles.dropdownMenu}>
-                <Link to="/dashboard/profile" style={{ textDecoration: 'none' }}>
-                  <Typography sx={styles.dropdownItem}>Profile</Typography>
-                </Link>
-                <Link to="/dashboard/settings" style={{ textDecoration: 'none' }}>
-                  <Typography sx={styles.dropdownItem}>Settings</Typography>
-                </Link>
-                <Typography sx={styles.dropdownItem}>Logout</Typography>
-              </Box>
-            )}
-          </Box>
-        </Box>
-      </Box>
+      <NavRight
+        displayName={displayName}
+        isActive={isActive}
+        userHandle={userHandle}
+        dropdownOpen={dropdownOpen}
+        notificationOpen={notificationOpen}
+        messageOpen={messageOpen}
+        handleToggleDropdown={handleToggleDropdown}
+        handleToggleNotification={handleToggleNotification}
+        handleToggleMessages={handleToggleMessages}
+      />
     </Box>
   );
 }

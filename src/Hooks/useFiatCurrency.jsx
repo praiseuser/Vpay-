@@ -35,10 +35,6 @@ const useFetchFiatCurrencies = () => {
 
                 setFiatCurrencies(formattedCurrencies);
 
-                if (!hasFetched.current) {
-                    toast.success("Fiat currencies found");
-                    hasFetched.current = true;
-                }
             } catch (err) {
                 const errorMessage = err.response?.data?.message || err.message || "Failed to fetch fiat currencies";
                 console.error("Error fetching fiat:", errorMessage);

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Box, Typography, TextField, MenuItem, Button, CircularProgress } from '@mui/material';
+import { Modal, Box, Typography } from '@mui/material';
 import { useEditFiatStatus } from '../../../../Hooks/useCryptoCurrency';
+import CryptoFormInputs from '../../ManageCurrency/EditCryptoModal/CryptoFormInputs';
+import ModalActions from '../../ManageCurrency/EditCryptoModal/ModalActions';
+import PropTypes from 'prop-types';
 
 const modalStyle = {
   position: 'absolute',
@@ -17,6 +20,7 @@ const modalStyle = {
   flexDirection: 'column',
   gap: 3,
 };
+
 
 const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
   const [formData, setFormData] = useState({
@@ -92,88 +96,34 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
           Edit Cryptocurrency
         </Typography>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            name="crypto_name"
-            label="Cryptocurrency"
-            value={formData.crypto_name}
-            onChange={handleChange}
-            variant="outlined"
-            fullWidth
-            error={!!errors.crypto_name}
-            helperText={errors.crypto_name}
-          />
-          <TextField
-            select
-            name="network"
-            label="Select Network"
-            value={formData.network}
-            onChange={handleChange}
-            variant="outlined"
-            fullWidth
-            error={!!errors.network}
-            helperText={errors.network}
-          >
-            <MenuItem value="">Choose...</MenuItem>
-            {networkOptions.map((network) => (
-              <MenuItem key={network} value={network}>
-                {network}
-              </MenuItem>
-            ))}
-          </TextField>
+        <CryptoFormInputs
+          formData={formData}
+          errors={errors}
+          handleChange={handleChange}
+          networkOptions={networkOptions}
+          statusOptions={statusOptions}
+        />
 
-          <TextField
-            select
-            name="status"
-            label="Status"
-            value={formData.status}
-            onChange={handleChange}
-            variant="outlined"
-            fullWidth
-            error={!!errors.status}
-            helperText={errors.status}
-          >
-            {statusOptions.map((status) => (
-              <MenuItem key={status} value={status}>
-                {status}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Box>
-
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-          <Button
-            onClick={onClose}
-            sx={{ fontFamily: 'Inter', fontWeight: 700, fontSize: '14px', textTransform: 'capitalize' }}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            disabled={loading}
-            sx={{
-              width: '140px',
-              height: '48px',
-              fontFamily: 'Inter',
-              fontWeight: 700,
-              fontSize: '14px',
-              textTransform: 'capitalize',
-              borderRadius: '12px',
-              backgroundColor: '#208BC9',
-              boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
-              '&:hover': {
-                backgroundColor: '#1B7BB5',
-              },
-            }}
-          >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Save'}
-          </Button>
-        </Box>
+        <ModalActions
+          onCancel={onClose}
+          onSave={handleSubmit}
+          loading={loading}
+        />
       </Box>
     </Modal>
   );
+};
+
+EditCryptoModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  crypto: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    crypto_name: PropTypes.string,
+    network: PropTypes.string,
+    status: PropTypes.string,
+  }),
+  onSave: PropTypes.func.isRequired,
 };
 
 export default EditCryptoModal;

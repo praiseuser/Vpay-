@@ -10,7 +10,7 @@ const ManageRate = () => {
   const [showAddRateForm, setShowAddRateForm] = useState(false);
   const [rates, setRates] = useState([]);
   const [formData, setFormData] = useState({
-    Currency_Id: '',
+    currency_id: '',
     Rate: '',
     status: '1',
   });
@@ -26,24 +26,24 @@ const ManageRate = () => {
   };
 
   const handleCreateRate = () => {
-    if (!formData.Currency_Id || !formData.Rate) {
+    if (!formData.currency_id || !formData.Rate) {
       alert("Please fill in all required fields.");
       return;
     }
 
     const newRate = {
-      Currency_Id: formData.Currency_Id,
+      currency_id: formData.currency_id,
       Rate: formData.Rate,
       status: parseInt(formData.status),
     };
 
     setRates((prev) => [...prev, newRate]);
-    setFormData({ Currency_Id: '', Rate: '', status: '1' });
+    setFormData({ currency_id: '', Rate: '', status: '1' });
     setShowAddRateForm(false);
   };
 
   const handleCancel = () => {
-    setFormData({ Currency_Id: '', Rate: '', status: '1' });
+    setFormData({ currency_id: '', Rate: '', status: '1' });
     setShowAddRateForm(false);
   };
 

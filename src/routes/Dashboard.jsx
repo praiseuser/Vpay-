@@ -7,7 +7,6 @@ import {
   ManageFees,
   ManageRate,
   ManageUser,
-  AddRolesPage,
   AddFiatPage,
   AddCryptoPage,
   User,
@@ -15,6 +14,12 @@ import {
   SettingsPage,
 } from "../pages/Dashboard";
 import { DashboardLayout } from "../layouts";
+import NetworkProvider from "../pages/Dashboard/NetworkProvider";
+import BillProvider from "../pages/Dashboard/BIllProvider";
+import BettingProvider from "../pages/Dashboard/BettingProvider";
+import Card from "../pages/Dashboard/Card";
+import Transaction from "../pages/Dashboard/Transaction";
+import Support from "../pages/Dashboard/Support";
 
 const DashboardRoutes = () => {
   return (
@@ -27,13 +32,18 @@ const DashboardRoutes = () => {
         <Route path="/dashboard/fees" element={<ManageFees />} />
         <Route path="/dashboard/admin" element={<ManageAdmin />} />
         <Route path="/dashboard/user" element={<ManageUser />} />
-        <Route path="/dashboard/add-roles" element={<AddRolesPage />} />
         <Route path="/dashboard/add-fiat" element={<AddFiatPage />} />
         <Route path="/dashboard/add-crypto" element={<AddCryptoPage />} />
         <Route path="/dashboard/user" element={<User />} />
         <Route path="/dashboard/profile" element={<ProfilePage />} />
         <Route path="/dashboard/settings" element={<SettingsPage />} />
-      </Routes>
+        <Route path="/dashboard/network-provider" element={<NetworkProvider />} />
+        <Route path="/dashboard/bill-provider" element={<BillProvider />} />
+        <Route path="/dashboard/betting-provider" element={<BettingProvider />} />
+        <Route path="/dashboard/card" element={<Card />} />
+        <Route path="/dashboard/transaction" element={<Transaction />} />
+        <Route path="/dashboard/support" element={<Support />} />
+      </Routes> 
     </DashboardLayout>
   );
 };

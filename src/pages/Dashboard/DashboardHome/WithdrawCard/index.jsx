@@ -20,7 +20,7 @@ const WithdrawCard = ({ withdrawals, cardShadow }) => {
       }}
     >
       <Box sx={styles.header}>
-        <Typography sx={styles.title}>Withdraw</Typography>
+        <Typography sx={styles.title}>Withdrawer</Typography>
         <Typography sx={styles.toggle} onClick={handleToggle}>
           {showAll ? "View Less" : "View All"}
         </Typography>

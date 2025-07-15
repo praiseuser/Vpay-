@@ -2,21 +2,14 @@ import { useState, useEffect } from 'react';
 import {
   Modal,
   Box,
-  Typography,
-  TextField,
-  Button,
-  Switch,
-  FormControlLabel,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  CircularProgress,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useUpdateFee } from '../../../../Hooks/useFeeCurrency';
 import { toast } from 'react-toastify';
-
+import FeeForm from '../EditFeeModal/FeeForm';
+import Typography from '@mui/material/Typography';
+import LoadingErrorDisplay from '../EditFeeModal/LoadingErrorDisplay';
+import ActionButtons from '../EditFeeModal/ActionsButton';
 
 function EditFeeModal({ open, fee, onClose, onUpdate }) {
   useEffect(() => {
@@ -33,7 +26,6 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
   });
   const { updateFee, loading, error } = useUpdateFee();
 
-
   useEffect(() => {
     if (fee) {
       setFormData({
@@ -42,14 +34,13 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
         fee_amount: fee.fee_amount ? parseFloat(fee.fee_amount).toString() : '',
         status: fee.status === '1' || fee.status === true,
         has_max_limit: fee.has_max_limit ?? false,
-        max_limit: fee.max_limit ? parseFloat(fee.max_limit).toString() : '', 
+        max_limit: fee.max_limit ? parseFloat(fee.max_limit).toString() : '',
       });
     }
   }, [fee]);
 
   const VALID_FEE_NAMES = ['Swap', 'Send', 'PayApp', 'Payout'];
   const VALID_FEE_TYPES = ['percentage', 'fixed'];
-
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -58,7 +49,6 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
       [name]: type === 'checkbox' ? checked : value,
     }));
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -177,117 +167,19 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
         <Typography id="edit-fee-modal-title" variant="h6" sx={{ mb: 3 }}>
           Edit Fee
         </Typography>
-        {error && (
-          <Typography color="error" sx={{ mb: 2, textAlign: 'center' }}>
-            {error}
-          </Typography>
-        )}
-        <form onSubmit={handleSubmit}>
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Fee Name</InputLabel>
-            <Select
-              name="fee_name"
-              value={formData.fee_name}
-              onChange={handleChange}
-              label="Fee Name"
-              required
-              disabled={loading}
-            >
-              {VALID_FEE_NAMES.map((name) => (
-                <MenuItem key={name} value={name}>
-                  {name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Fee Type</InputLabel>
-            <Select
-              name="fee_type"
-              value={formData.fee_type}
-              onChange={handleChange}
-              label="Fee Type"
-              required
-              disabled={loading}
-            >
-              {VALID_FEE_TYPES.map((type) => (
-                <MenuItem key={type} value={type}>
-                  {type}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <TextField
-            fullWidth
-            label="Fee Amount"
-            name="fee_amount"
-            type="number"
-            value={formData.fee_amount}
-            onChange={handleChange}
-            sx={{ mb: 2 }}
-            required
-            disabled={loading}
-          />
-
-          <FormControlLabel
-            control={
-              <Switch
-                name="status"
-                checked={formData.status}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            }
-            label="Status (Enabled)"
-            sx={{ mb: 2 }}
-          />
-
-          <FormControlLabel
-            control={
-              <Switch
-                name="has_max_limit"
-                checked={formData.has_max_limit}
-                onChange={handleChange}
-                disabled={loading}
-              />
-            }
-            label="Has Max Limit"
-            sx={{ mb: 2 }}
-          />
-
-          {formData.has_max_limit && (
-            <TextField
-              fullWidth
-              label="Max Limit"
-              name="max_limit"
-              type="number"
-              value={formData.max_limit}
-              onChange={handleChange}
-              sx={{ mb: 2 }}
-              required
-              disabled={loading}
-            />
-          )}
-
-          <Box sx={{ display: 'flex', gap: 2, mt: 3, justifyContent: 'flex-end' }}>
-            <Button
-              variant="outlined"
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? <CircularProgress size={24} /> : 'Save'}
-            </Button>
-          </Box>
-        </form>
+        <LoadingErrorDisplay loading={loading} error={error} />
+        <FeeForm
+          formData={formData}
+          handleChange={handleChange}
+          validFeeNames={VALID_FEE_NAMES}
+          validFeeTypes={VALID_FEE_TYPES}
+          loading={loading}
+        />
+        <ActionButtons
+          loading={loading}
+          onClose={onClose}
+          onSubmit={handleSubmit}
+        />
       </Box>
     </Modal>
   );
@@ -297,7 +189,7 @@ EditFeeModal.propTypes = {
   open: PropTypes.bool.isRequired,
   fee: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), // Support _id for MongoDB
+    _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     fee_name: PropTypes.string,
     fee_type: PropTypes.string,
     fee_amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

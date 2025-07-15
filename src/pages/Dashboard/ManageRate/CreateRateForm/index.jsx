@@ -97,7 +97,7 @@ const CreateRateForm = ({ handleCancel }) => {
             Currency
           </Typography>
           <Select
-            name="currency_id" // Changed to lowercase
+            name="currency_id"
             value={selectedCurrencyId}
             onChange={handleFormChange}
             variant="outlined"
@@ -105,7 +105,7 @@ const CreateRateForm = ({ handleCancel }) => {
             displayEmpty
             renderValue={(value) =>
               value
-                ? currencies.find((c) => c.id === value)?.fiat_currency || 'Select a currency'
+                ? currencies.find((c) => c.currency_id === value)?.currency_name || 'Select a currency'
                 : 'Select a currency'
             }
             sx={{
@@ -127,8 +127,8 @@ const CreateRateForm = ({ handleCancel }) => {
           >
             {currencies.length > 0 ? (
               currencies.map((currency) => (
-                <MenuItem key={currency.id} value={currency.id}>
-                  {currency.fiat_currency}
+                <MenuItem key={currency.currency_id} value={currency.currency_id}>
+                  {currency.currency_name}
                 </MenuItem>
               ))
             ) : (
@@ -150,7 +150,7 @@ const CreateRateForm = ({ handleCancel }) => {
             Rate
           </Typography>
           <TextField
-            name="rate" // Changed to lowercase
+            name="rate"
             type="number"
             value={rate}
             onChange={handleFormChange}
@@ -173,7 +173,6 @@ const CreateRateForm = ({ handleCancel }) => {
           />
         </Box>
 
-        {/* Status Dropdown */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Typography
             sx={{
@@ -186,7 +185,7 @@ const CreateRateForm = ({ handleCancel }) => {
             Status
           </Typography>
           <Select
-            name="status" // Changed to lowercase
+            name="status"
             value={status}
             onChange={handleFormChange}
             variant="outlined"

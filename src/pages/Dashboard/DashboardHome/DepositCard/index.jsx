@@ -5,6 +5,8 @@ import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import { styles } from "./DepositCardStyles";
 
+const COLORS = ['#26A69A', '#4DD0E1', '#80DEEA'];
+
 const DepositCard = ({ pieData, cardShadow }) => {
   const [showAll, setShowAll] = useState(true);
   const [currentMonth, setCurrentMonth] = useState("August");
@@ -46,26 +48,28 @@ const DepositCard = ({ pieData, cardShadow }) => {
                   cy="50%"
                   outerRadius={70}
                   innerRadius={50}
+                  stroke="#FFFFFF"
+                  strokeWidth={1}
                 >
                   {pieData.map((entry, index) => (
-                    <Cell key={index} fill={entry.fill} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
             <Box sx={styles.chartLabel}>
-              <Typography sx={styles.labelText}>Staked</Typography>
-              <Typography sx={styles.labelAmount}>$1,000,000</Typography>
+              <Typography sx={{ ...styles.labelText, fontFamily: 'Mada, sans-serif' }}>Staked</Typography>
+              <Typography sx={{ ...styles.labelAmount, fontFamily: 'Mada, sans-serif' }}>$1,000,000</Typography>
             </Box>
           </Box>
           <Box sx={styles.monthNav}>
             <Box sx={styles.navItem}>
               <KeyboardBackspaceIcon sx={styles.navIcon} onClick={handlePrevMonth} />
-              <Typography sx={styles.navText}>Jul</Typography>
+              <Typography sx={{ ...styles.navText, fontFamily: 'Mada, sans-serif' }}>Jul</Typography>
             </Box>
-            <Typography sx={styles.currentMonth}>{currentMonth}</Typography>
+            <Typography sx={{ ...styles.currentMonth, fontFamily: 'Mada, sans-serif' }}>{currentMonth}</Typography>
             <Box sx={styles.navItem}>
-              <Typography sx={styles.navText}>Sep</Typography>
+              <Typography sx={{ ...styles.navText, fontFamily: 'Mada, sans-serif' }}>Sep</Typography>
               <ArrowRightAltIcon sx={styles.navIcon} onClick={handleNextMonth} />
             </Box>
           </Box>

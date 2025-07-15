@@ -120,7 +120,6 @@ const useFetchSettings = () => {
   
         console.log("Update response:", response.data);
         
-        // Check if the response indicates success, even if the message says "no fields to update"
         if (response.status >= 200 && response.status < 300) {
           toast.success("Settings updated successfully");
           return true;
@@ -131,9 +130,8 @@ const useFetchSettings = () => {
         const errorMessage = err.response?.data?.message || err.message || "Failed to update settings";
         console.error("Update error:", err.response ? { status: err.response.status, data: err.response.data } : err.message);
         
-        // Handle "no fields to update" as a success case if the backend still processes it
         if (errorMessage.toLowerCase().includes("no fields to update")) {
-          toast.success("Settings updated successfully (no changes detected)");
+          toast.success("Settings updated successfully");
           return true;
         } else {
           setError(errorMessage);

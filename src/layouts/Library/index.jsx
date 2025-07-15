@@ -6,6 +6,15 @@ import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import PublicIcon from '@mui/icons-material/Public';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+import RouterIcon from '@mui/icons-material/Router';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import PaymentIcon from '@mui/icons-material/Payment';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export const drawerWidth = 260;
 export const layoutPad = 22;
@@ -17,15 +26,12 @@ export const logoLayoutProps = {
   gap: 0.5,
 };
 
-const iconStyle = {
-  width: '24px',
-  height: '24px',
-};
+const iconStyle = {};
 
 const navTextStyle = {
   fontFamily: 'Mada',
   fontWeight: 600,
-  fontSize: '16px',
+  fontSize: '15px',
   lineHeight: '120%',
   letterSpacing: '0%',
   color: '#D9D9D9',
@@ -34,9 +40,14 @@ const navTextStyle = {
   cursor: 'pointer',
 };
 
+const subNavTextStyle = {
+  ...navTextStyle,
+  fontSize: '13px',
+};
+
 const logoutTextStyle = {
   ...navTextStyle,
-  fontSize: '14px',
+  fontSize: '13px',
 };
 
 export const mainNavList = [
@@ -47,14 +58,28 @@ export const mainNavList = [
   { label: 'Manage Rate', link: '/dashboard/Rate', subNav: [] },
   { label: 'Manage Countries', link: '/dashboard/countries', subNav: [] },
   { label: 'Manage Currency', link: '/dashboard/Currency', subNav: [] },
+  {
+    label: 'Manage Providers',
+    subNav: [
+      { label: 'Network Provider', link: 'dashboard/network-provider' },
+      { label: 'Bills Provider', link: 'dashboard/bill-provider' },
+      { label: 'Betting Provider', link: 'dashboard/betting-provider' },
+    ],
+  },
+  { label: 'Card', link: '/dashboard/card', subNav: [] },
+  { label: 'Transaction', link: '/dashboard/transaction', subNav: [] },
+  { label: 'Support', link: '/dashboard/support', subNav: [] },
+  { label: 'Profile', link: '/dashboard/profile', subNav: [] },
+  { label: 'Settings', link: '/dashboard/settings', subNav: [] },
 ];
 
 export const bottomNavList = [
   { label: 'Logout', link: null, subNav: [] },
 ];
 
-export const getIconForNav = (item) => {
-  const style = item.label === 'Logout' ? { ...iconStyle, width: '18px', height: '18px' } : iconStyle;
+export const getIconForNav = (item, props = {}) => {
+  const style = { ...iconStyle, ...props };
+  
   switch (item.label) {
     case 'Dashboard':
       return <DashboardRoundedIcon style={style} />;
@@ -70,6 +95,24 @@ export const getIconForNav = (item) => {
       return <PublicIcon style={style} />;
     case 'Manage Currency':
       return <MonetizationOnIcon style={style} />;
+    case 'Manage Providers':
+      return <MiscellaneousServicesIcon style={style} />;
+    case 'Network Provider':
+      return <RouterIcon style={style} />;
+    case 'Bills Provider':
+      return <ReceiptIcon style={style} />;
+    case 'Betting Provider':
+      return <SportsEsportsIcon style={style} />;
+    case 'Card':
+      return <CreditCardIcon style={style} />;
+    case 'Transaction':
+      return <PaymentIcon style={style} />;
+    case 'Support':
+      return <SupportAgentIcon style={style} />;
+    case 'Profile':
+      return <AccountCircleIcon style={style} />;
+    case 'Settings':
+      return <SettingsIcon style={style} />;
     case 'Logout':
       return <ExitToAppIcon style={style} />;
     default:
@@ -78,4 +121,5 @@ export const getIconForNav = (item) => {
 };
 
 export const navTextStyleExport = navTextStyle;
+export const subNavTextStyleExport = subNavTextStyle;
 export const logoutTextStyleExport = logoutTextStyle;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 
-const VerifyButton = ({ loading, styles }) => {
+const VerifyButton = ({ loading, styles, disabled }) => {
   return (
     <Box
       sx={{
@@ -11,17 +11,17 @@ const VerifyButton = ({ loading, styles }) => {
         justifyContent: 'center',
         mt: 2,
         position: 'relative',
-        cursor: 'pointer',
-        opacity: loading ? 0.7 : 1,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : loading ? 0.7 : 1,
       }}
       component="button"
       type="submit"
-      disabled={loading}
+      disabled={disabled || loading}
     >
       {loading ? (
         <CircularProgress size={24} color="inherit" />
       ) : (
-        <Typography sx={styles.signupText}>Verify OTP</Typography>
+        <Typography sx={styles.signupText}>Continue</Typography>
       )}
     </Box>
   );

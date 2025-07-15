@@ -1,40 +1,58 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  MenuItem,
-  Autocomplete,
-  CircularProgress,
-} from '@mui/material';
+import PropTypes from 'prop-types';
+import { Box, Typography } from '@mui/material';
 import { useAddCountry } from '../../../../Hooks/useCountryCurrency';
+import { toast } from 'react-toastify';
+import CountryFormFields from '../AddCountryForm/CountryFormFields';
+import FormActions from '../AddCountryForm/FormActions';
+import { formContainerStyle, titleStyle, errorStyle } from '../AddCountryForm/countryFormStyles'
 
-const statusOptions = ['active', 'inactive'];
 
-const AddCountryForm = ({ onCancel, countries = [], currencyOptions = [] }) => {
-  const [currencyId, setCurrencyId] = useState('');
-  const [countryName, setCountryName] = useState('');
-  const [countryCode, setCountryCode] = useState('');
-  const [dialCode, setDialCode] = useState('');
-  const [countryFlag, setCountryFlag] = useState('');
-  const [status, setStatus] = useState('active');
+const statusOptions = [
+  { label: 'ACTIVE', value: '1' },
+  { label: 'INACTIVE', value: '0' },
+];
 
-  const { addCountry, loading, error } = useAddCountry();
 
+const AddCountryForm = ({ onCancel }) => {
+  const [formData, setFormData] = useState({
+    currency_id: '',
+    country_name: '',
+    country_code: '',
+    country_dial_code: '',
+    country_flag: '',
+    status: '1',
+  });
+
+  const { addCountry, fiatCurrencies, loading, error, success } = useAddCountry();
 
   useEffect(() => {
-    const selectedCurrency = currencyOptions.find(
-      (c) => String(c.Currency_Id) === String(currencyId)
+    const selectedCurrency = fiatCurrencies.find(
+      (c) => String(c.currency_id) === String(formData.currency_id)
     );
     if (selectedCurrency) {
-      setCountryName(selectedCurrency.Country_name || '');
-      setCountryCode(selectedCurrency.Country_code || '');
-      setDialCode(selectedCurrency.Country_dial_code || '');
-      setStatus(selectedCurrency.status || 'active');
-
+      setFormData((prev) => ({
+        ...prev,
+        status: selectedCurrency.status === '1' || selectedCurrency.status === 1 ? '1' : '0',
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        country_name: '',
+        country_code: '',
+        country_dial_code: '',
+        status: '1',
+      }));
     }
-  }, [currencyId, currencyOptions]);
+  }, [formData.currency_id, fiatCurrencies]);
+
+  const handleCurrencyChange = (currencyId) => {
+    setFormData((prev) => ({ ...prev, currency_id: currencyId }));
+  };
+
+  const handleTextChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -42,31 +60,35 @@ const AddCountryForm = ({ onCancel, countries = [], currencyOptions = [] }) => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setCountryFlag(reader.result); 
+      setFormData((prev) => ({ ...prev, country_flag: reader.result }));
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleStatusChange = (status) => {
+    setFormData((prev) => ({ ...prev, status }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!currencyId) {
-      alert('Please select a valid currency');
+    if (!formData.currency_id) {
+      toast.error('Please select a valid currency');
       return;
     }
 
-    if (!countryFlag.startsWith('data:image/')) {
-      alert('Please upload a valid flag image');
+    if (!formData.country_flag.startsWith('data:image/')) {
+      toast.error('Please upload a valid flag image');
       return;
     }
 
     const newCountry = {
-      currency_id: String(currencyId),
-      country_name: countryName,
-      country_code: countryCode,
-      country_dial_code: dialCode,
-      country_flag: countryFlag,
-      status,
+      currency_id: String(formData.currency_id),
+      country_name: formData.country_name,
+      country_code: formData.country_code,
+      country_dial_code: formData.country_dial_code,
+      country_flag: formData.country_flag,
+      status: formData.status,
     };
 
     const result = await addCountry(newCountry);
@@ -76,123 +98,35 @@ const AddCountryForm = ({ onCancel, countries = [], currencyOptions = [] }) => {
   };
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{
-        width: '100%',
-        maxWidth: 600,
-        margin: '0 auto',
-        mt: 4,
-        p: 4,
-        boxShadow: 3,
-        borderRadius: 4,
-        backgroundColor: '#f9f9f9',
-      }}
-    >
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
+    <Box component="form" onSubmit={handleSubmit} sx={formContainerStyle}>
+      <Typography variant="h6" sx={titleStyle}>
         Add New Country
       </Typography>
 
-      <Box display="flex" flexDirection="column" gap={3}>
-        <Autocomplete
-          options={currencyOptions}
-          getOptionLabel={(option) =>
-            `${option.Currency_Id} - ${option.Country_name}`
-          }
-          onChange={(event, newValue) => {
-            setCurrencyId(newValue ? newValue.Currency_Id : '');
-          }}
-          renderInput={(params) => (
-            <TextField {...params} label="Select Currency" required />
-          )}
-          value={
-            currencyOptions.find(c => String(c.Currency_Id) === String(currencyId)) || null
-          }
-          isOptionEqualToValue={(option, value) =>
-            String(option.Currency_Id) === String(value.Currency_Id)
-          }
-        />
+      <CountryFormFields
+        formData={formData}
+        handleCurrencyChange={handleCurrencyChange}
+        handleTextChange={handleTextChange}
+        handleImageUpload={handleImageUpload}
+        handleStatusChange={handleStatusChange}
+        fiatCurrencies={fiatCurrencies}
+        statusOptions={statusOptions}
+        loading={loading}
+      />
 
-        <TextField
-          label="Country Name"
-          fullWidth
-          value={countryName}
-          onChange={(e) => setCountryName(e.target.value)}
-          required
-        />
+      {error && (
+        <Typography sx={errorStyle}>
+          {error}
+        </Typography>
+      )}
 
-        <TextField
-          label="Country Code"
-          fullWidth
-          value={countryCode}
-          onChange={(e) => setCountryCode(e.target.value)}
-          required
-        />
-
-        <TextField
-          label="Dial Code"
-          fullWidth
-          value={dialCode}
-          onChange={(e) => setDialCode(e.target.value)}
-          required
-        />
-
-        <Button variant="outlined" component="label">
-          Upload Flag Image
-          <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
-        </Button>
-
-        {countryFlag && (
-          <Box>
-            <Typography variant="body2" sx={{ mt: 1 }}>Preview:</Typography>
-            <img
-              src={countryFlag}
-              alt="Country Flag"
-              style={{ width: 80, height: 50, borderRadius: 4, marginTop: 5 }}
-            />
-          </Box>
-        )}
-
-        <TextField
-          select
-          label="Status"
-          fullWidth
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          required
-        >
-          {statusOptions.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option.toUpperCase()}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        {error && (
-          <Typography color="error" variant="body2" sx={{ mt: 1 }}>
-            {error}
-          </Typography>
-        )}
-
-        <Box display="flex" justifyContent="space-between" mt={2}>
-          <Typography sx={{ cursor: 'pointer', color: 'red' }} onClick={onCancel}>
-            Cancel
-          </Typography>
-
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            disabled={loading}
-            startIcon={loading ? <CircularProgress color="inherit" size={18} /> : null}
-          >
-            {loading ? 'Adding...' : 'Submit'}
-          </Button>
-        </Box>
-      </Box>
+      <FormActions onCancel={onCancel} loading={loading} />
     </Box>
   );
+};
+
+AddCountryForm.propTypes = {
+  onCancel: PropTypes.func.isRequired,
 };
 
 export default AddCountryForm;

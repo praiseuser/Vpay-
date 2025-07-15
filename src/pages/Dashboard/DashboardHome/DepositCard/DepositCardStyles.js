@@ -12,13 +12,14 @@ export const styles = {
     },
     title: {
       fontWeight: 600,
-      fontSize: { xs: 24, sm: 22 },
+      fontSize: { xs: 20, sm: 18 },
       color: "#0C0B18",
     },
     toggle: {
-      fontSize: { xs: 18, sm: 16 },
+      fontSize: { xs: 16, sm: 14 },
       color: "#646464",
       cursor: "pointer",
+      fontWeight: 500
     },
     chartContainer: {
       position: "relative",
@@ -33,13 +34,13 @@ export const styles = {
     },
     labelText: {
       fontWeight: 400,
-      fontSize: { xs: 16, sm: 14 },
+      fontSize: { xs: 14, sm: 12 },
       lineHeight: "20px",
       color: "#717171",
     },
     labelAmount: {
       fontWeight: 700,
-      fontSize: { xs: 18, sm: 16 },
+      fontSize: { xs: 16, sm: 14 },
       lineHeight: "150%",
       color: "#1A1A1A",
     },
@@ -61,12 +62,12 @@ export const styles = {
     },
     navText: {
       fontWeight: 400,
-      fontSize: { xs: 16, sm: 14 },
+      fontSize: { xs: 14, sm: 12 },
       lineHeight: "20px",
       color: "#646464",
     },
     currentMonth: {
-      fontSize: { xs: 18, sm: 16 },
+      fontSize: { xs: 16, sm: 14 },
       fontWeight: 600,
       lineHeight: "26px",
       color: "#000000",

@@ -1,62 +1,115 @@
 import React, { useState } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import { useAuthentication } from '../../../Hooks/authentication';
 import { useSelector } from 'react-redux';
-import { styles } from './styles';
+import { useNavigate } from 'react-router-dom';
 import LoginFormHeader from '../Login/LoginFormHeader';
 import LoginInputs from '../Login/LoginInputs';
 import SubmitButton from '../Login/SubmitButton';
-import OtpModal from '../Login/OtpModal';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [otpType, setOtpType] = useState('email');
-  const [modalOpen, setModalOpen] = useState(false);
+  const [otpMedium, setOtpMedium] = useState('email');
 
   const { login, loading, error } = useAuthentication();
   const user = useSelector((state) => state.user.user);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setModalOpen(true);
-  };
+    localStorage.setItem('email', email);
+    localStorage.setItem('password', password);
+    localStorage.setItem('otp_medium', otpMedium);
 
-  const handleSendOtp = () => {
-    login({ email, password, otp_type: otpType });
-    setModalOpen(false);
+    const loginBox = document.querySelector('.login-box');
+    loginBox.classList.add('flip-out');
+    setTimeout(() => navigate('/otp'), 600);
   };
 
   return (
-    <Box sx={styles.container} component="form" onSubmit={handleSubmit}>
-      <Box sx={styles.circleTopLeft} />
-      <Box sx={styles.circleBottomRight} />
+    <Box
+      sx={{
+        minHeight: '100vh',
+        width: '100vw',
+        backgroundColor: '#02042D',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: { xs: 2, sm: 4 },
+      }}
+    >
+      <Box
+        sx={{
+          backgroundColor: '#fff',
+          borderRadius: 8,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          padding: { xs: 4, sm: 6, md: 6 },
+          width: { xs: '90%', sm: 450, md: 500 },
+          maxWidth: 500,
+          minHeight: 550,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          position: 'relative',
+          border: '2px solid #0A0F3F',
+          '&:before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '5px',
+            backgroundColor: '#0A0F3F',
+            borderRadius: '8px 8px 0 0',
+          },
+        }}
+      >
 
-      <Box sx={styles.loginBox}>
-        <LoginFormHeader />
-        {error && (
-          <Typography sx={{ color: 'red', marginBottom: '10px' }}>
-            {error}
-          </Typography>
-        )}
-        <LoginInputs
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          showPassword={showPassword}
-          setShowPassword={setShowPassword}
-        />
-        <SubmitButton loading={loading} />
-        <OtpModal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          otpType={otpType}
-          setOtpType={setOtpType}
-          handleSendOtp={handleSendOtp}
-          loading={loading}
-        />
+        <form
+          onSubmit={handleSubmit}
+          className="login-box"
+          style={{
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            padding: '20px 30px',
+            boxSizing: 'border-box',
+          }}
+        >
+          <LoginFormHeader />
+          {error && (
+            <Typography
+              sx={{
+                fontSize: '18px',
+                fontWeight: '700',
+                color: 'red',
+                marginBottom: '10px',
+                fontFamily: 'Inter',
+              }}
+            >
+              {error}
+            </Typography>
+          )}
+          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <LoginInputs
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+            />
+          </Box>
+
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <SubmitButton loading={loading} />
+          </Box>
+
+        </form>
       </Box>
     </Box>
   );

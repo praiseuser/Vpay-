@@ -7,9 +7,6 @@ import { Chip } from '@mui/material';
 function FeeTable({
   fees,
   fetchLoading,
-  fetchError,
-  deleteError,
-  successMessage,
   isFeeLoading,
   onAddFeeClick,
   onEditFee,
@@ -60,7 +57,6 @@ function FeeTable({
               <CustomButton
                 type="edit"
                 onClick={() => {
-                  console.log('Edit button clicked for fee:', fee);
                   onEditFee(fee);
                 }}
                 disabled={fetchLoading}
@@ -68,10 +64,9 @@ function FeeTable({
               <CustomButton
                 type="delete"
                 onClick={() => {
-                  console.log('Delete button clicked for fee:', fee);
                   onDeleteFee(fee.id);
                 }}
-                loading={isFeeLoading(fee.id)} 
+                loading={isFeeLoading(fee.id)}
                 disabled={fetchLoading || isFeeLoading(fee.id)}
               />
             </div>
@@ -113,21 +108,6 @@ function FeeTable({
           <CircularProgress size={30} />
         </Box>
       )}
-      {fetchError && (
-        <Typography align="center" color="error" sx={{ mt: 2 }}>
-          {fetchError}
-        </Typography>
-      )}
-      {successMessage && (
-        <Typography align="center" color="success.main" sx={{ mt: 2 }}>
-          {successMessage}
-        </Typography>
-      )}
-      {deleteError && (
-        <Typography align="center" color="error" sx={{ mt: 2 }}>
-          {deleteError}
-        </Typography>
-      )}
     </Box>
   );
 }
@@ -136,7 +116,7 @@ FeeTable.propTypes = {
   fees: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), 
+      _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       fee_name: PropTypes.string,
       fee_type: PropTypes.string,
       fee_amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -149,7 +129,7 @@ FeeTable.propTypes = {
   fetchError: PropTypes.string,
   deleteError: PropTypes.string,
   successMessage: PropTypes.string,
-  isFeeLoading: PropTypes.func.isRequired, 
+  isFeeLoading: PropTypes.func.isRequired,
   onAddFeeClick: PropTypes.func.isRequired,
   onEditFee: PropTypes.func.isRequired,
   onDeleteFee: PropTypes.func.isRequired,

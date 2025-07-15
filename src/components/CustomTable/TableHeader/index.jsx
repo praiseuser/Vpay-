@@ -43,7 +43,7 @@ const TableHeader = ({
             sx={{
               fontFamily: 'Inter',
               fontWeight: 400,
-              fontSize: '12px',
+              fontSize: '10px',
               color: '#BDBDBD',
               ...titleStyle,
             }}
@@ -87,9 +87,7 @@ const TableHeader = ({
         />
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 1 }}>
-     
-      </Box>
+      <Box sx={{ display: 'flex', gap: 1 }}></Box>
 
       {showAddButton && (
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>

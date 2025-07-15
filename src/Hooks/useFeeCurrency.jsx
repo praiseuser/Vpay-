@@ -54,13 +54,14 @@ const useCreateFeeCurrency = () => {
             return;
         }
 
-        if (fiatData.has_max_limit && (!fiatData.max_limit || typeof fiatData.max_limit !== 'number' || feeData.max_limit <= 0)) {
+        if (fiatData.has_max_limit && (!fiatData.max_limit || typeof fiatData.max_limit !== 'number' || fiatData.max_limit <= 0)) {
             console.log("Validation failed: Invalid max limit");
             setError('Max limit is required and must be a positive number when Has Max Limit is true');
             toast.error('Max limit is required and must be a positive number when Has Max Limit is true');
             setLoading(false);
             return;
         }
+
 
         const payload = {
             fee_name: fiatData.fee_name,
@@ -166,8 +167,6 @@ const useUpdateFee = () => {
     const VALID_FEE_TYPES = ['percentage', 'fixed'];
 
     const updateFee = useCallback(async (id, feeData) => {
-        console.log('useUpdateFee - API_BASE_URL:', API_BASE_URL);
-        console.log('useUpdateFee - Token:', token);
         console.log('updateFee called with id:', id, 'data:', feeData);
 
         setLoading(true);
@@ -242,8 +241,6 @@ const useUpdateFee = () => {
         console.log('Sending update request with data:', payload);
 
         try {
-            console.log('useUpdateFee - Sending PUT request to:', `${API_BASE_URL}/admin/transaction-fee/update/${id}`);
-            console.log('useUpdateFee - Payload:', payload);
             const response = await axios.post(`${API_BASE_URL}/admin/transaction-fee/update/${id}`, payload, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -252,7 +249,6 @@ const useUpdateFee = () => {
             });
 
             console.log('useUpdateFee - Server response:', response.data);
-            console.log('useUpdateFee - Full response:', response);
 
             setSuccess(true);
             toast.success('Fee updated successfully', { toastId: 'update-fee-success' });
