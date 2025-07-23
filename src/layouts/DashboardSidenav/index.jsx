@@ -15,7 +15,6 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
   const location = useLocation();
   const { logout, loading } = useLogout();
 
-
   const initialOpenSubNav = mainNavList.reduce((acc, item) => {
     acc[item.label] = isSmallScreen;
     return acc;
@@ -34,11 +33,13 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
   const effectiveCollapsed = isSmallScreen ? false : collapsed; 
 
   const drawer = (
-    <Box sx={{ ...styles.sidenav, ...(effectiveCollapsed && styles.collapsedSidenav), backgroundColor: '#02042D', height: '100vh', overflow: 'hidden' }}>
+    <Box sx={{ ...styles.sidenav, ...(effectiveCollapsed && styles.collapsedSidenav), background: 'linear-gradient(135deg, #02042D, #1A2A44)', height: '100vh', overflow: 'hidden' }}>
       <Header collapsed={effectiveCollapsed} handleToggleCollapse={handleToggleCollapse} isSmallScreen={isSmallScreen} onClose={onClose} />
       <Box sx={{
-        display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)', px: effectiveCollapsed ? 1 : 2, py: 2, mt: 3.3, overflow: 'auto',
-        '&::-webkit-scrollbar': { width: '1px' }, '&::-webkit-scrollbar-track': { background: 'transparent' }, '&::-webkit-scrollbar-thumb': { background: '#808080', borderRadius: '1px' }, '&::-webkit-scrollbar-thumb:hover': { background: '#606060' }, scrollbarWidth: 'thin', scrollbarColor: '#808080 transparent'
+        display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)', px: effectiveCollapsed ? 1 : 2, py: 2, mt: 3.3, overflowY: 'auto', // Enable scrolling
+        '&::-webkit-scrollbar': { display: 'none' }, // Hide scrollbar in Webkit
+        scrollbarWidth: 'none', // Hide scrollbar in Firefox
+        scrollbarColor: 'transparent transparent', // Hide scrollbar in Firefox
       }}>
         <MainNav
           mainNavList={mainNavList}
@@ -64,14 +65,14 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
         open={isSmallScreen ? mobileOpen : true} 
         onClose={onClose} 
         ModalProps={{ keepMounted: true }}
-        sx={{ display: { xs: 'block', sm: 'none' }, '& .MuiDrawer-paper': { width: dashboardDrawerWidth, backgroundColor: '#02042D', border: 'none', borderRight: '1px solid rgba(32, 139, 201, 0.3)' } }}
+        sx={{ display: { xs: 'block', sm: 'none' }, '& .MuiDrawer-paper': { width: dashboardDrawerWidth, background: 'linear-gradient(135deg, #02042D, #1A2A44)', border: 'none', borderRight: '1px solid rgba(32, 139, 201, 0.3)' } }}
       >
         {drawer}
       </Drawer>
       <Drawer
         variant="permanent"
         open
-        sx={{ display: { xs: 'none', sm: 'block' }, '& .MuiDrawer-paper': { width: effectiveCollapsed ? 72 : dashboardDrawerWidth, transition: 'width 0.3s', overflowX: 'hidden', backgroundColor: '#02042D', border: 'none', borderRight: '1px solid rgba(32, 139, 201, 0.3)' } }}
+        sx={{ display: { xs: 'none', sm: 'block' }, '& .MuiDrawer-paper': { width: effectiveCollapsed ? 72 : dashboardDrawerWidth, transition: 'width 0.3s ease', overflowX: 'hidden', background: 'linear-gradient(135deg, #02042D, #1A2A44)', border: 'none', borderRight: '1px solid rgba(32, 139, 201, 0.3)' } }}
       >
         {drawer}
       </Drawer>

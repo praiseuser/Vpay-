@@ -45,7 +45,7 @@ const DashboardHome = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ flexGrow: 1, padding: '1.5px', marginTop: 0 }}>
+      <Box sx={{ flexGrow: 1, padding: '0px', marginTop: 0 }}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Cards cardShadow={cardShadow} />
