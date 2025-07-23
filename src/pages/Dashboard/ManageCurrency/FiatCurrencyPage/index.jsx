@@ -12,7 +12,7 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedFiat, setSelectedFiat] = useState(null);
   const [fiatData, setFiatData] = useState([]);
-  
+
   const { fiatCurrencies, loading, error } = useFetchFiatCurrencies();
 
   useEffect(() => {

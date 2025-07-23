@@ -29,15 +29,16 @@ const useFetchRateCurrencies = () => {
       const data = response.data.result || response.data || [];
       const formattedCurrencies = Array.isArray(data)
         ? data.map((item) => {
-          const rateField = item.rate || item.rate_value || item.exchange_rate || "N/A";
-          return {
-            currency_id: String(item.id || item.currency_id || item.Currency_Id || "Unknown"),
-            rate: typeof rateField === "string" ? rateField : "N/A",
-            status: item.status || "N/A",
-            created_at: item.created_at || null,
-            updated_at: item.updated_at || null,
-          };
-        })
+            const rateField = item.rate || item.rate_value || item.exchange_rate || "N/A";
+            return {
+              fiat_currency_code: item.fiat_currency_code || "Unknown",
+              rate: typeof rateField === "string" ? rateField : "N/A",
+              status: item.status || "N/A",
+              created_at: item.created_at || null,
+              updated_at: item.updated_at || null,
+              id: item.id || item.currency_id || null, 
+            };
+          })
         : [];
 
       if (formattedCurrencies.length === 0) {
@@ -58,6 +59,7 @@ const useFetchRateCurrencies = () => {
   useEffect(() => {
     if (token && !hasFetched.current) {
       fetchRateCurrencies();
+      hasFetched.current = true;
     } else if (!token) {
       console.warn("No token found");
       setLoading(false);
@@ -66,6 +68,7 @@ const useFetchRateCurrencies = () => {
 
   return { rateCurrencies, loading, error, refetch: fetchRateCurrencies };
 };
+
 
 const useCreateRate = () => {
   const [isCreating, setIsCreating] = useState(false);

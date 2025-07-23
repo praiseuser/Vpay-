@@ -34,7 +34,7 @@ const App = () => {
                 pauseOnHover
                 draggable
                 theme="light"
-                closeButton={false} 
+                closeButton={false}
                 toastStyle={{
                   borderRadius: "8px",
                   padding: "12px 16px",
@@ -42,7 +42,7 @@ const App = () => {
                   fontFamily: "Poppins, sans-serif",
                   color: "#fff",
                   boxShadow: "none",
-                  backgroundColor: "transparent" 
+                  backgroundColor: "transparent"
                 }}
                 bodyClassName={() => "flex items-center"}
               />

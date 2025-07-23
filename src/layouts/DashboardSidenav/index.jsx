@@ -14,7 +14,13 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const location = useLocation();
   const { logout, loading } = useLogout();
-  const [openSubNav, setOpenSubNav] = useState({});
+
+
+  const initialOpenSubNav = mainNavList.reduce((acc, item) => {
+    acc[item.label] = isSmallScreen;
+    return acc;
+  }, {});
+  const [openSubNav, setOpenSubNav] = useState(initialOpenSubNav);
 
   const handleSubNavToggle = (label) => setOpenSubNav((prev) => ({ ...prev, [label]: !prev[label] }));
 
@@ -25,11 +31,13 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
     return subMenu.some((item) => item.link === currentPath);
   };
 
+  const effectiveCollapsed = isSmallScreen ? false : collapsed; 
+
   const drawer = (
-    <Box sx={{ ...styles.sidenav, ...(collapsed && styles.collapsedSidenav), backgroundColor: '#02042D', height: '100vh', overflow: 'hidden' }}>
-      <Header collapsed={collapsed} handleToggleCollapse={handleToggleCollapse} isSmallScreen={isSmallScreen} onClose={onClose} />
+    <Box sx={{ ...styles.sidenav, ...(effectiveCollapsed && styles.collapsedSidenav), backgroundColor: '#02042D', height: '100vh', overflow: 'hidden' }}>
+      <Header collapsed={effectiveCollapsed} handleToggleCollapse={handleToggleCollapse} isSmallScreen={isSmallScreen} onClose={onClose} />
       <Box sx={{
-        display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)', px: collapsed ? 1 : 2, py: 2, mt: 3.3, overflow: 'auto',
+        display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 80px)', px: effectiveCollapsed ? 1 : 2, py: 2, mt: 3.3, overflow: 'auto',
         '&::-webkit-scrollbar': { width: '1px' }, '&::-webkit-scrollbar-track': { background: 'transparent' }, '&::-webkit-scrollbar-thumb': { background: '#808080', borderRadius: '1px' }, '&::-webkit-scrollbar-thumb:hover': { background: '#606060' }, scrollbarWidth: 'thin', scrollbarColor: '#808080 transparent'
       }}>
         <MainNav
@@ -37,24 +45,24 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
           isActive={isActive}
           openSubNav={openSubNav}
           handleSubNavToggle={handleSubNavToggle}
-          collapsed={collapsed}
+          collapsed={effectiveCollapsed}
           location={location}
           styles={styles}
           navTextStyleExport={navTextStyleExport}
           subNavTextStyleExport={subNavTextStyleExport}
         />
         <Box sx={{ flex: 1 }} />
-        <BottomNav bottomNavList={bottomNavList} logout={logout} loading={loading} collapsed={collapsed} styles={styles} logoutTextStyleExport={logoutTextStyleExport} />
+        <BottomNav bottomNavList={bottomNavList} logout={logout} loading={loading} collapsed={effectiveCollapsed} styles={styles} logoutTextStyleExport={logoutTextStyleExport} />
       </Box>
     </Box>
   );
 
   return (
-    <Box component="nav" sx={{ ...styles.sidenavWrap, '& .nav-tooltip': { opacity: 0 }, '&:hover .nav-tooltip': { opacity: collapsed ? 1 : 0 } }}>
+    <Box component="nav" sx={{ ...styles.sidenavWrap, '& .nav-tooltip': { opacity: 0 }, '&:hover .nav-tooltip': { opacity: effectiveCollapsed ? 1 : 0 } }}>
       <Drawer
         variant="temporary"
-        open={mobileOpen}
-        onClose={onClose}
+        open={isSmallScreen ? mobileOpen : true} 
+        onClose={onClose} 
         ModalProps={{ keepMounted: true }}
         sx={{ display: { xs: 'block', sm: 'none' }, '& .MuiDrawer-paper': { width: dashboardDrawerWidth, backgroundColor: '#02042D', border: 'none', borderRight: '1px solid rgba(32, 139, 201, 0.3)' } }}
       >
@@ -63,7 +71,7 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
       <Drawer
         variant="permanent"
         open
-        sx={{ display: { xs: 'none', sm: 'block' }, '& .MuiDrawer-paper': { width: collapsed ? 72 : dashboardDrawerWidth, transition: 'width 0.3s', overflowX: 'hidden', backgroundColor: '#02042D', border: 'none', borderRight: '1px solid rgba(32, 139, 201, 0.3)' } }}
+        sx={{ display: { xs: 'none', sm: 'block' }, '& .MuiDrawer-paper': { width: effectiveCollapsed ? 72 : dashboardDrawerWidth, transition: 'width 0.3s', overflowX: 'hidden', backgroundColor: '#02042D', border: 'none', borderRight: '1px solid rgba(32, 139, 201, 0.3)' } }}
       >
         {drawer}
       </Drawer>

@@ -7,11 +7,13 @@ export const styles = {
     borderBottom: '1px solid #ddd',
     display: 'flex',
     flexDirection: { xs: 'column', md: 'row' },
-    justifyContent: { xs: 'flex-start', md: 'space-between' },
-    alignItems: { xs: 'flex-start', md: 'center' },
+    justifyContent: { xs: 'space-between', md: 'space-between' },
+    alignItems: { xs: 'center', md: 'center' },
     padding: { xs: '8px 12px', md: '0 16px' },
     zIndex: 1200,
     transition: 'left 0.3s ease, width 0.3s ease, height 0.3s ease',
+    width: '100%',
+    boxSizing: 'border-box',
   },
 
   navLeft: {
@@ -43,16 +45,18 @@ export const styles = {
     flexGrow: 1,
     display: 'flex',
     justifyContent: 'flex-end',
-    width: { xs: '100%', md: 'auto' },
-    mt: { xs: 1, md: 0 },
+    width: 'auto',
+    position: 'relative',
   },
 
   navRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: { xs: '16px', md: '24px' },
+    gap: { xs: '8px', md: '24px' },
     flexWrap: 'wrap',
-    width: { xs: '100%', md: 'auto' },
+    width: 'auto',
+    position: 'relative',
+    right: 0,
   },
 
   searchBox: {
@@ -130,7 +134,7 @@ export const styles = {
   },
 
   userDetails: {
-    display: { xs: 'none', md: 'block' },
+    display: { xs: 'block', md: 'block' },
     opacity: 1,
     visibility: 'visible',
   },

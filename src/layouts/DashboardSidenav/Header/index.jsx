@@ -7,7 +7,7 @@ const Header = ({ collapsed, handleToggleCollapse, isSmallScreen, onClose }) => 
   <Box sx={{ ...styles.header, backgroundColor: '#02042D' }}>
     <Stack {...logoLayoutProps} direction="row" alignItems="center" sx={{ width: '100%', justifyContent: collapsed ? 'center' : 'flex-start', mt: 1.5 }}>
       <IconButton
-        onClick={handleToggleCollapse}
+        onClick={isSmallScreen ? onClose : handleToggleCollapse}
         sx={{
           ...styles.toggleButton,
           ...(collapsed && { mx: 'auto' }),
@@ -20,11 +20,6 @@ const Header = ({ collapsed, handleToggleCollapse, isSmallScreen, onClose }) => 
       </IconButton>
       {!collapsed && <Box component="img" src="Vpaylogo.png" alt="Logo" sx={{ width: 80, height: 30, ml: 5, mt: 1 }} />}
     </Stack>
-    {isSmallScreen && (
-      <IconButton onClick={onClose} sx={{ color: '#fff' }}>
-        <MenuIcon />
-      </IconButton>
-    )}
   </Box>
 );
 

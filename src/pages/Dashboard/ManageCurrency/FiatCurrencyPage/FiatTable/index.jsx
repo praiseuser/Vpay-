@@ -6,9 +6,11 @@ import { formatRows } from '../data/fiatUtils';
 
 const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activeTab, setActiveTab }) => {
   const columns = [
-    { id: 'Fiat_Currency', label: 'FIAT CURRENCY', minWidth: 150 },
+    { id: 'sn', label: 'S/N', minWidth: 50 },
+    { id: 'fiat_currency_name', label: 'FIAT CURRENCY NAME', minWidth: 150 },
+    { id: 'fiat_currency_code', label: 'FIAT CURRENCY CODE', minWidth: 150 },
     { id: 'status', label: 'STATUS', minWidth: 120 },
-    { id: 'action', label: '', minWidth: 180 },
+    { id: 'action', label: 'ACTION', minWidth: 150 },
   ];
 
   const rows = formatRows(fiatData, handleEditClick, loading);
@@ -24,7 +26,7 @@ const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activ
       addButtonStyle={{}}
       title="Manage Fiat"
       titleStyle={tableTitleStyle}
-      searchPlaceholder="Search by email address, name, country, etc"
+      searchPlaceholder="Search fiat..."
       onAddButtonClick={onAddButtonClick}
       tabLabels={['Crypto Currency', 'FIAT Currency']}
       activeTab={activeTab}
@@ -32,6 +34,7 @@ const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activ
     />
   );
 };
+
 
 FiatTable.propTypes = {
   fiatData: PropTypes.arrayOf(

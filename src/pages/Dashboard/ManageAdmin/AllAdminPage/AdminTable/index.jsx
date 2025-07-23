@@ -4,7 +4,6 @@ import CustomButton from '../../../../../components/CustomButton';
 import { CircularProgress } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-
 const columns = [
   { id: 'number', label: '#', minWidth: 50 },
   { id: 'firstname', label: 'FIRST NAME', minWidth: 150 },
@@ -12,8 +11,8 @@ const columns = [
   { id: 'email', label: 'EMAIL', minWidth: 150 },
   { id: 'phone', label: 'PHONE', minWidth: 150 },
   { id: 'gender', label: 'GENDER', minWidth: 150 },
-  { id: 'subrole', label: 'SUB ROLE', minWidth: 150 },
-  { id: 'country_id', label: 'COUNTRY ID', minWidth: 150 },
+  { id: 'admin_type', label: 'ADMIN TYPE', minWidth: 150 },
+  { id: 'country', label: 'COUNTRY', minWidth: 150 },
   { id: 'action', label: '', minWidth: 200 },
 ];
 
@@ -26,8 +25,8 @@ export default function AdminTable({ admins, loading, onAddAdmin, onAddPermissio
       email: '',
       phone: '',
       gender: '',
-      subrole: '',
-      country_id: '',
+      admin_type: '',
+      country: '',
       action: (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <CircularProgress size={24} />
@@ -41,8 +40,8 @@ export default function AdminTable({ admins, loading, onAddAdmin, onAddPermissio
       email: admin.email,
       phone: admin.phone,
       gender: admin.gender,
-      subrole: admin.sub_role?.length || 0,
-      country_id: admin.country_id,
+      admin_type: admin.admin_type || '', // Single value from backend
+      country: admin.country_name || '',
       action: (
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
           <CustomButton
@@ -60,8 +59,6 @@ export default function AdminTable({ admins, loading, onAddAdmin, onAddPermissio
           />
         </div>
       ),
-
-
     }));
 
   return (

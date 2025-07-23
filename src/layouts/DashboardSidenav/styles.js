@@ -5,7 +5,7 @@ export const styles = {
     display: 'flex',
     backgroundColor: 'whitesmoke',
     width: '100%',
-    minHeight: '100vh',
+    height: '100vh',
     overflowX: 'hidden',
   },
   togBtn: {
@@ -13,7 +13,7 @@ export const styles = {
     display: { sm: 'none' },
   },
   sidenavWrap: {
-    width: collapsed => collapsed ? 80 : dashboardDrawerWidth,
+    width: (collapsed) => collapsed ? 80 : dashboardDrawerWidth,
     flexShrink: 0,
     display: { xs: 'none', sm: 'block' },
     transition: 'width 0.3s ease',
@@ -21,16 +21,22 @@ export const styles = {
   content: {
     flexGrow: 1,
     boxSizing: 'border-box',
-    pl: collapsed => collapsed ? dashboardLayoutPad : dashboardLayoutPad + (dashboardDrawerWidth - 80),
+    pl: (collapsed) => collapsed ? dashboardLayoutPad : dashboardLayoutPad + (dashboardDrawerWidth - 80),
     pr: `${dashboardLayoutPad}px`,
     pt: `${dashboardNavHeight + dashboardLayoutPad}px`,
     pb: `${dashboardLayoutPad}px`,
     width: '100%',
     minHeight: '100vh',
+    height: 'auto',
     backgroundColor: 'whitesmoke',
     transition: 'padding-left 0.3s ease-in-out',
     overflowX: 'hidden',
+    overflowY: 'auto',
     minWidth: 0,
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
   },
   sidenav: {
     boxSizing: 'border-box',
@@ -56,12 +62,12 @@ export const styles = {
       display: 'flex !important',
       alignItems: 'center',
       justifyContent: 'center',
-      width: 40, // Ensure enough space for icons
+      width: 40,
       height: 40,
       minWidth: 40,
       minHeight: 40,
       '& svg': {
-        fontSize: '22px !important', // Force icon size
+        fontSize: '22px !important',
         color: 'currentColor !important',
         display: 'block !important',
         visibility: 'visible !important',
@@ -132,7 +138,7 @@ export const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 40, // Ensure enough space for icons
+    width: 40,
     height: 40,
     minWidth: 40,
     minHeight: 40,

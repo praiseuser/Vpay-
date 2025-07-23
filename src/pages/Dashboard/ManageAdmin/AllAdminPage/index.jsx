@@ -27,11 +27,10 @@ export default function AllAdminPage() {
       setSelectedAdminId(admin.admin_id);
       setSelectedAdminLastName(lastName);
       setShowPermissions(true);
-    } else { 
+    } else {
       console.warn('Admin not found for id:', id);
     }
   };
-
 
   return (
     <div style={{ ...styles.container, overflow: 'none', position: 'relative', zIndex: 1 }}>
@@ -72,7 +71,7 @@ export default function AllAdminPage() {
 
 function PermissionFormSection({ selectedAdminId, adminTypes, onCancel }) {
   return (
-    <div style={{ overflow: 'none', position: 'relative', zIndex: 1301, }}>
+    <div style={{ overflow: 'none', position: 'relative', zIndex: 1301 }}>
       <Header title="Add Permission" onCancel={onCancel} />
       <PermissionForm
         selectedAdminId={selectedAdminId}
@@ -86,19 +85,28 @@ function PermissionFormSection({ selectedAdminId, adminTypes, onCancel }) {
 
 function AddAdminFormSection({ adminTypes, countries }) {
   return (
-    <div style={{ overflow: 'none', position: 'relative', zIndex: 1301, }}>
-      <Header title="Add Admin"/>
-      <AddAdminForm adminTypes={adminTypes} countries={countries}/>
+    <div style={{ overflow: 'none', position: 'relative', zIndex: 1301 }}>
+      <Header title="Add Admin" />
+      <AddAdminForm adminTypes={adminTypes} countries={countries} />
     </div>
   );
 }
 
-function Header({ title, }) {
+function Header({ title, onCancel }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
       <Typography variant="h5" style={{ marginLeft: '16px', fontWeight: 600 }}>
         {title}
       </Typography>
+      {onCancel && (
+        <Typography
+          variant="h6"
+          style={{ marginRight: '16px', fontWeight: 600, cursor: 'pointer', color: '#1976d2' }}
+          onClick={onCancel}
+        >
+          Cancel
+        </Typography>
+      )}
     </div>
   );
 }

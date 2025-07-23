@@ -136,8 +136,8 @@ export const useFetchAdmin = (refreshTrigger) => {
           email: item.email || "",
           phone: item.phone || "",
           gender: item.gender || "",
-          sub_role: item.sub_role || "",
-          country_id: item.country_id || "",
+          country_name: item.country_name || "",
+          admin_type: item.admin_type || "", // Single value, no array
         }))
         : [];
 
@@ -358,11 +358,11 @@ export const useAdminPermissions = (adminId) => {
         ...(checked
           ? {}
           : {
-              create: false,
-              read: false,
-              update: false,
-              delete: false,
-            }),
+            create: false,
+            read: false,
+            update: false,
+            delete: false,
+          }),
       },
     }));
   };

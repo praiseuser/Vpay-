@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Typography, Box } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { styles } from './BalanceCardStyles';
+
 
 const withdrawalData = [
   { name: 'Savings', value: 5000 },
@@ -24,9 +24,9 @@ const BalanceCard = ({ cardShadow }) => {
               dataKey="value"
               cx="50%"
               cy="50%"
-              outerRadius={60}
-              innerRadius={40}
-              fill="#8884d8"
+              outerRadius={70}
+              innerRadius={50}
+              fill="#8884d8"a
               stroke="#FFFFFF"
               strokeWidth={1}
             >
@@ -54,3 +54,33 @@ const BalanceCard = ({ cardShadow }) => {
 };
 
 export default BalanceCard;
+
+export const styles = {
+  card: {
+    height: { xs: 250, sm: 280 },
+    borderRadius: '16px',
+    p: { xs: 2, sm: 3 },
+    marginLeft: { xs: 0, sm: '4px' },
+    boxShadow: '0px 12px 32px rgba(0, 0, 0, 0.2)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  withdrawerText: {
+    fontFamily: 'Mada, sans-serif',
+    fontSize: { xs: 18, sm: 14 },
+    fontWeight: 500,
+    color: '#0C0B18',
+    alignSelf: 'flex-start',
+    mb: 2,
+  },
+  chartContainer: {
+    width: { xs: '180px', sm: '220px' },  
+    height: { xs: '180px', sm: '220px' },
+    flexGrow: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+};

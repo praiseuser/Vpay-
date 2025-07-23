@@ -21,7 +21,7 @@ export default function NavRight({
 }) {
   return (
     <Box sx={styles.container}>
-      <Box sx={{ ...styles.navRight, display: 'flex', alignItems: 'center', opacity: 1 }}>
+      <Box sx={{ ...styles.navRight, display: { xs: 'none', md: 'flex' }, alignItems: 'center', opacity: 1 }}>
         <Box sx={{ ...styles.searchBox, display: { xs: 'none', md: 'flex' }, opacity: 1 }}>
           <SearchIcon sx={styles.searchIcon} />
           <InputBase
@@ -31,7 +31,7 @@ export default function NavRight({
           />
         </Box>
 
-        <NetworkSwitch sx={{ display: { xs: 'block', md: 'flex' } }} />
+        <NetworkSwitch sx={{ display: { xs: 'none', md: 'flex' } }} />
 
         <Box sx={{ position: 'relative', display: { xs: 'none', md: 'block' } }}>
           <Box sx={{ ...styles.iconBox, opacity: 1, visibility: 'visible' }}>
@@ -71,7 +71,7 @@ export default function NavRight({
           )}
         </Box>
 
-        <Box sx={{ position: 'relative', display: { xs: 'none', md: 'block' } }}>
+        <Box sx={{ position: 'relative', display: { xs: 'none', md: 'flex' } }}>
           <Box
             sx={{
               ...styles.userInfo,
