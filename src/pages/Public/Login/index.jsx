@@ -37,7 +37,7 @@ const Login = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: { xs: 2, sm: 4 },
+        padding: { xs: 1, sm: 2, md: 4 },
       }}
     >
       <Box
@@ -45,10 +45,10 @@ const Login = () => {
           backgroundColor: '#fff',
           borderRadius: 8,
           boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-          padding: { xs: 4, sm: 6, md: 6 },
-          width: { xs: '90%', sm: 450, md: 500 },
+          padding: { xs: 2, sm: 3, md: 6 },
+          width: { xs: '90%', sm: '85%', md: 500 },
           maxWidth: 500,
-          minHeight: 550,
+          minHeight: { xs: 400, sm: 500, md: 550 },
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -66,7 +66,6 @@ const Login = () => {
           },
         }}
       >
-
         <form
           onSubmit={handleSubmit}
           className="login-box"
@@ -76,7 +75,7 @@ const Login = () => {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            padding: '20px 30px',
+            padding: { xs: '10px 15px', sm: '20px 30px' },
             boxSizing: 'border-box',
           }}
         >
@@ -84,10 +83,10 @@ const Login = () => {
           {error && (
             <Typography
               sx={{
-                fontSize: '18px',
+                fontSize: { xs: '14px', sm: '18px' },
                 fontWeight: '700',
                 color: 'red',
-                marginBottom: '10px',
+                marginBottom: { xs: '5px', sm: '10px' },
                 fontFamily: 'Inter',
               }}
             >
@@ -104,11 +103,9 @@ const Login = () => {
               setShowPassword={setShowPassword}
             />
           </Box>
-
           <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <SubmitButton loading={loading} />
           </Box>
-
         </form>
       </Box>
     </Box>

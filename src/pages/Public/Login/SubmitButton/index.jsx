@@ -6,12 +6,8 @@ const SubmitButton = ({ loading }) => (
   <Box
     sx={{
       ...styles.signupButton,
-      border: 'none',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'relative',
-      cursor: loading ? 'not-allowed' : 'pointer',
+      width: { xs: '90%', sm: 450 },
+      marginTop: { xs: 2, sm: 4 },
     }}
     component="button"
     type="submit"

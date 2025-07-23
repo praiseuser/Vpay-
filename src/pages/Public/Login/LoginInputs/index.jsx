@@ -23,7 +23,6 @@ const LoginInputs = ({
         required
       />
     </Box>
-
     <Box sx={styles.inputField}>
       <Lock sx={styles.inputIcon} />
       <input
