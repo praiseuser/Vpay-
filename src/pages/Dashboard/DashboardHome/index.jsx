@@ -14,7 +14,7 @@ const theme = createTheme({
   },
 });
 
-const DashboardHome = () => {
+const DashboardHome = ({ isSidebarCollapsed = true }) => {
   const pieData = [
     { name: "Staked", value: 400, fill: "#377DFF" },
     { name: "Remaining", value: 300, fill: "#E7854D" },
@@ -45,7 +45,16 @@ const DashboardHome = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ flexGrow: 1, padding: '0px', marginTop: 0 }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          padding: "0px",
+          marginTop: 0,
+          maxWidth: isSidebarCollapsed ? "100%" : "calc(100% - 240px)", // Adjust 240px based on sidebar width
+          marginLeft: isSidebarCollapsed ? 0 : "240px", // Match sidebar width
+          transition: "all 0.3s ease",
+        }}
+      >
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Cards cardShadow={cardShadow} />

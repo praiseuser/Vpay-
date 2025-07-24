@@ -1,16 +1,16 @@
 export const styles = {
     card: {
-      width: { xs: "100%", sm: "100%", md: "451px" },
+      width: { xs: "100%", sm: "100%", md: "603px" },
       height: { xs: "auto", sm: 131 },
       borderRadius: "16px",
       p: { xs: 2, sm: 1 },
       mx: "auto",
-      marginLeft: { xs: 0, sm: "12px" },
+      marginLeft: { xs: 0, sm: "1px" },
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
       overflow: "hidden",
-      marginTop: "5px"
+      marginTop: "4px"
     },
     header: {
       display: "flex",
