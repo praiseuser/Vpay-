@@ -87,7 +87,7 @@ export default function ManageAdminRolesPage() {
   }, [adminTypes, loading]);
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1070, mx: 'auto', mt: 2 }}>
+    <Box sx={{ width: '100%', padding: '16px', backgroundColor: '#fff', borderRadius: '13px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
       {showAddRoleForm ? (
         <AddRolesPage onCancel={handleBackToList} onRoleAdded={handleRoleAdded} />
       ) : (

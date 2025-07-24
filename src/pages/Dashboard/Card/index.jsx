@@ -1,4 +1,3 @@
-import CustomTable from '../../../components/CustomTable';
 import { useState } from 'react';
 import { Box, Chip, Select, MenuItem, FormControl, IconButton, Button, Modal, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -6,6 +5,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import PauseIcon from '@mui/icons-material/Pause';
 import BlockIcon from '@mui/icons-material/Block';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CustomTable from '../../../components/CustomTable';
 
 const StyledTableCell = styled('span')(({ theme }) => ({
     fontFamily: 'Mada',
@@ -141,12 +141,22 @@ const Card = () => {
                     </Select>
                 </FormControl>
             </Box>
-            <CustomTable
-                columns={columns}
-                rows={formatRows(filteredCards)}
-                searchPlaceholder="search"
-                sx={{ '& .MuiTableCell-root': { padding: '12px' }, position: 'relative' }}
-            />
+            <Box
+                sx={{
+                    width: '100%',
+                    backgroundColor: '#fff',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}
+            >
+                <CustomTable
+                    columns={columns}
+                    rows={formatRows(filteredCards)}
+                    searchPlaceholder="search"
+                    sx={{ '& .MuiTableCell-root': { padding: '12px' }, position: 'relative' }}
+                />
+            </Box>
             <Modal
                 open={modalOpen}
                 onClose={handleCloseModal}

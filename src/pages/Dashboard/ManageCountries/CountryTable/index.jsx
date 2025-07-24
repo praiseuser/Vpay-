@@ -18,8 +18,6 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
 
   const [currencies, setCurrencies] = useState(initialCurrencies || countryCurrencies);
 
-
-
   useEffect(() => {
     setCurrencies(initialCurrencies || countryCurrencies);
   }, [initialCurrencies, countryCurrencies]);
@@ -29,7 +27,6 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
       viewCountry(viewId);
     }
   }, [viewId, viewLoading, viewCountry]);
-
 
   useEffect(() => {
     if (viewedCountry && !viewError && !viewLoading) {
@@ -42,7 +39,6 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
       console.log('viewedCountry is null or loading, not setting modalCountry yet');
     }
   }, [viewedCountry, viewError, viewLoading, viewId]);
-
 
   useEffect(() => {
     if (modalCountry) {
@@ -114,15 +110,21 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
   const rows = formatRows(currencies);
 
   return (
-    <>
+    <Box
+      sx={{
+        width: '100%',
+        backgroundColor: '#fff',
+        padding: '16px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      }}
+    >
       <CustomTable
         columns={columns}
         rows={rows}
         showAddButton={true}
         addButtonTitle="Add Country"
         addButtonStyle={{ marginTop: '40px' }}
-        title="Manage Countries"
-        titleStyle={tableTitleStyle}
         searchPlaceholder="search by country etc"
         onAddButtonClick={onAddButtonClick}
       />
@@ -135,7 +137,7 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
         }}
         country={modalCountry}
       />
-    </>
+    </Box>
   );
 };
 

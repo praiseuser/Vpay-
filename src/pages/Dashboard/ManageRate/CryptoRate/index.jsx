@@ -1,3 +1,4 @@
+import { Box } from '@mui/material';
 import CustomTable from '../../../../components/CustomTable';
 import CustomButton from '../../../../components/CustomButton';
 
@@ -26,15 +27,25 @@ const CryptoRate = ({ rates, onAddButtonClick }) => {
   ];
 
   return (
-    <CustomTable
-      columns={columns}
-      rows={formatRows(filteredRows)}
-      showAddButton
-      addButtonTitle="Create Rate"
-      addButtonStyle={{ marginTop: '40px' }}
-      searchPlaceholder="search"
-      onAddButtonClick={onAddButtonClick}
-    />
+    <Box
+      sx={{
+        width: '100%',
+        backgroundColor: '#fff',
+        padding: '16px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <CustomTable
+        columns={columns}
+        rows={formatRows(filteredRows)}
+        showAddButton
+        addButtonTitle="Create Rate"
+        addButtonStyle={{ marginTop: '40px' }}
+        searchPlaceholder="search"
+        onAddButtonClick={onAddButtonClick}
+      />
+    </Box>
   );
 };
 

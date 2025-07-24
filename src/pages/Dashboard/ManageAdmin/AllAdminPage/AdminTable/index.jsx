@@ -40,7 +40,7 @@ export default function AdminTable({ admins, loading, onAddAdmin, onAddPermissio
       email: admin.email,
       phone: admin.phone,
       gender: admin.gender,
-      admin_type: admin.admin_type || '', // Single value from backend
+      admin_type: admin.admin_type || '', 
       country: admin.country_name || '',
       action: (
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>

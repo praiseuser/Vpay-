@@ -30,7 +30,16 @@ function FeeTable({
   };
 
   return (
-    <Box sx={{ position: 'relative' }}>
+    <Box
+      sx={{
+        width: '100%',
+        backgroundColor: '#fff',
+        padding: '16px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        position: 'relative',
+      }}
+    >
       <CustomTable
         columns={columns}
         rows={fees.map((fee) => ({
@@ -76,17 +85,6 @@ function FeeTable({
         showAddButton
         addButtonTitle="Add Fee"
         addButtonStyle={{ marginTop: '40px' }}
-        title="Manage Fees"
-        titleStyle={{
-          fontFamily: 'Inter',
-          fontWeight: 700,
-          fontSize: '24px',
-          lineHeight: '100%',
-          letterSpacing: '0px',
-          color: '#333333',
-          marginLeft: '24px',
-          marginBottom: '7px',
-        }}
         searchPlaceholder="search"
         onAddButtonClick={onAddFeeClick}
       />

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import CustomTable from '../../../../../components/CustomTable';
 import { tableTitleStyle } from '../cryptoStyles';
 import { formatRows } from '../data/cryptoUtils';
+import { Box } from '@mui/material';
 
 const CryptoTable = ({ cryptoData, onAddButtonClick, onEditClick, loading, activeTab, setActiveTab }) => {
   const columns = [
@@ -15,17 +16,27 @@ const CryptoTable = ({ cryptoData, onAddButtonClick, onEditClick, loading, activ
   const rows = formatRows(cryptoData, onEditClick, loading);
 
   return (
-    <CustomTable
-      columns={columns}
-      rows={rows}
-      showAddButton
-      addButtonTitle="Add Crypto"
-      titleStyle={tableTitleStyle}
-      onAddButtonClick={onAddButtonClick}
-      tabLabels={['Crypto Currency', 'FIAT Currency']}
-      activeTab={activeTab}
-      onTabChange={(event, newValue) => setActiveTab(newValue)}
-    />
+    <Box
+      sx={{
+        width: '100%',
+        backgroundColor: '#fff',
+        padding: '16px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <CustomTable
+        columns={columns}
+        rows={rows}
+        showAddButton
+        addButtonTitle="Add Crypto"
+        titleStyle={tableTitleStyle}
+        onAddButtonClick={onAddButtonClick}
+        tabLabels={['Crypto Currency', 'FIAT Currency']}
+        activeTab={activeTab}
+        onTabChange={(event, newValue) => setActiveTab(newValue)}
+      />
+    </Box>
   );
 };
 

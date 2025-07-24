@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMediaQuery } from '@mui/material';
+import { useMediaQuery, Box } from '@mui/material';
 import CustomTable from '../../../components/CustomTable';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import User from '../User';
@@ -101,12 +101,17 @@ export default function ManageUser() {
       {isUserActive ? (
         <User />
       ) : (
-        <div
-          style={{
+        <Box
+          sx={{
             flexGrow: 1,
             overflowY: 'auto',
             paddingTop: isMobile ? '2px' : '4px',
             paddingBottom: '16px',
+            width: '100%',
+            backgroundColor: '#fff',
+            padding: isMobile ? '8px' : '16px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           }}
         >
           <CustomTable
@@ -132,7 +137,7 @@ export default function ManageUser() {
             searchPlaceholder="Search by country, email, etc"
             onRowClick={handleRowClick}
           />
-        </div>
+        </Box>
       )}
     </div>
   );

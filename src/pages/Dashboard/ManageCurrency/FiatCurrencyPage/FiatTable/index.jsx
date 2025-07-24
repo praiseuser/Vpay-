@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import CustomTable from '../../../../../components/CustomTable';
 import { tableTitleStyle } from '../fiatStyles';
 import { formatRows } from '../data/fiatUtils';
+import { Box } from '@mui/material';
 
 const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activeTab, setActiveTab }) => {
   const columns = [
@@ -16,25 +17,34 @@ const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activ
   const rows = formatRows(fiatData, handleEditClick, loading);
 
   return (
-    <CustomTable
-      columns={columns}
-      rows={rows}
-      showAddButton={true}
-      showFilterButton={true}
-      showFilterStyle={{ marginTop: '40px' }}
-      addButtonTitle="Add FIAT"
-      addButtonStyle={{}}
-      title="Manage Fiat"
-      titleStyle={tableTitleStyle}
-      searchPlaceholder="Search fiat..."
-      onAddButtonClick={onAddButtonClick}
-      tabLabels={['Crypto Currency', 'FIAT Currency']}
-      activeTab={activeTab}
-      onTabChange={(event, newValue) => setActiveTab(newValue)}
-    />
+    <Box
+      sx={{
+        width: '100%',
+        backgroundColor: '#fff',
+        padding: '16px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <CustomTable
+        columns={columns}
+        rows={rows}
+        showAddButton={true}
+        showFilterButton={true}
+        showFilterStyle={{ marginTop: '40px' }}
+        addButtonTitle="Add FIAT"
+        addButtonStyle={{}}
+        title="Manage Fiat"
+        titleStyle={tableTitleStyle}
+        searchPlaceholder="Search fiat..."
+        onAddButtonClick={onAddButtonClick}
+        tabLabels={['Crypto Currency', 'FIAT Currency']}
+        activeTab={activeTab}
+        onTabChange={(event, newValue) => setActiveTab(newValue)}
+      />
+    </Box>
   );
 };
-
 
 FiatTable.propTypes = {
   fiatData: PropTypes.arrayOf(

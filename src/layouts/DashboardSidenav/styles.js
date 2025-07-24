@@ -43,7 +43,7 @@ export const styles = {
     boxSizing: 'border-box',
     display: 'flex',
     flexDirection: 'column',
-    background: 'linear-gradient(135deg, #02042D, #1A2A44)',
+    background: ' #02042D',
     minHeight: '100vh',
     position: 'relative',
     boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',

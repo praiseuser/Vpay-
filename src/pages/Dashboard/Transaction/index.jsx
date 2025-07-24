@@ -112,14 +112,24 @@ const Transaction = () => {
       </Box>
 
       {/* Table */}
-      <CustomTable
-        columns={columns}
-        rows={formatRows(filteredTransactions)}
-        showAddButton={false}
-        sx={{ '& .MuiTableCell-root': { padding: '12px' } }}
-      />
+      <Box
+        sx={{
+          width: '100%',
+          backgroundColor: '#fff',
+          padding: '16px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <CustomTable
+          columns={columns}
+          rows={formatRows(filteredTransactions)}
+          showAddButton={false}
+          sx={{ '& .MuiTableCell-root': { padding: '12px' } }}
+        />
+      </Box>
     </Box>
   );
 };
 
-export default Transaction;
+export default Transaction; 

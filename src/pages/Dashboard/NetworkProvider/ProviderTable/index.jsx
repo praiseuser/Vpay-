@@ -115,31 +115,41 @@ const ProviderTable = ({ loading: tableLoading, filteredRates, onAddButtonClick 
     return (
         <>
             {!showForm && !showEditModal && (
-                <CustomTable
-                    columns={columns}
-                    rows={
-                        tableLoading
-                            ? [{
-                                provider_name: (
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                                        <CircularProgress />
-                                    </Box>
-                                ),
-                                country_id: '',
-                                unit_rate: '',
-                                provider_category: '',
-                                status: '',
-                                action: '',
-                            }]
-                            : formatRows(filteredRates)
-                    }
-                    showAddButton
-                    addButtonTitle="Add Provider"
-                    addButtonStyle={{ marginTop: '40px' }}
-                    searchPlaceholder="Search by provider etc"
-                    onAddButtonClick={handleAddButtonClick}
-                    sx={{ '& .MuiTableCell-root': { padding: '12px' } }}
-                />
+                <Box
+                    sx={{
+                        width: '100%',
+                        backgroundColor: '#fff',
+                        padding: '16px',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    }}
+                >
+                    <CustomTable
+                        columns={columns}
+                        rows={
+                            tableLoading
+                                ? [{
+                                    provider_name: (
+                                        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                            <CircularProgress />
+                                        </Box>
+                                    ),
+                                    country_id: '',
+                                    unit_rate: '',
+                                    provider_category: '',
+                                    status: '',
+                                    action: '',
+                                }]
+                                : formatRows(filteredRates)
+                        }
+                        showAddButton
+                        addButtonTitle="Add Provider"
+                        addButtonStyle={{ marginTop: '40px' }}
+                        searchPlaceholder="Search by provider etc"
+                        onAddButtonClick={handleAddButtonClick}
+                        sx={{ '& .MuiTableCell-root': { padding: '12px' } }}
+                    />
+                </Box>
             )}
 
             {showForm && <AddProviderForm onCancel={handleFormCancel} onSubmit={handleFormSubmit} />}

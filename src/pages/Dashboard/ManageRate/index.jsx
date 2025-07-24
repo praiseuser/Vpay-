@@ -66,7 +66,6 @@ const ManageRate = () => {
       </div>
 
       <div className="manage-rate-content-box">
-        <h1 className="manage-rate-title">Manage Rates</h1>
 
         {showAddRateForm ? (
           <CreateRateForm
