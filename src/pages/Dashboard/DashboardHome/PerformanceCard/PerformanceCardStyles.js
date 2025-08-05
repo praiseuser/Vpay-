@@ -5,6 +5,7 @@ export const styles = {
     borderRadius: "16px",
     p: { xs: 2, sm: 3 },
     backgroundColor: "#fff",
+    border: '1px solid #E0E0E0',
   },
   title: {
     fontFamily: "Mada, sans-serif",

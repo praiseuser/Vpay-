@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { API_BASE_URL } from '../config/path';
-import { toast } from 'react-toastify'; 
-import CustomErrorToast from '../components/CustomErrorToast';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 import CustomSuccessToast from '../components/CustomSuccessToast';
+import CustomErrorToast from '../components/CustomErrorToast';
+import { API_BASE_URL } from '../config/path';
 
 export const useFetchProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -13,42 +13,73 @@ export const useFetchProfile = () => {
   const [success, setSuccess] = useState(false);
   const token = useSelector((state) => state.user.token);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
-      setError(null);
-      setSuccess(false);
-      try {
-        const response = await axios.get(`${API_BASE_URL}/user/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log('Server response:', response.data); // Log the full server response
-        const userData = response.data.result[0] || {};
-        console.log('Raw userData:', userData); // Log raw userData before processing
-        const processedProfile = {
-          id: userData.id || null,
-          firstName: userData.firstName || userData.firstname || null, // Adjusted for schema
-          lastName: userData.lastName || userData.lastname || null,    // Adjusted for schema
-          email: userData.email || null,
-          phone: userData.phone || null,
-          gender: userData.gender || null,
-          country_id: userData.country_id || null,
-          username: userData.username || null,
-        };
-        setProfile(processedProfile);
-        console.log('Processed profile:', processedProfile); // Log the processed profile state
-        setSuccess(true);
-        toast(<CustomSuccessToast message="Profile fetched successfully!" />);
-      } catch (err) {
-        const msg = err.response?.data?.message || err.message;
-        setError(msg);
-        toast(<CustomErrorToast message={msg} />);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (token) fetchProfile(); 
+  const fetchProfile = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const userData = response.data.result || {};
+      const processedProfile = {
+        firstName: userData.firstname || userData.firstName || null,
+        lastName: userData.lastname || userData.lastName || null,
+        phone: userData.phone || null,
+      };
+      setProfile(processedProfile);
+      setSuccess(true);
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to fetch profile';
+      setError(msg);
+      toast(<CustomErrorToast message={msg} />);
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
 
-  return { profile, loading, error, success };
+  const updateProfile = useCallback(async (formData) => {
+    const errors = {};
+    if (!formData.firstName.trim()) errors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
+    if (!formData.phone.trim()) errors.phone = 'Phone number is required';
+    else if (!/^\d{10,15}$/.test(formData.phone.replace(/\D/g, ''))) {
+      errors.phone = 'Phone number must be 10-15 digits';
+    }
+    if (Object.keys(errors).length > 0) {
+      return { success: false, errors };
+    }
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/user/profile/update`,
+        {
+          firstname: formData.firstName,
+          lastname: formData.lastName,
+          phone: formData.phone,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      toast(<CustomSuccessToast message="Profile updated successfully!" />);
+      await fetchProfile();
+      return { success: true };
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to update profile';
+      toast(<CustomErrorToast message={msg} />);
+      return { success: false, errors: { general: msg } };
+    }
+  }, [token, fetchProfile]);
+
+  useEffect(() => {
+    if (token) {
+      fetchProfile();
+    } else {
+      setLoading(false);
+      setError('No authentication token found');
+    }
+  }, [token, fetchProfile]);
+
+  return { profile, loading, error, success, refetch: fetchProfile, updateProfile };
 };

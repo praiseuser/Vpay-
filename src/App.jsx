@@ -46,7 +46,6 @@ const App = () => {
                 }}
                 bodyClassName={() => "flex items-center"}
               />
-
             </UserContextProvider>
           </BrowserRouter>
         </ThemeProvider>

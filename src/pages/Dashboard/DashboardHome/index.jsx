@@ -50,8 +50,8 @@ const DashboardHome = ({ isSidebarCollapsed = true }) => {
           flexGrow: 1,
           padding: "0px",
           marginTop: 0,
-          maxWidth: isSidebarCollapsed ? "100%" : "calc(100% - 240px)", // Adjust 240px based on sidebar width
-          marginLeft: isSidebarCollapsed ? 0 : "240px", // Match sidebar width
+          maxWidth: isSidebarCollapsed ? "100%" : "calc(100% - 240px)", 
+          marginLeft: isSidebarCollapsed ? 0 : "240px", 
           transition: "all 0.3s ease",
         }}
       >

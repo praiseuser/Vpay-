@@ -1,86 +1,99 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Avatar, Grid, Paper, CircularProgress, Alert } from '@mui/material';
-import { styled } from '@mui/system';
+import { Box, Typography, Avatar, CircularProgress, Alert, Divider, Button } from '@mui/material';
+import { ProfileCard, HeaderGradient, StyledAvatar, InfoRow, UpdateButton } from './styles';
 import { useFetchProfile } from '../../../Hooks/useProfile';
-
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  borderRadius: 16,
-  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-  background: '#fff',
-  textAlign: 'center',
-  transition: 'transform 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-  },
-}));
+import UpdateProfileModal from '../ProfilePage/UpdateProfileModal';
+import PersonIcon from '@mui/icons-material/Person';
 
 const ProfilePage = () => {
-  const { profile, loading, error, success } = useFetchProfile();
+  const { profile, loading, error, success, updateProfile } = useFetchProfile();
   const [initials, setInitials] = useState('');
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+  });
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     if (profile) {
-      const firstInitial = profile.firstName?.charAt(0) || ''; // Updated to firstName
-      const lastInitial = profile.lastName?.charAt(0) || '';   // Updated to lastName
+      const firstInitial = profile.firstName?.charAt(0) || '';
+      const lastInitial = profile.lastName?.charAt(0) || '';
       setInitials(`${firstInitial}${lastInitial}`);
-      console.log('Profile in component:', profile); // Debug log in component
+      setFormData({
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        phone: profile.phone || '',
+      });
     }
   }, [profile]);
 
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setFormErrors({});
+  };
+
   if (loading) return (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-      <CircularProgress size={60} />
+      <CircularProgress size={60} color="primary" />
     </Box>
   );
   if (error) return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, maxWidth: 600, mx: 'auto' }}>
       <Alert severity="error">{error}</Alert>
     </Box>
   );
 
   return (
-    <Box sx={{ p: 4, background: '#f5f7fa', minHeight: '100vh' }}>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 4, color: '#333', textAlign: 'center' }}>
-        User Profile
-      </Typography>
-      <Grid container justifyContent="center">
-        <Grid item xs={12} md={6}>
-          <StyledPaper elevation={3}>
-            <Avatar
-              sx={{ width: 120, height: 120, mx: 'auto', mb: 3, bgcolor: '#1976d2', fontSize: 40 }}
-            >
-              {initials}
-            </Avatar>
-            <Typography variant="h5" sx={{ mb: 1, color: '#1976d2' }}>
-              {profile?.username || 'N/A'}
-            </Typography>
-            <Typography variant="subtitle1" sx={{ mb: 2, color: '#666' }}>
-              ID: {profile?.id || 'N/A'}
-            </Typography>
-            <Box sx={{ textAlign: 'left', mt: 2 }}>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>First Name:</strong> {profile?.firstName || 'N/A'} // Updated to firstName
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Last Name:</strong> {profile?.lastName || 'N/A'}   // Updated to lastName
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Email:</strong> {profile?.email || 'N/A'}
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 1}}>
-                <strong>Phone:</strong> {profile?.phone || 'N/A'}
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Gender:</strong> {profile?.gender || 'N/A'}
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Country ID:</strong> {profile?.country_id || 'N/A'}
-              </Typography>
-            </Box>
-          </StyledPaper>
-        </Grid>
-      </Grid>
+    <Box sx={{ p: { xs: 2, md: 4 }, background: '#ffffff', minHeight: '100vh' }}>
+      <ProfileCard elevation={2}>
+        <HeaderGradient>
+          <Typography variant="h5" sx={{ fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
+            User Profile
+          </Typography>
+        </HeaderGradient>
+        <StyledAvatar>
+          {initials || <PersonIcon sx={{ fontSize: 34 }} />}
+        </StyledAvatar>
+        <Box sx={{ px: { xs: 2, md: 4 } }}>
+          <InfoRow>
+            <Typography className="label">First Name:</Typography>
+            <Typography className="value">{profile?.firstName || 'N/A'}</Typography>
+          </InfoRow>
+          <Divider sx={{ my: 1, bgcolor: '#e0e0e0' }} />
+          <InfoRow>
+            <Typography className="label">Last Name:</Typography>
+            <Typography className="value">{profile?.lastName || 'N/A'}</Typography>
+          </InfoRow>
+          <Divider sx={{ my: 1, bgcolor: '#e0e0e0' }} />
+          <InfoRow>
+            <Typography className="label">Phone:</Typography>
+            <Typography className="value">{profile?.phone || 'N/A'}</Typography>
+          </InfoRow>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2 }}>
+          <UpdateButton
+            variant="contained"
+            onClick={handleOpen}
+          >
+            Update Profile
+          </UpdateButton>
+        </Box>
+      </ProfileCard>
+      <UpdateProfileModal
+        open={open}
+        handleClose={handleClose}
+        formData={formData}
+        setFormData={setFormData}
+        formErrors={formErrors}
+        setFormErrors={setFormErrors}
+        updateProfile={updateProfile}
+      />
     </Box>
   );
 };

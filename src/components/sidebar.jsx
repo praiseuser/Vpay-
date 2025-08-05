@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Drawer, IconButton, Tooltip, CircularProgress } from '@mui/material';
+import { useLocation } from 'react-router-dom';
+import { Box, Drawer, IconButton, Tooltip } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -16,50 +16,31 @@ import SupportIcon from '@mui/icons-material/Support';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { dashboardDrawerWidth } from '../../constants/dimensions';
-import { useLogout } from '../../Hooks/authentication';
 import { styles } from './styles';
 
-const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse }) => {
-  const [localCollapsed, setLocalCollapsed] = useState(collapsed);
+const DashboardSideNav = ({ mobileOpen, onClose }) => {
+  const [collapsed, setCollapsed] = useState(true); // Default to collapsed
   const location = useLocation();
-  const navigate = useNavigate();
-  const { logout, loading } = useLogout();
 
-  const handleToggle = () => {
-    setLocalCollapsed(!localCollapsed);
-    handleToggleCollapse();
-  };
+  const handleToggle = () => setCollapsed(!collapsed);
 
   const navItems = [
     { label: 'Dashboard', icon: <DashboardIcon sx={{ fontSize: 18 }} />, link: '/dashboard' },
-    { label: 'ManageUser', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/dashboard/user' },
-    { label: 'ManageFees', icon: <AttachMoneyIcon sx={{ fontSize: 18 }} />, link: '/dashboard/fees' },
-    { label: 'ManageRate', icon: <RateReviewIcon sx={{ fontSize: 18 }} />, link: '/dashboard/rate' },
-    { label: 'ManageCountries', icon: <PublicIcon sx={{ fontSize: 18 }} />, link: '/dashboard/countries' },
-    { label: 'ManageCurrency', icon: <CurrencyExchangeIcon sx={{ fontSize: 18 }} />, link: '/dashboard/currency' },
+    { label: 'ManageUser', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/manage-user' },
+    { label: 'ManageFees', icon: <AttachMoneyIcon sx={{ fontSize: 18 }} />, link: '/manage-fees' },
+    { label: 'ManageRate', icon: <RateReviewIcon sx={{ fontSize: 18 }} />, link: '/manage-rate' },
+    { label: 'ManageCountries', icon: <PublicIcon sx={{ fontSize: 18 }} />, link: '/manage-countries' },
+    { label: 'ManageCurrency', icon: <CurrencyExchangeIcon sx={{ fontSize: 18 }} />, link: '/manage-currency' },
     { label: 'ManageProviders', icon: <BusinessIcon sx={{ fontSize: 18 }} />, link: '/manage-providers' },
-    { label: 'Card', icon: <CreditCardIcon sx={{ fontSize: 18 }} />, link: '/dashboard/card' },
-    { label: 'Transaction', icon: <ReceiptIcon sx={{ fontSize: 18 }} />, link: '/dashboard/transaction' },
-    { label: 'Support', icon: <SupportIcon sx={{ fontSize: 18 }} />, link: '/dashboard/support' },
-    { label: 'Profile', icon: <PersonIcon sx={{ fontSize: 18 }} />, link: '/dashboard/profile' },
-    { label: 'Settings', icon: <SettingsIcon sx={{ fontSize: 18 }} />, link: '/dashboard/settings' },
-    { label: 'logout', icon: <LogoutIcon sx={{ fontSize: 18 }} />, link: '/logout', onClick: logout },
+    { label: 'Card', icon: <CreditCardIcon sx={{ fontSize: 18 }} />, link: '/card' },
+    { label: 'Transaction', icon: <ReceiptIcon sx={{ fontSize: 18 }} />, link: '/transaction' },
+    { label: 'Support', icon: <SupportIcon sx={{ fontSize: 18 }} />, link: '/support' },
+    { label: 'Profile', icon: <PersonIcon sx={{ fontSize: 18 }} />, link: '/profile' },
+    { label: 'Settings', icon: <SettingsIcon sx={{ fontSize: 18 }} />, link: '/settings' },
+    { label: 'logout', icon: <LogoutIcon sx={{ fontSize: 18 }} />, link: '/logout' },
   ];
 
   const isActive = (path) => location.pathname === path;
-
-  const handleItemClick = (item) => {
-    if (item.onClick) {
-      item.onClick();
-    } else {
-      navigate(item.link);
-    }
-    if (!localCollapsed) {
-      setLocalCollapsed(true);
-      handleToggleCollapse();
-    }
-  };
 
   return (
     <Drawer
@@ -67,13 +48,13 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
       sx={{
         '& .MuiDrawer-paper': {
           ...styles.sidebar,
-          width: localCollapsed ? 80 : dashboardDrawerWidth,
+          width: collapsed ? 80 : 240,
           transition: 'width 0.3s ease-in-out',
         },
       }}
     >
       <Box sx={styles.header}>
-        {localCollapsed ? (
+        {collapsed ? (
           <IconButton onClick={handleToggle} sx={styles.toggleButton}>
             <ChevronLeftIcon />
           </IconButton>
@@ -90,11 +71,11 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
       </Box>
       <Box sx={styles.navContainer}>
         {navItems.map((item) => (
-          <Tooltip title={localCollapsed ? item.label : ''} placement="right" key={item.label}>
+          <Tooltip title={collapsed ? item.label : ''} placement="right" key={item.label}>
             <Box
               sx={{
                 ...styles.navItem,
-                justifyContent: localCollapsed ? 'center' : 'flex-start',
+                justifyContent: collapsed ? 'center' : 'flex-start',
                 background: isActive(item.link) ? styles.navItem.active.background : 'transparent',
                 color: isActive(item.link) ? '#00FFCC' : '#B0B3B8',
                 boxShadow: isActive(item.link) ? styles.navItem.active.shadow : 'none',
@@ -102,14 +83,12 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
                   background: isActive(item.link) ? styles.navItem.active.hover : 'rgba(0, 255, 204, 0.1)',
                   color: '#fff',
                 },
-                animation: isActive(item.link) ? 'none' : 'slideRotate 0.5s ease-out',
               }}
-              onClick={() => handleItemClick(item)}
+              onClick={() => (window.location.href = item.link)}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: localCollapsed ? 0 : 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: collapsed ? 0 : 2 }}>
                 {item.icon}
-                {!localCollapsed && <span style={styles.navText}>{item.label}</span>}
-                {loading && item.label === 'logout' && <CircularProgress size={16} sx={{ color: '#fff', ml: 1 }} />}
+                {!collapsed && <span style={styles.navText}>{item.label}</span>}
               </Box>
             </Box>
           </Tooltip>
@@ -122,7 +101,7 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': { ...styles.sidebar, width: dashboardDrawerWidth },
+          '& .MuiDrawer-paper': { ...styles.sidebar, width: 240 },
         }}
       >
         <Box sx={styles.header}>
@@ -147,13 +126,11 @@ const DashboardSideNav = ({ mobileOpen, onClose, collapsed, handleToggleCollapse
                   background: isActive(item.link) ? styles.navItem.active.hover : 'rgba(0, 255, 204, 0.1)',
                   color: '#fff',
                 },
-                animation: isActive(item.link) ? 'none' : 'slideRotate 0.5s ease-out',
               }}
-              onClick={() => handleItemClick(item)}
+              onClick={() => (window.location.href = item.link)}
             >
               {item.icon}
               <span style={styles.navText}>{item.label}</span>
-              {loading && item.label === 'logout' && <CircularProgress size={16} sx={{ color: '#fff', ml: 1 }} />}
             </Box>
           ))}
         </Box>

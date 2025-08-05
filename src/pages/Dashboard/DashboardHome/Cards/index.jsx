@@ -62,10 +62,11 @@ const Cards = ({ cardShadow }) => {
     <Box
       sx={{
         width: "100%",
-        backgroundColor: "#fff",
+        backgroundColor: "white",
         padding: "16px",
         borderRadius: "16px",
         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+        border: '1px solid #E0E0E0',
       }}
     >
       <Box sx={styles.container}>

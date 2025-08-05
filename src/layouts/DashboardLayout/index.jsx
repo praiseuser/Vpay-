@@ -9,7 +9,7 @@ import { styles } from '../DashboardSidenav/styles';
 
 const DashboardLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(true); 
+  const [collapsed, setCollapsed] = useState(true);
   const location = useLocation();
   const user = useSelector((state) => state.user);
 
@@ -53,7 +53,7 @@ const DashboardLayout = ({ children }) => {
       <DashboardSideNav
         mobileOpen={mobileOpen}
         onClose={handleDrawerClose}
-        onTransitionEnd={() => {}}
+        onTransitionEnd={() => { }}
         collapsed={collapsed}
         handleToggleCollapse={handleToggleCollapse}
       />
@@ -61,12 +61,15 @@ const DashboardLayout = ({ children }) => {
         component="main"
         sx={{
           ...styles.content,
-          pl: collapsed ? `${dashboardLayoutPad}px` : `${dashboardLayoutPad + (dashboardDrawerWidth - 80)}px`,
-          
+          pl: collapsed ? `calc(80px + 16px)` : `${dashboardLayoutPad + dashboardDrawerWidth}px`,
+          pr: '16px',
+          pt: `${dashboardNavHeight + dashboardLayoutPad}px`,
+          pb: '16px',
         }}
       >
         {children}
       </Box>
+
     </Box>
   );
 };

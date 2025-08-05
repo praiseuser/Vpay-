@@ -26,7 +26,7 @@ const BalanceCard = ({ cardShadow }) => {
               cy="50%"
               outerRadius={70}
               innerRadius={50}
-              fill="#8884d8"a
+              fill="#8884d8" a
               stroke="#FFFFFF"
               strokeWidth={1}
             >
@@ -66,6 +66,7 @@ export const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
+    border: '1px solid #E0E0E0',
   },
   withdrawerText: {
     fontFamily: 'Mada, sans-serif',
@@ -76,7 +77,7 @@ export const styles = {
     mb: 2,
   },
   chartContainer: {
-    width: { xs: '180px', sm: '220px' },  
+    width: { xs: '180px', sm: '220px' },
     height: { xs: '180px', sm: '220px' },
     flexGrow: 1,
     display: 'flex',

@@ -61,14 +61,15 @@ export const styles = {
 
   searchBox: {
     backgroundColor: '#F5F5F5',
-    borderRadius: 2,
+    borderRadius: 5,
     border: '1px solid #ddd',
     padding: { xs: '4px 8px', md: '6px 12px' },
-    width: { xs: '100%', md: 240 },
-    maxWidth: { xs: 200, md: 240 },
+    width: { xs: '90%', md: '350px' },
+    maxWidth: { xs: 300, md: 350 },
     height: { xs: 32, md: 35 },
     display: { xs: 'none', md: 'flex' },
     alignItems: 'center',
+    margin: '0 auto',
   },
 
   searchIcon: {
@@ -105,8 +106,8 @@ export const styles = {
   },
 
   userAvatar: {
-    width: { xs: 32, md: 40 },
-    height: { xs: 32, md: 40 },
+    width: { xs: 34, md: 45 },
+    height: { xs: 34, md: 45 },
     borderRadius: '50%',
     backgroundColor: 'whitesmoke',
     display: 'flex',
@@ -120,12 +121,16 @@ export const styles = {
     fontSize: { xs: '16px', md: '18px' },
     fontFamily: 'Mada, sans-serif',
     color: 'grey',
+    marginTop: { xs: 0, md: 0 },
+    textTransform: 'uppercase',
+    textalign: 'center',
+    lineHeight: { xs: '34px', md: '45px' },
   },
 
   activeIndicator: {
     position: 'absolute',
-    top: 1,
     right: 2,
+    top: 3,
     width: { xs: 8, md: 10 },
     height: { xs: 8, md: 10 },
     backgroundColor: 'green',

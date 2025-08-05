@@ -33,7 +33,7 @@ const StyledHeaderCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: '#f5f5f5',
   fontFamily: 'Raleway, sans-serif',
   fontWeight: 600,
-  fontSize: 12,
+  fontSize: 10,
   color: '#555',
   position: 'sticky',
   top: 0,
@@ -90,7 +90,7 @@ const TableContainerComponent = ({
               <TableCell colSpan={columns.length} align="center">
                 <Typography
                   variant="body2"
-                  sx={{ py: 2, fontFamily: 'Raleway, sans-serif', color: '#888' }}
+                  sx={{ py: 2, fontFamily: 'Raleway, sans-serif', color: '#888', fontSize: 13 }} 
                 >
                   No data found.
                 </Typography>
