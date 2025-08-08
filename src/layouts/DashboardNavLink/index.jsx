@@ -1,26 +1,41 @@
-import { styled } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Box, Tooltip, CircularProgress } from '@mui/material';
+import { styles } from '../styles';
 
-const DashboardNavigLink = styled(Link)(({ isactive, collapsed }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  textDecoration: 'none',
-  width: collapsed ? '100%' : '200px', // Flexible width in collapsed state
-  height: collapsed ? '48px' : '32px', // Match parent Box height
-  borderRadius: '8px',
-  padding: collapsed ? '0' : '0 8px', // Remove padding in collapsed state
-  fontWeight: 500,
-  color: '#888B93',
-  ...(isactive == 1 && {
-    color: '#D9D9D9',
-    backgroundColor: '#1e7bb7',
-    fontWeight: 500,
-    maxWidth: collapsed ? '80px' : '170px', // Adjust maxWidth for collapsed state
-    '& svg': {
-      color: '#fff',
-    },
-  }),
-}));
+const DashboardNavLink = ({ item, isActive, localCollapsed, dropdownOpen, handleDropdownToggle, handleItemClick, loading }) => {
+  return (
+    <Tooltip title={localCollapsed ? item.label : ''} placement="right">
+      <Box
+        sx={{
+          ...styles.navItem,
+          justifyContent: localCollapsed ? 'center' : 'flex-start',
+          background: isActive ? styles.navItem.active.background : 'transparent',
+          color: isActive ? '#00FFCC' : '#B0B3B8',
+          boxShadow: isActive ? styles.navItem.active.shadow : 'none',
+          '&:hover': {
+            background: isActive ? styles.navItem.active.hover : 'rgba(0, 255, 204, 0.1)',
+            color: '#fff',
+          },
+          animation: isActive ? 'none' : 'slideRotate 0.5s ease-out',
+        }}
+        onClick={() => (item.dropdown ? handleDropdownToggle() : handleItemClick(item))}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: localCollapsed ? 0 : 2, position: 'relative' }}>
+          {item.icon}
+          {!localCollapsed && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+              <span style={styles.navText}>{item.label}</span>
+              {item.dropdown && dropdownOpen && (
+                <Box sx={{ pl: 2, color: '#B0B3B8', fontSize: '0.9rem', ml: '-4px' }}>
+                  {item.content}
+                </Box>
+              )}
+            </Box>
+          )}
+          {loading && item.label === 'logout' && <CircularProgress size={16} sx={{ color: '#fff', ml: 1 }} />}
+        </Box>
+      </Box>
+    </Tooltip>
+  );
+};
 
-export default DashboardNavigLink;
+export default DashboardNavLink;

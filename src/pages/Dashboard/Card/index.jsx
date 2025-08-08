@@ -120,7 +120,7 @@ const Card = () => {
     );
 
     return (
-        <Box sx={{ p: 1, backgroundColor: 'whitesmoke', position: 'relative' }}>
+        <Box sx={{ position: 'relative' }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
                 <FormControl sx={{ minWidth: 200 }}>
                     <Select
@@ -144,10 +144,10 @@ const Card = () => {
             <Box
                 sx={{
                     width: '100%',
-                    backgroundColor: '#fff',
+                    backgroundColor: 'white',
                     padding: '16px',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    borderRadius: '16px',
+                    boxShadow: '0 8px 10px rgba(0, 0, 0, 0.1)',
                 }}
             >
                 <CustomTable
@@ -215,12 +215,12 @@ const Card = () => {
                         onClick={() => handleToggleBlock(selectedCard)}
                         variant="contained"
                         sx={{
-                            width: '80px', // Reduced width
-                            height: '30px', // Reduced height
+                            width: '80px',
+                            height: '30px',
                             margin: '0 0 8px 0',
                             backgroundColor: cards.find(card => card.cardNumber === selectedCard)?.isBlocked ? '#28a745' : '#dc3545',
                             '&:hover': { backgroundColor: cards.find(card => card.cardNumber === selectedCard)?.isBlocked ? '#218838' : '#c82333' },
-                            fontSize: '12px', // Reduced font size for smaller buttons
+                            fontSize: '12px',
                         }}
                     >
                         {cards.find(card => card.cardNumber === selectedCard)?.isBlocked ? 'Unblock' : 'Block'}

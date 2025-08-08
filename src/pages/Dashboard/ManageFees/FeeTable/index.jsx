@@ -33,11 +33,10 @@ function FeeTable({
     <Box
       sx={{
         width: '100%',
-        backgroundColor: '#fff',
-        padding: '16px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        position: 'relative',
+        backgroundColor: 'white',
+        p: 1,
+        borderRadius: '16px',
+        boxShadow: '0 8px 10px rgba(0, 0, 0, 0.1)',
       }}
     >
       <CustomTable

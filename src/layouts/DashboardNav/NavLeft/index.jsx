@@ -16,7 +16,6 @@ export default function NavLeft({ handleDrawerToggle, currentRoute, titleStyle, 
       >
         <MenuIcon />
       </IconButton>
-
       <Box sx={{ display: 'flex', flexDirection: { xs: 'row', md: 'column' }, alignItems: { md: 'flex-start' } }}>
         <Typography sx={{ ...styles.navTitle, ...titleStyle, marginBottom: { md: 1 } }}>
           {currentRoute}

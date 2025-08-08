@@ -114,29 +114,41 @@ export default function ManageUser() {
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <CustomTable
-            columns={columns}
-            rows={rows}
-            showAddButton={false}
-            showFilterButton={true}
-            addButtonTitle="Add Country"
-            addButtonStyle={{ marginTop: '40px' }}
-            title=""
-            titleStyle={{
-              fontFamily: 'Inter',
-              fontWeight: 700,
-              fontSize: '24px',
-              lineHeight: '100%',
-              letterSpacing: '0px',
-              color: '#333333',
-              marginLeft: '24px',
-              marginBottom: '7px',
+          <Box
+            sx={{
+              width: '100%',
+              backgroundColor: 'white',
+              p: 1,
+              borderRadius: '16px',
+              boxShadow: '0 8px 10px rgba(0, 0, 0, 0.1)',
             }}
-            searchTerm={searchTerm}
-            handleSearchChange={handleSearchChange}
-            searchPlaceholder="Search by country, email, etc"
-            onRowClick={handleRowClick}
-          />
+          >
+
+            <CustomTable
+              columns={columns}
+              rows={rows}
+              showAddButton={false}
+              showFilterButton={true}
+              addButtonTitle="Add Country"
+              addButtonStyle={{ marginTop: '40px' }}
+              title=""
+              titleStyle={{
+                fontFamily: 'Inter',
+                fontWeight: 700,
+                fontSize: '24px',
+                lineHeight: '100%',
+                letterSpacing: '0px',
+                color: '#333333',
+                marginLeft: '24px',
+                marginBottom: '7px',
+              }}
+              searchTerm={searchTerm}
+              handleSearchChange={handleSearchChange}
+              searchPlaceholder="Search by country, email, etc"
+              onRowClick={handleRowClick}
+            />
+          </Box>
+
         </Box>
       )}
     </div>

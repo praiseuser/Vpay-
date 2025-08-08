@@ -1,4 +1,4 @@
-import { dashboardDrawerWidth, dashbaordNavHeight, dashboardLayoutPad } from '../../constants/dimensions';
+import {  dashbaordNavHeight, dashboardDrawerWidth, dashboardLayoutPad } from '../constants/dimensions';
 
 export const styles = {
   wrap: {
