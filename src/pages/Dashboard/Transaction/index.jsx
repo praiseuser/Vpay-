@@ -1,65 +1,59 @@
 import { useState } from 'react';
-import { Box, TextField, MenuItem, Chip } from '@mui/material';
+import { Box, TextField, MenuItem, Chip, Typography, CircularProgress } from '@mui/material';
 import CustomTable from '../../../components/CustomTable';
 import { styled } from '@mui/material/styles';
 import { transactionStyles } from './style';
+import useFetchTransactions from '../../../Hooks/useTransactions';
 
 const StyledTableCell = styled('span')(({ theme }) => transactionStyles.styledTableCell);
 
 const Transaction = () => {
   const [filterType, setFilterType] = useState('All');
   const [filterCategory, setFilterCategory] = useState('All');
+  const { transactions, loading, error, refetch } = useFetchTransactions();
 
-  const dummyTransactions = [
-    { id: 1, type: 'fiat', category: 'airtime', amount: 500, date: '2025-06-20', status: true },
-    { id: 2, type: 'crypto', category: 'data', amount: 0.05, date: '2025-06-21', status: false },
-    { id: 3, type: 'fiat', category: 'bills', amount: 1200, date: '2025-06-22', status: true },
-    { id: 4, type: 'crypto', category: 'transfer', amount: 0.1, date: '2025-06-23', status: true },
-    { id: 5, type: 'fiat', category: 'airtime', amount: 300, date: '2025-06-19', status: false },
-    { id: 6, type: 'crypto', category: 'bills', amount: 0.02, date: '2025-06-18', status: true },
-  ];
-
-  const filteredTransactions = dummyTransactions.filter((transaction) => {
-    const typeMatch = filterType === 'All' || transaction.type === filterType;
-    const categoryMatch = filterCategory === 'All' || transaction.category === filterCategory;
+  const filteredTransactions = transactions.filter((transaction) => {
+    const typeMatch = filterType === 'All' || transaction.transaction_data.currencyType === filterType;
+    const categoryMatch = filterCategory === 'All' || transaction.transaction_data.service === filterCategory;
     return typeMatch && categoryMatch;
   });
 
   const formatRows = (data) =>
     data.map((item) => ({
       id: <StyledTableCell className="table-text font-weight-600">{item.id}</StyledTableCell>,
-      type: <StyledTableCell className="table-text font-weight-400">{item.type.toUpperCase()}</StyledTableCell>,
-      category: <StyledTableCell className="table-text font-weight-400">{item.category}</StyledTableCell>,
-      amount: (
-        <StyledTableCell className="table-text font-weight-400">
-          {item.amount} {item.type === 'fiat' ? 'NGN' : 'BTC'}
-        </StyledTableCell>
-      ),
-      date: <StyledTableCell className="table-text font-weight-400">{item.date}</StyledTableCell>,
+      userId: <StyledTableCell className="table-text font-weight-400">{item.user_id}</StyledTableCell>,
+      service: <StyledTableCell className="table-text font-weight-400">{item.transaction_data.service}</StyledTableCell>,
+      provider: <StyledTableCell className="table-text font-weight-400">{item.transaction_data.provider}</StyledTableCell>,
+      amount: <StyledTableCell className="table-text font-weight-400">{item.transaction_data.amount} {item.transaction_data.currency}</StyledTableCell>,
       status: (
         <StyledTableCell>
           <Chip
-            label={item.status ? 'Active' : 'Inactive'}
-            color={item.status ? 'success' : 'default'}
+            label={item.transaction_data.status}
+            color={item.transaction_data.status === 'success' ? 'success' : 'default'}
             size="small"
             variant="outlined"
             sx={{ fontWeight: 500 }}
           />
         </StyledTableCell>
       ),
+      createdAt: <StyledTableCell className="table-text font-weight-400">{item.created_at}</StyledTableCell>,
     }));
 
   const columns = [
     { id: 'id', label: 'ID', minWidth: 70 },
-    { id: 'type', label: 'TYPE', minWidth: 120 },
-    { id: 'category', label: 'CATEGORY', minWidth: 150 },
-    { id: 'amount', label: 'AMOUNT', minWidth: 150 },
-    { id: 'date', label: 'DATE', minWidth: 150 },
+    { id: 'userId', label: 'USER ID', minWidth: 100 },
+    { id: 'service', label: 'SERVICE', minWidth: 150 },
+    { id: 'provider', label: 'PROVIDER', minWidth: 150 },
+    { id: 'amount', label: 'AMOUNT', minWidth: 120 },
     { id: 'status', label: 'STATUS', minWidth: 120 },
+    { id: 'createdAt', label: 'CREATED AT', minWidth: 150 },
   ];
 
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
+  if (error) return <Box sx={{ p: 4 }}><Typography color="error">{error}</Typography></Box>;
+
   return (
-    <Box sx={{ p: 1, backgroundColor: 'whitesmoke' }}>
+    <Box sx={{ p: 0 }}>
       <Box sx={transactionStyles.filterContainer}>
         <TextField
           select
@@ -105,22 +99,13 @@ const Transaction = () => {
         >
           <MenuItem value="All">All Categories</MenuItem>
           <MenuItem value="airtime">Airtime</MenuItem>
-          <MenuItem value="data">Data</MenuItem>
-          <MenuItem value="bills">Bills</MenuItem>
-          <MenuItem value="transfer">Transfer</MenuItem>
+          <MenuItem value="mobile data">Mobile Data</MenuItem>
+          <MenuItem value="cable tv">Cable TV</MenuItem>
+          <MenuItem value="electricity">Electricity</MenuItem>
         </TextField>
       </Box>
 
-      {/* Table */}
-      <Box
-        sx={{
-          width: '100%',
-          backgroundColor: '#fff',
-          padding: '16px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        }}
-      >
+      <Box>
         <CustomTable
           columns={columns}
           rows={formatRows(filteredTransactions)}
@@ -132,4 +117,4 @@ const Transaction = () => {
   );
 };
 
-export default Transaction; 
+export default Transaction;

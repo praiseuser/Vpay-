@@ -18,13 +18,7 @@ const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activ
 
   return (
     <Box
-      sx={{
-        width: '100%',
-        backgroundColor: '#fff',
-        padding: '16px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      }}
+      
     >
       <CustomTable
         columns={columns}

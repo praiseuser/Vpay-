@@ -37,6 +37,7 @@ const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
   const navItems = [
     { label: 'Dashboard', icon: <DashboardIcon sx={{ fontSize: 18 }} />, link: '/dashboard' },
     { label: 'ManageUser', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/dashboard/user' },
+    { label: 'ManageAdmin', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/dashboard/admin' },
     { label: 'ManageFees', icon: <AttachMoneyIcon sx={{ fontSize: 18 }} />, link: '/dashboard/fees' },
     { label: 'ManageRate', icon: <RateReviewIcon sx={{ fontSize: 18 }} />, link: '/dashboard/rate' },
     { label: 'ManageCountries', icon: <PublicIcon sx={{ fontSize: 18 }} />, link: '/dashboard/countries' },

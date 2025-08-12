@@ -16,14 +16,14 @@ const TableHeader = ({
   titleStyle,
   searchTerm,
   handleSearchChange,
-  searchPlaceholder = "Search...",
+  searchPlaceholder = 'Search...',
   showAddButton = false,
-  addButtonTitle = "Add",
+  addButtonTitle = 'Add',
   addButtonStyle = {},
   onAddButtonClick = () => {},
 }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Box

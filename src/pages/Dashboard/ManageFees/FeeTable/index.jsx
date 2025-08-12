@@ -31,13 +31,7 @@ function FeeTable({
 
   return (
     <Box
-      sx={{
-        width: '100%',
-        backgroundColor: 'white',
-        p: 1,
-        borderRadius: '16px',
-        boxShadow: '0 8px 10px rgba(0, 0, 0, 0.1)',
-      }}
+     
     >
       <CustomTable
         columns={columns}

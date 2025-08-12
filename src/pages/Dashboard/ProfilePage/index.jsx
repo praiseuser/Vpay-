@@ -50,7 +50,7 @@ const ProfilePage = () => {
   );
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, background: '#ffffff', minHeight: '100vh' }}>
+    <Box sx={{ p: { xs: 1, md: 3 }, background: '#ffffff', minHeight: '100vh' }}>
       <ProfileCard elevation={2}>
         <HeaderGradient>
           <Typography variant="h5" sx={{ fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>

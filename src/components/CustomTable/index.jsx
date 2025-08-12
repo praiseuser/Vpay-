@@ -18,15 +18,16 @@ const CustomTable = ({
   searchTerm: propSearchTerm = '',
   handleSearchChange: propHandleSearchChange,
   searchPlaceholder = 'Search...',
-  onAddButtonClick = () => { },
+  onAddButtonClick = () => {},
   onFilterApply,
   countryOptions = [],
   networkOptions = [],
   statusOptions = [],
-  onRowClick = () => { },
+  onRowClick = () => {},
   tabLabels = [],
   activeTab,
   onTabChange,
+  collapsed, // Added collapsed prop
 }) => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(propSearchTerm);
@@ -74,13 +75,11 @@ const CustomTable = ({
   return (
     <Paper
       sx={{
-        width: '100%',
-        maxWidth: 1070,
         m: '0 auto',
-        border: '1.5px solid #DCE7EC',
-        borderRadius: '16px',
+        border: '1px solid #DCE7EC',
+        borderRadius: '12px',
         backgroundColor: 'white',
-        p: { xs: 2, md: 3 },
+        p: { xs: 1, md: 2 },
         display: 'flex',
         flexDirection: 'column',
         maxHeight: { xs: 'calc(100vh - 250px)', md: '80vh' },
