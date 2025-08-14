@@ -1,5 +1,6 @@
 import { Modal, Box, Button, Typography, CircularProgress } from '@mui/material';
 import { useUpdateCardStatus } from '../../../../Hooks/useCards';
+import { toast } from 'react-toastify';
 
 const CardModal = ({ open, onClose, selectedCard, cards, handleToggleActive, handleToggleFreeze, handleToggleBlock }) => {
     const getStatus = (card) => {
@@ -10,27 +11,31 @@ const CardModal = ({ open, onClose, selectedCard, cards, handleToggleActive, han
     };
 
     const card = cards.find(card => card.cardNumber === selectedCard);
-    const { freezeCard, loading, error } = useUpdateCardStatus();
+    const { updateCardStatus, loading, error } = useUpdateCardStatus();
+
+    const handleActivate = async () => {
+        if (card && !loading) {
+            const newStatus = card.isActive ? 'cancel' : 'activate';
+            const success = await updateCardStatus(card.id, newStatus);
+            if (success) handleToggleActive(selectedCard);
+        }
+        onClose();
+    };
 
     const handleFreeze = async () => {
         if (card && !loading) {
-            const success = await freezeCard(card.id);
+            const newStatus = card.isFrozen ? 'cancel' : 'freeze';
+            const success = await updateCardStatus(card.id, newStatus);
             if (success) handleToggleFreeze(selectedCard);
         }
         onClose();
     };
 
-    // Placeholder for other actions since only freeze is supported by the API
-    const handleActivate = () => {
-        if (!loading) {
-            toast.warning('Activate/Deactivate not supported by this API endpoint');
-        }
-        onClose();
-    };
-
-    const handleBlock = () => {
-        if (!loading) {
-            toast.warning('Block/Unblock not supported by this API endpoint');
+    const handleBlock = async () => {
+        if (card && !loading) {
+            const newStatus = card.isBlocked ? 'cancel' : 'block';
+            const success = await updateCardStatus(card.id, newStatus);
+            if (success) handleToggleBlock(selectedCard);
         }
         onClose();
     };

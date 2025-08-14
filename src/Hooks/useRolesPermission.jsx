@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../config/path';
 import { toast } from 'react-toastify';
@@ -260,7 +260,7 @@ export const useAddAdmin = () => {
   };
 };
 
-export const useAdminPermissions = (adminId) => {
+export const useAdminPermissions = (id) => {
   const token = useSelector((state) => state.user.token);
 
   const [permissions, setPermissions] = useState({});
@@ -268,11 +268,20 @@ export const useAdminPermissions = (adminId) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState(null);
 
+  // Fetch permissions by id
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${API_BASE_URL}/admin/role-permissions/${adminId}`, {
+        setError(null);
+
+        if (!id || !token) {
+          setPermissions({});
+          setLoading(false);
+          return;
+        }
+
+        const res = await axios.get(`${API_BASE_URL}/admin/role-permissions/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -323,7 +332,7 @@ export const useAdminPermissions = (adminId) => {
         console.log('Parsed permission object:', permObj);
         setPermissions(permObj);
       } catch (err) {
-        setError(err);
+        setError(err.message || 'Failed to fetch permissions');
         console.error('Fetch error:', err);
         toast(<CustomErrorToast message="Failed to fetch admin permissions." />);
       } finally {
@@ -331,14 +340,10 @@ export const useAdminPermissions = (adminId) => {
       }
     };
 
-    if (adminId && token) {
-      fetchPermissions();
-    } else {
-      setPermissions({});
-      setLoading(false);
-    }
-  }, [adminId, token]);
+    fetchPermissions();
+  }, [id, token]);
 
+  // Handle permission change for a specific action
   const handlePermissionChange = (module, action, value) => {
     setPermissions((prev) => ({
       ...prev,
@@ -349,6 +354,7 @@ export const useAdminPermissions = (adminId) => {
     }));
   };
 
+  // Handle toggle for admin type (module) checked state
   const handleAdminTypeToggle = (module, checked) => {
     setPermissions((prev) => ({
       ...prev,
@@ -367,47 +373,58 @@ export const useAdminPermissions = (adminId) => {
     }));
   };
 
-  // const updatePermissions = async (updatedPermissions) => {
-  //   try {
-  //     setIsUpdating(true);
+  // Update permissions using sub-role IDs
+  const updatePermissions = useCallback(async (updatedPermissions) => {
+    try {
+      setIsUpdating(true);
+      setError(null);
 
-  //     const permissionsPayload = {};
+      if (!id || !token) {
+        setError('ID or token is missing');
+        toast(<CustomErrorToast message="Authentication or ID is missing." />);
+        setIsUpdating(false);
+        return false;
+      }
 
-  //     Object.entries(updatedPermissions)
-  //       .filter(([_, value]) => value.id && !isNaN(Number(value.id)))
-  //       .forEach(([_, value]) => {
-  //         permissionsPayload[Number(value.id)] = {
-  //           create: Boolean(value.create),
-  //           read: Boolean(value.read),
-  //           update: Boolean(value.update),
-  //           delete: Boolean(value.delete),
-  //           status: Boolean(value.checked),
-  //         };
-  //       });
+      const permissionsPayload = {};
+      Object.entries(updatedPermissions)
+        .filter(([_, value]) => value.id && !isNaN(Number(value.id)))
+        .forEach(([_, value]) => {
+          permissionsPayload[Number(value.id)] = {
+            create: Boolean(value.create),
+            read: Boolean(value.read),
+            update: Boolean(value.update),
+            delete: Boolean(value.delete),
+            status: Boolean(value.checked),
+          };
+        });
 
-  //     console.log('🔁 Cleaned payload to send:', permissionsPayload);
+      console.log('🔁 Cleaned payload to send:', permissionsPayload);
 
-  //     const res = await axios.post(
-  //       `${API_BASE_URL}/admin/role-permission/update/${adminId}`,
-  //       permissionsPayload,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //           'Content-Type': 'application/json',
-  //         },
-  //       }
-  //     );
+      const res = await axios.post(
+        `${API_BASE_URL}/admin/role-permission/update/${id}`,
+        permissionsPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-  //     console.log('Update response:', res.data);
-  //     toast(<CustomSuccessToast message="Permissions updated successfully!" />);
-  //   } catch (err) {
-  //     console.log('Update error:', err.response?.data || err.message);
-  //     setError(err);
-  //     toast(<CustomErrorToast message="Failed to update admin permissions." />);
-  //   } finally {
-  //     setIsUpdating(false);
-  //   }
-  // };
+      console.log('Update response:', res.data);
+      toast(<CustomSuccessToast message="Permissions updated successfully!" />);
+      return true;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to update permissions';
+      setError(errorMessage);
+      console.error('Update error:', err.response?.data || err.message);
+      toast(<CustomErrorToast message="Failed to update admin permissions." />);
+      return false;
+    } finally {
+      setIsUpdating(false);
+    }
+  }, [id, token]);
 
   return {
     permissions,
@@ -416,7 +433,7 @@ export const useAdminPermissions = (adminId) => {
     error,
     handlePermissionChange,
     handleAdminTypeToggle,
-    // updatePermissions,
+    updatePermissions,
   };
 };
 

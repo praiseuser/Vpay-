@@ -17,7 +17,7 @@ const useFetchTransactions = () => {
     setError(null);
 
     if (!token) {
-      console.warn('No token found in useFetchTransactions');
+      console.warn('No token found in useFetchTransactions'); 
       setError('Authentication token is missing');
       toast.error('Authentication token is missing');
       setLoading(false);
@@ -34,9 +34,8 @@ const useFetchTransactions = () => {
       });
 
       console.log('Transactions response:', response.data);
-      if (response.data.serviceTransactions) {
-        setTransactions(response.data.serviceTransactions);
-        toast.success('Transactions fetched successfully');
+      if (response.data.serviceSummary) {
+        setTransactions(response.data.serviceSummary);
       } else {
         setTransactions([]);
         console.warn('No serviceTransactions found in response');

@@ -19,6 +19,7 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
     permissions,
     loading,
     isUpdating,
+    error,
     handlePermissionChange,
     handleAdminTypeToggle,
     updatePermissions,
@@ -34,15 +35,14 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
         modulePerms.create || modulePerms.read || modulePerms.update || modulePerms.delete;
 
       formatted[name] = {
-        id: modulePerms.id || '',
+        id: modulePerms.id || modulePerms.admin_type_id || '', // Use admin_type_id as fallback for id
         enabled: Boolean(modulePerms.checked || hasAnyPermission),
         create: modulePerms.create || false,
         read: modulePerms.read || false,
         update: modulePerms.update || false,
         delete: modulePerms.delete || false,
-        admin_type_id: modulePerms.admin_type_id,
+        admin_type_id: modulePerms.admin_type_id || '',
         checked: Boolean(modulePerms.checked),
-
       };
     });
     console.log('Formatted permissions with IDs:', formatted);
@@ -94,7 +94,10 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
 
     console.log('Final payload to updatePermissions:', validPermissions);
 
-    await updatePermissions(validPermissions);
+    const success = await updatePermissions(validPermissions);
+    if (success) {
+      // Optionally refetch or notify success (handled by hook toast)
+    }
   };
 
   return (
@@ -136,6 +139,8 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
               <Box height="50vh" display="flex" justifyContent="center" alignItems="center">
                 <CircularProgress />
               </Box>
+            ) : error ? (
+              <Typography color="error" sx={{ p: 2 }}>{error}</Typography>
             ) : (
               <Grid container spacing={3}>
                 {modules.map((module) => (

@@ -49,7 +49,6 @@ const Transaction = () => {
     { id: 'createdAt', label: 'CREATED AT', minWidth: 150 },
   ];
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
   if (error) return <Box sx={{ p: 4 }}><Typography color="error">{error}</Typography></Box>;
 
   return (
@@ -105,12 +104,28 @@ const Transaction = () => {
         </TextField>
       </Box>
 
-      <Box>
+      <Box sx={{ position: 'relative', minHeight: '200px' }}>
+        {loading && (
+          <Box sx={{
+            position: 'absolute',
+            top: '70%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            height: '100%',
+            zIndex: 1,
+          }}>
+            <CircularProgress />
+          </Box>
+        )}
         <CustomTable
           columns={columns}
           rows={formatRows(filteredTransactions)}
           showAddButton={false}
-          sx={{ '& .MuiTableCell-root': { padding: '12px' } }}
+          sx={{ '& .MuiTableCell-root': { padding: '12px' }, opacity: loading ? 0.5 : 1 }}
         />
       </Box>
     </Box>

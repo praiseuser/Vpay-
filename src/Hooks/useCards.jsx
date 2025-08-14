@@ -83,13 +83,12 @@ const useFetchCards = () => {
 
     return { cards, loading, error, refetch: fetchCards };
 };
-
 const useUpdateCardStatus = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const token = useSelector((state) => state.user.token);
 
-    const freezeCard = useCallback(async (cardId) => {
+    const updateCardStatus = useCallback(async (cardId, status) => {
         setLoading(true);
         setError(null);
 
@@ -102,10 +101,10 @@ const useUpdateCardStatus = () => {
         }
 
         try {
-            console.log(`Freezing card ${cardId} at: ${API_BASE_URL}/v1/user/card/status`);
+            console.log(`Updating card ${cardId} status to ${status} at: ${API_BASE_URL}/user/card/status`);
             const response = await axios.post(
                 `${API_BASE_URL}/user/card/status`,
-                { cardId, action: 'freeze' }, // Adjusted payload based on freezing only
+                { cardId, status },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -114,12 +113,12 @@ const useUpdateCardStatus = () => {
                 }
             );
 
-            console.log('Freeze card response:', response.data);
-            toast.success('Card frozen successfully');
+            console.log('Update card status response:', response.data);
+            toast.success(`Card ${status.toLowerCase()}d successfully`);
             return true;
         } catch (err) {
-            const errorMessage = err.response?.data?.message || err.message || 'Failed to freeze card';
-            console.error('Error freezing card:', {
+            const errorMessage = err.response?.data?.message || err.message || `Failed to ${status.toLowerCase()} card`;
+            console.error('Error updating card status:', {
                 status: err.response?.status,
                 data: err.response?.data,
                 message: err.message,
@@ -129,11 +128,11 @@ const useUpdateCardStatus = () => {
             return false;
         } finally {
             setLoading(false);
-            console.log('Freeze operation completed. Loading:', false);
+            console.log('Status update operation completed. Loading:', false);
         }
     }, [token]);
 
-    return { freezeCard, loading, error };
+    return { updateCardStatus, loading, error };
 };
 
 export { useFetchCards, useUpdateCardStatus };   
