@@ -268,7 +268,7 @@ export const useAdminPermissions = (id) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch permissions by id
+
   useEffect(() => {
     const fetchPermissions = async () => {
       try {

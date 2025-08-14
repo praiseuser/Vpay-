@@ -14,7 +14,7 @@ const modules = [
 
 const permissionsList = ['Create', 'Read', 'Update', 'Delete'];
 
-const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
+const ViewRolesPermissions = ({ id, firstName, lastName, onBack }) => {
   const {
     permissions,
     loading,
@@ -23,7 +23,7 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
     handlePermissionChange,
     handleAdminTypeToggle,
     updatePermissions,
-  } = useAdminPermissions(adminId);
+  } = useAdminPermissions(id);
 
   const [formattedPermissions, setFormattedPermissions] = useState({});
 
