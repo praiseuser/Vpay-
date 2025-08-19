@@ -11,26 +11,26 @@ const LoginInputs = ({
   showPassword,
   setShowPassword,
 }) => (
-  <Box sx={styles.inputContainer}>
-    <Box sx={styles.inputField}>
+  <Box sx={{ ...styles.inputContainer, width: '100%' }}>
+    <Box sx={{ ...styles.inputField, width: '100%' }}>
       <Email sx={styles.inputIcon} />
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        style={styles.input}
+        style={{ ...styles.input, width: '100%' }}
         required
       />
     </Box>
-    <Box sx={styles.inputField}>
+    <Box sx={{ ...styles.inputField, width: '100%' }}>
       <Lock sx={styles.inputIcon} />
       <input
         type={showPassword ? 'text' : 'password'}
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        style={styles.input}
+        style={{ ...styles.input, width: '100%' }}
         required
       />
       <Box

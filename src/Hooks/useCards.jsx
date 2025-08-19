@@ -11,11 +11,13 @@ const useFetchCards = () => {
     const [cards, setCards] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showPasswordModal, setShowPasswordModal] = useState(true);
+    const [passwordVerified, setPasswordVerified] = useState(false);
     const hasFetched = useRef(false);
 
     const token = useSelector((state) => state.user.token);
 
-    const fetchCards = async () => {
+    const verifyPasswordAndFetchCards = async (accountPassword) => {
         setLoading(true);
         setError(null);
 
@@ -24,15 +26,22 @@ const useFetchCards = () => {
             setError('Authentication token is missing');
             toast.error('Authentication token is missing');
             setLoading(false);
-            return;
+            return false;
+        }
+
+        if (!accountPassword) {
+            setError('Account password is required');
+            toast.error('Account password is required');
+            setLoading(false);
+            return false;
         }
 
         try {
-            console.log(`Fetching cards from: ${API_BASE_URL}/admin/cards`);
             const response = await axios.get(`${API_BASE_URL}/admin/cards`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
+                    'account-password': accountPassword,
                 },
             });
 
@@ -56,32 +65,48 @@ const useFetchCards = () => {
                 }))
                 : [];
 
-            console.log('Formatted cards:', formattedCards);
+            
             if (formattedCards.length === 0) {
                 setError('No cards available');
                 toast.info('No cards found');
             } else {
                 setCards(formattedCards);
             }
+
+            setPasswordVerified(true);
+            setShowPasswordModal(false);
+            hasFetched.current = true;
+            return true;
+
         } catch (err) {
-            const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch cards';
+            const errorMessage = err.response?.data?.message || err.message || 'Invalid password or failed to fetch cards';
             console.error('Error fetching cards:', err.response ? { status: err.response.status, data: err.response.data } : err.message);
             setError(errorMessage);
             toast.error(errorMessage);
+            return false;
         } finally {
             setLoading(false);
             console.log('Fetch cards operation completed. Loading:', false);
         }
     };
 
-    useEffect(() => {
-        if (token && !hasFetched.current) {
-            fetchCards();
-            hasFetched.current = true;
-        }
-    }, [token]);
+    const resetState = () => {
+        setCards([]);
+        setPasswordVerified(false);
+        setShowPasswordModal(true);
+        setError(null);
+        hasFetched.current = false;
+    };
 
-    return { cards, loading, error, refetch: fetchCards };
+    return { 
+        cards, 
+        loading, 
+        error, 
+        showPasswordModal,
+        passwordVerified,
+        verifyPassword: verifyPasswordAndFetchCards,
+        resetState
+    };
 };
 const useUpdateCardStatus = () => {
     const [loading, setLoading] = useState(false);

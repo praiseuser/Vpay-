@@ -33,7 +33,7 @@ const Login = () => {
       sx={{
         minHeight: '100vh',
         width: '100vw',
-        backgroundColor: '#02042D',
+        background: 'linear-gradient(135deg, #02042D, #0A0F3F)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -43,29 +43,20 @@ const Login = () => {
       <Box
         sx={{
           backgroundColor: '#fff',
-          borderRadius: 8,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-          padding: { xs: 2, sm: 3, md: 6 },
-          width: { xs: '90%', sm: '85%', md: 500 },
-          maxWidth: 500,
-          minHeight: { xs: 400, sm: 500, md: 550 },
+          borderRadius: '20px',
+          boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
+          padding: { xs: 3, sm: 4, md: 5 },
+          width: { xs: '95%', sm: '85%', md: '55%' },
+          maxWidth: 720,
+          minHeight: { xs: 450, sm: 500, md: 560 },
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           position: 'relative',
           border: '2px solid #0A0F3F',
-          '&:before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '5px',
-            backgroundColor: '#0A0F3F',
-            borderRadius: '8px 8px 0 0',
-          },
         }}
       >
+
         <form
           onSubmit={handleSubmit}
           className="login-box"
@@ -75,7 +66,7 @@ const Login = () => {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            padding: { xs: '10px 15px', sm: '20px 30px' },
+            padding: '30px 40px',
             boxSizing: 'border-box',
           }}
         >
@@ -103,7 +94,7 @@ const Login = () => {
               setShowPassword={setShowPassword}
             />
           </Box>
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mt: 2 }}>
             <SubmitButton loading={loading} />
           </Box>
         </form>

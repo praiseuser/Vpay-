@@ -6,7 +6,7 @@ const SubmitButton = ({ loading }) => (
   <Box
     sx={{
       ...styles.signupButton,
-      width: { xs: '90%', sm: 450 },
+      width: '100%', // full card width
       marginTop: { xs: 2, sm: 4 },
     }}
     component="button"

@@ -91,7 +91,6 @@ export const useAddRolesPermission = () => {
 
   return { addRolesPermission, loading, error, success };
 };
-
 export const useFetchAdmin = (refreshTrigger) => {
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -172,7 +171,6 @@ export const useFetchAdmin = (refreshTrigger) => {
 
   return { admins, loading, error, responseData, refetch: fetchAdmins };
 };
-
 export const useAddAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [adminTypes, setAdminTypes] = useState([]);
@@ -259,15 +257,11 @@ export const useAddAdmin = () => {
     loadingTypes,
   };
 };
-
-export const useAdminPermissions = (id) => {
+export const useFetchAdminPermissions = (id) => {
   const token = useSelector((state) => state.user.token);
-
   const [permissions, setPermissions] = useState({});
   const [loading, setLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState(null);
-
 
   useEffect(() => {
     const fetchPermissions = async () => {
@@ -275,9 +269,14 @@ export const useAdminPermissions = (id) => {
         setLoading(true);
         setError(null);
 
-        if (!id || !token) {
+        console.log('Attempting to fetch permissions for id:', id);
+        console.log('Using token:', !!token ? 'Present' : 'Missing');
+        console.log('Endpoint:', `${API_BASE_URL}/admin/role-permissions/${id}`);
+
+        if (!id || !token || isNaN(Number(id))) {
           setPermissions({});
           setLoading(false);
+          console.log('Fetch aborted: id is invalid or token missing', { id, token });
           return;
         }
 
@@ -285,8 +284,7 @@ export const useAdminPermissions = (id) => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log('Raw API response:', res.data.result);
-
+        console.log('Full API response with available data for id:', id, res.data);
         const dataArray = Array.isArray(res.data.result) ? res.data.result : [];
 
         const sortedData = [...dataArray].sort((a, b) => {
@@ -329,11 +327,11 @@ export const useAdminPermissions = (id) => {
           };
         });
 
-        console.log('Parsed permission object:', permObj);
+        console.log('Parsed permission object with admin_type_id for id:', id, permObj);
         setPermissions(permObj);
       } catch (err) {
         setError(err.message || 'Failed to fetch permissions');
-        console.error('Fetch error:', err);
+        console.error('Fetch error details for id:', id, err.response?.status, err.response?.data, err.message);
         toast(<CustomErrorToast message="Failed to fetch admin permissions." />);
       } finally {
         setLoading(false);
@@ -343,7 +341,18 @@ export const useAdminPermissions = (id) => {
     fetchPermissions();
   }, [id, token]);
 
-  // Handle permission change for a specific action
+  return {
+    permissions,
+    setPermissions,
+    loading,
+    error,
+  };
+};
+export const useUpdateAdminPermissions = (Adminid, permissions, setPermissions) => {
+  const token = useSelector((state) => state.user.token);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState(null);
+
   const handlePermissionChange = (module, action, value) => {
     setPermissions((prev) => ({
       ...prev,
@@ -354,7 +363,6 @@ export const useAdminPermissions = (id) => {
     }));
   };
 
-  // Handle toggle for admin type (module) checked state
   const handleAdminTypeToggle = (module, checked) => {
     setPermissions((prev) => ({
       ...prev,
@@ -364,71 +372,79 @@ export const useAdminPermissions = (id) => {
         ...(checked
           ? {}
           : {
-            create: false,
-            read: false,
-            update: false,
-            delete: false,
-          }),
+              create: false,
+              read: false,
+              update: false,
+              delete: false,
+            }),
       },
     }));
   };
 
-  // Update permissions using sub-role IDs
-  const updatePermissions = useCallback(async (updatedPermissions) => {
-    try {
-      setIsUpdating(true);
-      setError(null);
+  const updatePermissions = useCallback(
+    (updatedPermissions) => {
+      console.log('updatePermissions called with admin_id:', Adminid, 'and permissions:', updatedPermissions);
+      const verifyPasswordAndUpdatePermissions = async (accountPassword) => {
+        try {
+          setIsUpdating(true);
+          setError(null);
 
-      if (!id || !token) {
-        setError('ID or token is missing');
-        toast(<CustomErrorToast message="Authentication or ID is missing." />);
-        setIsUpdating(false);
-        return false;
-      }
+          if (!Adminid || !token || isNaN(Number(Adminid))) {
+            setError('Invalid admin_id or token is missing');
+            toast(<CustomErrorToast message="Invalid admin ID or authentication missing." />);
+            setIsUpdating(false);
+            return false;
+          }
 
-      const permissionsPayload = {};
-      Object.entries(updatedPermissions)
-        .filter(([_, value]) => value.id && !isNaN(Number(value.id)))
-        .forEach(([_, value]) => {
-          permissionsPayload[Number(value.id)] = {
-            create: Boolean(value.create),
-            read: Boolean(value.read),
-            update: Boolean(value.update),
-            delete: Boolean(value.delete),
-            status: Boolean(value.checked),
-          };
-        });
+          const permissionsPayload = {};
+          Object.entries(updatedPermissions)
+            .filter(([_, value]) => value.admin_type_id && !isNaN(Number(value.admin_type_id)))
+            .forEach(([_, value]) => {
+              const adminTypeId = Number(value.admin_type_id);
+              console.log('Processing admin type ID for admin_id:', Adminid, adminTypeId);
+              permissionsPayload[adminTypeId] = {
+                create: Boolean(value.create),
+                read: Boolean(value.read),
+                update: Boolean(value.update),
+                delete: Boolean(value.delete),
+                status: value.checked ? 1 : 0,
+              };
+            });
 
-      console.log('🔁 Cleaned payload to send:', permissionsPayload);
+          console.log('Sending permissions payload with admin type IDs for admin_id:', Adminid, permissionsPayload);
+          const res = await axios.post(
+            `${API_BASE_URL}/admin/role-permissions/?admin_id=${Adminid}`,
+            permissionsPayload,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'account-password': accountPassword,
+              },
+            }
+          );
 
-      const res = await axios.post(
-        `${API_BASE_URL}/admin/role-permission/update/${id}`,
-        permissionsPayload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          console.log('Update response for admin_id:', Adminid, res.data);
+          toast(<CustomSuccessToast message="Permissions updated successfully!" />);
+          return true;
+        } catch (err) {
+          const errorMessage = err.response?.data?.message || err.message || 'Failed to update permissions';
+          setError(errorMessage);
+          console.error('Update error for admin_id:', Adminid, err.response?.data || err.message);
+          toast(<CustomErrorToast message="Failed to update admin permissions." />);
+          return false;
+        } finally {
+          setIsUpdating(false);
         }
-      );
+      };
 
-      console.log('Update response:', res.data);
-      toast(<CustomSuccessToast message="Permissions updated successfully!" />);
-      return true;
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to update permissions';
-      setError(errorMessage);
-      console.error('Update error:', err.response?.data || err.message);
-      toast(<CustomErrorToast message="Failed to update admin permissions." />);
-      return false;
-    } finally {
-      setIsUpdating(false);
-    }
-  }, [id, token]);
+      console.log('Returning verifyPasswordAndUpdatePermissions as function for admin_id:', Adminid);
+      return verifyPasswordAndUpdatePermissions;
+    },
+    [Adminid, token]
+  );
 
   return {
-    permissions,
-    loading,
     isUpdating,
     error,
     handlePermissionChange,
@@ -436,7 +452,6 @@ export const useAdminPermissions = (id) => {
     updatePermissions,
   };
 };
-
 export const usePermissions = () => {
   const token = useSelector((state) => state.user.token);
 

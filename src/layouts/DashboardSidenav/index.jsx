@@ -36,18 +36,19 @@ const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
 
   const navItems = [
     { label: 'Dashboard', icon: <DashboardIcon sx={{ fontSize: 18 }} />, link: '/dashboard' },
-    { label: 'ManageUser', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/dashboard/user' },
-    { label: 'ManageAdmin', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/dashboard/admin' },
-    { label: 'ManageFees', icon: <AttachMoneyIcon sx={{ fontSize: 18 }} />, link: '/dashboard/fees' },
-    { label: 'ManageRate', icon: <RateReviewIcon sx={{ fontSize: 18 }} />, link: '/dashboard/rate' },
-    { label: 'ManageCountries', icon: <PublicIcon sx={{ fontSize: 18 }} />, link: '/dashboard/countries' },
-    { label: 'ManageCurrency', icon: <CurrencyExchangeIcon sx={{ fontSize: 18 }} />, link: '/dashboard/currency' },
-    { label: 'ManageProviders', icon: <BusinessIcon sx={{ fontSize: 18 }} />, isDropdown: true },
+    { label: 'Manage User', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/dashboard/user' },
+    { label: 'Manage Admin', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/dashboard/admin' },
+    { label: 'Manage Fees', icon: <AttachMoneyIcon sx={{ fontSize: 18 }} />, link: '/dashboard/fees' },
+    { label: 'Manage Rate', icon: <RateReviewIcon sx={{ fontSize: 18 }} />, link: '/dashboard/rate' },
+    { label: 'Manage Countries', icon: <PublicIcon sx={{ fontSize: 18 }} />, link: '/dashboard/countries' },
+    { label: 'Manage Currency', icon: <CurrencyExchangeIcon sx={{ fontSize: 18 }} />, link: '/dashboard/currency' },
+    { label: 'Manage Providers', icon: <BusinessIcon sx={{ fontSize: 18 }} />, isDropdown: true },
     { label: 'Card', icon: <CreditCardIcon sx={{ fontSize: 18 }} />, link: '/dashboard/card' },
     { label: 'Transaction', icon: <ReceiptIcon sx={{ fontSize: 18 }} />, link: '/dashboard/transaction' },
     { label: 'Support', icon: <SupportIcon sx={{ fontSize: 18 }} />, link: '/dashboard/support' },
     { label: 'Profile', icon: <PersonIcon sx={{ fontSize: 18 }} />, link: '/dashboard/profile' },
     { label: 'Settings', icon: <SettingsIcon sx={{ fontSize: 18 }} />, link: '/dashboard/settings' },
+    { label: 'Account Password', icon: <SettingsIcon sx={{ fontSize: 18 }} />, link: '/dashboard/account-password' },
     { label: 'logout', icon: <LogoutIcon sx={{ fontSize: 18 }} />, link: '/logout', onClick: logout },
   ];
 

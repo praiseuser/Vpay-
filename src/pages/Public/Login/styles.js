@@ -13,7 +13,7 @@ export const styles = {
     width: { xs: '100px', sm: '150px' },
     height: { xs: '40px', sm: '70px' },
     objectFit: 'cover',
-    marginBottom: { xs: '5px', sm: '10px' },
+    marginBottom: { xs: '10px', sm: '20px' },
   },
   title: {
     fontFamily: 'Mada, sans-serif',
@@ -32,7 +32,7 @@ export const styles = {
     letterSpacing: '0%',
     textAlign: 'center',
     marginTop: { xs: '30px', sm: '70px' },
-    fontFamily: 'Mada, sans-serif',
+    fontFamily: 'Mada,',
   },
   inputContainer: {
     display: 'flex',

@@ -10,8 +10,8 @@ import AdminTable from '../AllAdminPage/AdminTable';
 export default function AllAdminPage() {
   const [showPermissions, setShowPermissions] = useState(false);
   const [showAddPermissionForm, setShowAddPermissionForm] = useState(false);
-  const [selectedAdminId, setSelectedAdminId] = useState(null);
-  const [selectedAdminLastName, setSelectedAdminLastName] = useState('');
+  const [selectedId, setSelectedId] = useState(null); // Reverted to selectedId
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
 
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -19,13 +19,12 @@ export default function AllAdminPage() {
   const { adminTypes, countries } = useAddAdmin();
 
   const handleShowPermissions = (id) => {
-    const admin = admins.find((a) => a.admin_id === id || a.id === id);
-    console.log('Admin selected for permissions:', admin);
+    const admin = admins.find((a) => a.id === id); // Find admin by id
+    console.log('Admin selected for permissions with id:', id, 'admin:', admin);
 
     if (admin) {
-      const lastName = admin.lastname || 'Unknown Last Name';
-      setSelectedAdminId(admin.admin_id);
-      setSelectedAdminLastName(lastName);
+      setSelectedId(id); // Set selectedId to the passed id
+      setSelectedAdmin(admin);
       setShowPermissions(true);
     } else {
       console.warn('Admin not found for id:', id);
@@ -36,13 +35,14 @@ export default function AllAdminPage() {
     <div style={{ ...styles.container, overflow: 'none', position: 'relative', zIndex: 1 }}>
       {showPermissions ? (
         <ViewRolesPermissions
-          adminId={selectedAdminId}
-          lastName={selectedAdminLastName}
+          id={selectedId} // Reverted to id
+          firstName={selectedAdmin?.firstname || 'Unknown'}
+          lastName={selectedAdmin?.lastname || 'Unknown'}
           onBack={() => setShowPermissions(false)}
         />
       ) : showAddPermissionForm ? (
         <PermissionFormSection
-          selectedAdminId={selectedAdminId}
+          selectedAdminId={selectedId} // Using selectedId
           adminTypes={adminTypes}
           onCancel={() => setShowAddPermissionForm(false)}
         />
@@ -58,9 +58,9 @@ export default function AllAdminPage() {
           onAddAdmin={() => setShowAddForm(true)}
           onShowPermissions={handleShowPermissions}
           onAddPermission={(id) => {
-            const admin = admins.find((a) => a.admin_id === id || a.id === id);
-            console.log('Selected Admin for Add Permission:', admin, 'ID:', id);
-            setSelectedAdminId(admin ? admin.admin_id : null);
+            const admin = admins.find((a) => a.id === id); // Using only id
+            console.log('Selected Admin for Add Permission with id:', id, 'admin:', admin);
+            setSelectedId(id); // Set selectedId to the passed id
             setShowAddPermissionForm(true);
           }}
         />

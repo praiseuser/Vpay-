@@ -20,6 +20,7 @@ import BettingProvider from "../pages/Dashboard/BettingProvider";
 import Card from "../pages/Dashboard/Card";
 import Transaction from "../pages/Dashboard/Transaction";
 import Support from "../pages/Dashboard/Support";
+import AccountPassword from "../pages/Dashboard/AccountPassword";
 
 const DashboardRoutes = () => {
   return (
@@ -43,6 +44,7 @@ const DashboardRoutes = () => {
         <Route path="/dashboard/card" element={<Card />} />
         <Route path="/dashboard/transaction" element={<Transaction />} />
         <Route path="/dashboard/support" element={<Support />} />
+        <Route path="/dashboard/account-password" element={<AccountPassword />} />
       </Routes> 
     </DashboardLayout>
   );

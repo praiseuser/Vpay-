@@ -2,52 +2,59 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Checkbox, Grid, Button } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import CustomSwitch from '../../../../../components/CustomSwitch';
-import { useAdminPermissions } from '../../../../../Hooks/useRolesPermission';
-
-const modules = [
-  { name: 'CURRENCIES' },
-  { name: 'BLOG' },
-  { name: 'FEES' },
-  { name: 'COUNTRIES' },
-  { name: 'USERS' },
-];
+import { useFetchAdminPermissions } from '../../../../../Hooks/useRolesPermission';
+import { useUpdateAdminPermissions } from '../../../../../Hooks/useRolesPermission';
+import PasswordModal from '../ViewRolesPermissions/PasswordModal'; // Adjust path as needed
 
 const permissionsList = ['Create', 'Read', 'Update', 'Delete'];
 
-const ViewRolesPermissions = ({ id, firstName, lastName, onBack }) => {
+const ViewRolesPermissions = ({ Adminid, firstName, lastName, onBack }) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [accountPassword, setAccountPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
   const {
     permissions,
+    setPermissions,
     loading,
+    error: fetchError,
+  } = useFetchAdminPermissions(Adminid); // Pass Adminid as id to the fetch hook
+
+  const {
     isUpdating,
-    error,
+    error: updateError,
     handlePermissionChange,
     handleAdminTypeToggle,
     updatePermissions,
-  } = useAdminPermissions(id);
+  } = useUpdateAdminPermissions(Adminid, permissions, setPermissions);
+
+  console.log('Received Adminid (used as id for fetch, admin_id for update) in ViewRolesPermissions:', Adminid);
 
   const [formattedPermissions, setFormattedPermissions] = useState({});
 
   useEffect(() => {
     const formatted = {};
-    modules.forEach(({ name }) => {
-      const modulePerms = permissions?.[name] || {};
-      const hasAnyPermission =
-        modulePerms.create || modulePerms.read || modulePerms.update || modulePerms.delete;
-
-      formatted[name] = {
-        id: modulePerms.id || modulePerms.admin_type_id || '', // Use admin_type_id as fallback for id
-        enabled: Boolean(modulePerms.checked || hasAnyPermission),
-        create: modulePerms.create || false,
-        read: modulePerms.read || false,
-        update: modulePerms.update || false,
-        delete: modulePerms.delete || false,
-        admin_type_id: modulePerms.admin_type_id || '',
-        checked: Boolean(modulePerms.checked),
-      };
-    });
-    console.log('Formatted permissions with IDs:', formatted);
+    if (permissions && Object.keys(permissions).length > 0) {
+      Object.keys(permissions).forEach((moduleName) => {
+        const modulePerms = permissions[moduleName] || {};
+        const hasAnyPermission =
+          modulePerms.create || modulePerms.read || modulePerms.update || modulePerms.delete;
+        if (modulePerms.admin_type_id && !isNaN(Number(modulePerms.admin_type_id)) && Number(modulePerms.admin_type_id) > 0) {
+          formatted[moduleName] = {
+            admin_type_id: modulePerms.admin_type_id,
+            enabled: Boolean(modulePerms.checked || hasAnyPermission),
+            create: modulePerms.create || false,
+            read: modulePerms.read || false,
+            update: modulePerms.update || false,
+            delete: modulePerms.delete || false,
+            checked: Boolean(modulePerms.checked),
+          };
+        }
+      });
+    }
+    console.log('Formatted permissions for Adminid (id for fetch, admin_id for update):', Adminid, formatted);
     setFormattedPermissions(formatted);
-  }, [permissions]);
+  }, [permissions, Adminid]);
 
   const handleToggle = (moduleName) => {
     const isEnabled = !formattedPermissions[moduleName]?.enabled;
@@ -78,27 +85,32 @@ const ViewRolesPermissions = ({ id, firstName, lastName, onBack }) => {
     handlePermissionChange(moduleName, perm.toLowerCase(), newValue);
   };
 
-  const handleUpdateClick = async () => {
-    const validPermissions = Object.fromEntries(
-      Object.entries(formattedPermissions)
-        .filter(([_, value]) => value.id && !isNaN(Number(value.id)))
-        .map(([key, value]) => [
-          key,
-          {
-            ...value,
-            id: Number(value.id),
-            checked: Boolean(value.checked),
-          },
-        ])
-    );
-
-    console.log('Final payload to updatePermissions:', validPermissions);
-
-    const success = await updatePermissions(validPermissions);
+  const handlePasswordSubmit = async () => {
+    if (!accountPassword.trim()) {
+      return;
+    }
+    
+    setPasswordLoading(true);
+    const updateFunc = updatePermissions(formattedPermissions);
+    const success = await updateFunc(accountPassword);
+    setPasswordLoading(false);
+    
     if (success) {
-      // Optionally refetch or notify success (handled by hook toast)
+      setAccountPassword('');
+      setModalOpen(false);
     }
   };
+
+  const handlePasswordModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const handleUpdateClick = () => {
+    setModalOpen(true);
+  };
+
+  // Combine errors: show fetchError if present, otherwise show updateError
+  const displayError = fetchError || updateError;
 
   return (
     <Box
@@ -139,43 +151,47 @@ const ViewRolesPermissions = ({ id, firstName, lastName, onBack }) => {
               <Box height="50vh" display="flex" justifyContent="center" alignItems="center">
                 <CircularProgress />
               </Box>
-            ) : error ? (
-              <Typography color="error" sx={{ p: 2 }}>{error}</Typography>
+            ) : displayError ? (
+              <Typography color="error" sx={{ p: 2 }}>{displayError}</Typography>
             ) : (
               <Grid container spacing={3}>
-                {modules.map((module) => (
-                  <Grid item xs={12} md={6} key={module.name}>
-                    <Paper elevation={2} sx={{ p: 2, borderRadius: 3 }}>
-                      <Box display="flex" alignItems="center" mb={1}>
-                        <Checkbox
-                          checked={formattedPermissions[module.name]?.enabled || false}
-                          onChange={() => handleToggle(module.name)}
-                          sx={{ mr: 1 }}
-                        />
-                        <Typography variant="subtitle1" fontWeight="bold" sx={{ fontFamily: 'Inter' }}>
-                          {module.name}
-                        </Typography>
-                      </Box>
+                {Object.keys(formattedPermissions).length > 0 ? (
+                  Object.keys(formattedPermissions).map((moduleName) => (
+                    <Grid item xs={12} md={6} key={moduleName}>
+                      <Paper elevation={2} sx={{ p: 2, borderRadius: 3 }}>
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <Checkbox
+                            checked={formattedPermissions[moduleName]?.enabled || false}
+                            onChange={() => handleToggle(moduleName)}
+                            sx={{ mr: 1 }}
+                          />
+                          <Typography variant="subtitle1" fontWeight="bold" sx={{ fontFamily: 'Inter' }}>
+                            {moduleName}
+                          </Typography>
+                        </Box>
 
-                      <Box display="flex" justifyContent="space-between" mt={2}>
-                        {permissionsList.map((perm) => (
-                          <Box key={perm} textAlign="center">
-                            <Typography variant="caption" display="block" mb={0.5} sx={{ fontFamily: 'Inter' }}>
-                              {perm}
-                            </Typography>
-                            <CustomSwitch
-                              checked={formattedPermissions[module.name]?.[perm.toLowerCase()] || false}
-                              disabled={!formattedPermissions[module.name]?.enabled}
-                              onChange={() =>
-                                handleSwitchChange(module.name, perm.toLowerCase())
-                              }
-                            />
-                          </Box>
-                        ))}
-                      </Box>
-                    </Paper>
-                  </Grid>
-                ))}
+                        <Box display="flex" justifyContent="space-between" mt={2}>
+                          {permissionsList.map((perm) => (
+                            <Box key={perm} textAlign="center">
+                              <Typography variant="caption" display="block" mb={0.5} sx={{ fontFamily: 'Inter' }}>
+                                {perm}
+                              </Typography>
+                              <CustomSwitch
+                                checked={formattedPermissions[moduleName]?.[perm.toLowerCase()] || false}
+                                disabled={!formattedPermissions[moduleName]?.enabled}
+                                onChange={() =>
+                                  handleSwitchChange(moduleName, perm.toLowerCase())
+                                }
+                              />
+                            </Box>
+                          ))}
+                        </Box>
+                      </Paper>
+                    </Grid>
+                  ))
+                ) : (
+                  <Typography sx={{ p: 2 }}>No permissions available for this admin.</Typography>
+                )}
               </Grid>
             )}
           </Paper>
@@ -197,6 +213,16 @@ const ViewRolesPermissions = ({ id, firstName, lastName, onBack }) => {
               {isUpdating ? 'Updating...' : 'Update Role'}
             </Button>
           </Box>
+
+          <PasswordModal 
+            open={modalOpen} 
+            onClose={handlePasswordModalClose}
+            onSubmit={handlePasswordSubmit}
+            password={accountPassword}
+            setPassword={setAccountPassword}
+            loading={passwordLoading || isUpdating}
+            error={updateError} // Use updateError for the modal
+          />
         </Box>
       </Box>
     </Box>

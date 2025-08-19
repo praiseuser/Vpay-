@@ -19,12 +19,11 @@ const Transaction = () => {
   });
 
   const formatRows = (data) =>
-    data.map((item) => ({
-      id: <StyledTableCell className="table-text font-weight-600">{item.id}</StyledTableCell>,
-      userId: <StyledTableCell className="table-text font-weight-400">{item.user_id}</StyledTableCell>,
+    data.map((item, index) => ({
+      id: <StyledTableCell className="table-text font-weight-600">{index + 1}</StyledTableCell>, // Serial number starting from 1
       service: <StyledTableCell className="table-text font-weight-400">{item.transaction_data.service}</StyledTableCell>,
       provider: <StyledTableCell className="table-text font-weight-400">{item.transaction_data.provider}</StyledTableCell>,
-      amount: <StyledTableCell className="table-text font-weight-400">{item.transaction_data.amount} {item.transaction_data.currency}</StyledTableCell>,
+      amount: <StyledTableCell className="table-text font-weight-400">{`${item.transaction_data.currency} ${item.transaction_data.amount}`}</StyledTableCell>, // Currency before amount
       status: (
         <StyledTableCell>
           <Chip
@@ -40,8 +39,7 @@ const Transaction = () => {
     }));
 
   const columns = [
-    { id: 'id', label: 'ID', minWidth: 70 },
-    { id: 'userId', label: 'USER ID', minWidth: 100 },
+    { id: 'id', label: 'S/N', minWidth: 70 },
     { id: 'service', label: 'SERVICE', minWidth: 150 },
     { id: 'provider', label: 'PROVIDER', minWidth: 150 },
     { id: 'amount', label: 'AMOUNT', minWidth: 120 },

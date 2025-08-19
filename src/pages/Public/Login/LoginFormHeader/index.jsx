@@ -8,6 +8,7 @@ const LoginFormHeader = () => (
       ...styles.headerContainer,
       height: { xs: 100, sm: 150 },
       paddingTop: 0,
+      width: '100%', 
     }}
   >
     <Box
@@ -23,10 +24,10 @@ const LoginFormHeader = () => (
     >
       <img src="../image 5.png" alt="logo" style={styles.logo} />
     </Box>
-    <Box sx={{ textAlign: 'center' }}>
+    <Box sx={{ textAlign: 'center', width: '100%' }}>
       <Typography sx={styles.subtitle}>Welcome Back</Typography>
     </Box>
-    <Box sx={{ textAlign: 'center' }}>
+    <Box sx={{ textAlign: 'center', width: '100%', marginTop: 1 }}>
       <Typography sx={styles.title}>Enter your personal details</Typography>
     </Box>
   </Box>

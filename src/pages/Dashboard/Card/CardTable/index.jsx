@@ -43,11 +43,10 @@ const CardTable = ({ cards, filter, setFilter, loading, error, handleOpenModal }
     };
 
     const formatRows = (data) =>
-        data.map((item) => {
+        data.map((item, index) => {
             console.log('Formatting row:', item);
             return {
-                id: <StyledTableCell className="table-text font-weight-400">{item.id || '-'}</StyledTableCell>,
-                userId: <StyledTableCell className="table-text font-weight-400">{item.userId || '-'}</StyledTableCell>,
+                id: <StyledTableCell className="table-text font-weight-400">{index + 1}</StyledTableCell>, // Serial number starting from 1
                 cardNumber: <StyledTableCell className="table-text font-weight-400">{maskCardNumber(item.cardNumber)}</StyledTableCell>,
                 cvv: <StyledTableCell className="table-text font-weight-400">{maskCVV()}</StyledTableCell>,
                 expiryMonth: <StyledTableCell className="table-text font-weight-400">{item.expiryMonth || '-'}</StyledTableCell>,
@@ -83,8 +82,7 @@ const CardTable = ({ cards, filter, setFilter, loading, error, handleOpenModal }
         });
 
     const columns = [
-        { id: 'id', label: 'ID', minWidth: 150 },
-        { id: 'userId', label: 'USER ID', minWidth: 150 },
+        { id: 'id', label: 'S/N', minWidth: 150 }, // Updated label to S/N for serial number
         { id: 'cardNumber', label: 'CARD NUMBER', minWidth: 150 },
         { id: 'cvv', label: 'CVV', minWidth: 150 },
         { id: 'expiryMonth', label: 'EXPIRY MONTH', minWidth: 150 },

@@ -1,36 +1,41 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Modal, TextField, Select, MenuItem, CircularProgress, Button } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ReplyIcon from '@mui/icons-material/Reply';
-import EditIcon from '@mui/icons-material/Edit';
+import { Box, Typography } from '@mui/material';
 import { toast } from 'react-toastify';
-import CustomTable from '../../../components/CustomTable';
-import { useSupportTickets } from '../../../Hooks/useSupport';
+import { useFetchAllSupportTickets } from '../../../Hooks/useSupport';
+import { useFetchOpenSupportTickets } from '../../../Hooks/useSupport';
+import { useFetchClosedSupportTickets } from '../../../Hooks/useSupport';
 import { useUpdateTicketStatus } from '../../../Hooks/useSupport';
-
-const StyledTableCell = styled('span')(({ theme }) => ({
-  fontFamily: 'Mada',
-  padding: '8px',
-  '&.header': {
-    fontWeight: 600,
-    backgroundColor: '#f5f5f5',
-  },
-}));
+import { useDeleteTicket } from '../../../Hooks/useSupport';
+import ReplyModal from '../Support/ReplyModal';
+import StatusModal from '../Support/StatusModal';
+import CustomTabs from '../../../components/CustomTabs/CustomTabs';
+import SupportTable from '../Support/SupportTable';
 
 const Support = () => {
-  const { tickets, loading, error, fetchTickets } = useSupportTickets();
-  const { updateTicketStatus, loading: statusLoading } = useUpdateTicketStatus(fetchTickets);
+  const { tickets: allTickets, loading: allLoading, error: allError, fetchTickets: fetchAllTickets } = useFetchAllSupportTickets(1); 
+  const { tickets: openTickets, loading: openLoading, error: openError, fetchTickets: fetchOpenTickets } = useFetchOpenSupportTickets(1); 
+  const { tickets: closedTickets, loading: closedLoading, error: closedError, fetchTickets: fetchClosedTickets } = useFetchClosedSupportTickets(1);
+  const { updateTicketStatus, loading: statusLoading } = useUpdateTicketStatus();
+  const { deleteTicket } = useDeleteTicket();
+  const [tickets, setTickets] = useState([]);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [replyOpen, setReplyOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
-  const [replyText, setReplyText] = useState('');
-  const [newStatus, setNewStatus] = useState('');
+  const [deletingTicketId, setDeletingTicketId] = useState(null); 
 
   useEffect(() => {
-    fetchTickets();
-  }, []);
+    if (activeTabIndex === 0) fetchAllTickets();
+    else if (activeTabIndex === 1) fetchOpenTickets();
+    else if (activeTabIndex === 2) fetchClosedTickets();
+  }, [activeTabIndex, fetchAllTickets, fetchOpenTickets, fetchClosedTickets]);
+
+  useEffect(() => {
+    if (activeTabIndex === 0) setTickets(allTickets);
+    else if (activeTabIndex === 1) setTickets(openTickets);
+    else if (activeTabIndex === 2) setTickets(closedTickets);
+  }, [activeTabIndex, allTickets, openTickets, closedTickets]);
 
   const handleReplyOpen = (ticket) => {
     setSelectedTicket(ticket);
@@ -39,172 +44,79 @@ const Support = () => {
 
   const handleStatusOpen = (ticket) => {
     setSelectedTicket(ticket);
-    setNewStatus(ticket.status);
     setStatusOpen(true);
   };
 
-  const handleDelete = (ticketId) => {
-    toast.info(`Deleting ticket #${ticketId}...`);
-    // TODO: integrate delete hook, then fetchTickets()
+  const handleDelete = async (ticketId) => {
+    setDeletingTicketId(ticketId); 
+    const result = await deleteTicket(ticketId);
+    if (result.success) {
+      toast.success(`Ticket #${ticketId} deleted successfully`);
+      setTickets((prevTickets) => prevTickets.filter((ticket) => ticket.ticketNumber !== ticketId));
+      if (activeTabIndex === 0) await fetchAllTickets();
+      else if (activeTabIndex === 1) await fetchOpenTickets();
+      else if (activeTabIndex === 2) await fetchClosedTickets();
+    }
+    setDeletingTicketId(null);
   };
 
-  const handleReplyClose = () => setReplyOpen(false);
-  const handleStatusClose = () => setStatusOpen(false);
-
-  const handleReplySubmit = () => {
+  const handleReplySubmit = async (replyText) => {
     if (replyText.trim()) {
-      toast.info(`Replying to ticket #${selectedTicket.id}...`);
-      // TODO: integrate reply hook, then fetchTickets()
-      setReplyText('');
-      handleReplyClose();
+      toast.info(`Replying to ticket #${selectedTicket.ticketNumber}...`);
+      setReplyOpen(false);
     }
   };
 
-  const handleStatusSubmit = async () => {
+  const handleStatusSubmit = async (newStatus) => {
     if (!newStatus) return toast.error('Please select a status');
-
     const res = await updateTicketStatus(selectedTicket.id, newStatus);
-
     if (res.success) {
       toast.success(`Status updated to "${newStatus}"`);
-      handleStatusClose();
+      setTickets((prevTickets) =>
+        prevTickets.map((ticket) =>
+          ticket.id === selectedTicket.id ? { ...ticket, status: newStatus } : ticket
+        )
+      );
     }
   };
 
-  if (loading)
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-
-  if (error)
-    return (
-      <Box sx={{ p: 4 }}>
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
-
-  const formatRows = (data) =>
-    data.map((ticket) => ({
-      id: <StyledTableCell>{ticket.id}</StyledTableCell>,
-      subject: <StyledTableCell>{ticket.subject}</StyledTableCell>,
-      status: <StyledTableCell>{ticket.status}</StyledTableCell>,
-      createdAt: <StyledTableCell>{ticket.createdAt}</StyledTableCell>,
-      actions: (
-        <StyledTableCell>
-          <Button onClick={() => handleReplyOpen(ticket)} sx={{ mr: 1 }}>
-            <ReplyIcon />
-          </Button>
-          <Button onClick={() => handleStatusOpen(ticket)} sx={{ mr: 1 }}>
-            <EditIcon />
-          </Button>
-          <Button onClick={() => handleDelete(ticket.id)}>
-            <DeleteIcon />
-          </Button>
-        </StyledTableCell>
-      ),
-    }));
-
-  const columns = [
-    { id: 'id', label: 'ID', minWidth: 70 },
-    { id: 'subject', label: 'Subject', minWidth: 200 },
-    { id: 'status', label: 'Status', minWidth: 120 },
-    { id: 'createdAt', label: 'Created At', minWidth: 150 },
-    { id: 'actions', label: 'Actions', minWidth: 150 },
-  ];
+  const loading = activeTabIndex === 0 ? allLoading : activeTabIndex === 1 ? openLoading : activeTabIndex === 2 ? closedLoading : false;
+  const error = activeTabIndex === 0 ? allError : activeTabIndex === 1 ? openError : activeTabIndex === 2 ? closedError : null;
 
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" sx={{ mb: 2, fontFamily: 'Mada', fontWeight: 600 }}>
         Support Tickets
       </Typography>
-      <Box>
-        <CustomTable
-          columns={columns}
-          rows={formatRows(tickets)}
-          showAddButton={false}
-          sx={{ '& .MuiTableCell-root': { padding: '12px' } }}
+      <Box sx={{ mb: 2 }}>
+        <CustomTabs
+          tabLabels={['All', 'Open', 'Closed', 'Replied']}
+          value={activeTabIndex}
+          onChange={(event, newValue) => setActiveTabIndex(newValue)}
         />
       </Box>
-
-      {/* Reply Modal */}
-      <Modal open={replyOpen} onClose={handleReplyClose}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: 'background.paper',
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Reply to Ticket #{selectedTicket?.id}
-          </Typography>
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button onClick={handleReplyClose} sx={{ mr: 1 }}>
-              Cancel
-            </Button>
-            <Button variant="contained" onClick={handleReplySubmit}>
-              Send Reply
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
-
-      {/* Status Modal */}
-      <Modal open={statusOpen} onClose={handleStatusClose}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: 'background.paper',
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Update Status for Ticket #{selectedTicket?.id}
-          </Typography>
-          <Select
-            fullWidth
-            value={newStatus}
-            onChange={(e) => setNewStatus(e.target.value)}
-            sx={{ mb: 2 }}
-          >
-            <MenuItem value="open">Open</MenuItem>
-            <MenuItem value="in progress">In Progress</MenuItem>
-            <MenuItem value="closed">Closed</MenuItem>
-          </Select>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button onClick={handleStatusClose} sx={{ mr: 1 }}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleStatusSubmit}
-              disabled={statusLoading}
-            >
-              {statusLoading ? <CircularProgress size={20} /> : 'Save Status'}
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
+      <SupportTable
+        tickets={tickets}
+        loading={loading}
+        error={error}
+        onDelete={handleDelete}
+        onReplyOpen={handleReplyOpen}
+        onStatusOpen={handleStatusOpen}
+        deletingTicketId={deletingTicketId}
+      />
+      <ReplyModal
+        open={replyOpen}
+        onClose={() => setReplyOpen(false)}
+        ticket={selectedTicket}
+        onReplySubmit={handleReplySubmit}
+      />
+      <StatusModal
+        open={statusOpen}
+        onClose={() => setStatusOpen(false)}
+        ticket={selectedTicket}
+        onStatusSubmit={handleStatusSubmit}
+        statusLoading={statusLoading}
+      />
     </Box>
   );
 };
