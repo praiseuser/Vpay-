@@ -16,20 +16,24 @@ const CryptoTable = ({ cryptoData, onAddButtonClick, onEditClick, loading, activ
   const rows = formatRows(cryptoData, onEditClick, loading);
 
   return (
-    <Box
-     
-    >
-      <CustomTable
-        columns={columns}
-        rows={rows}
-        showAddButton
-        addButtonTitle="Add Crypto"
-        titleStyle={tableTitleStyle}
-        onAddButtonClick={onAddButtonClick}
-        tabLabels={['Crypto Currency', 'FIAT Currency']}
-        activeTab={activeTab}
-        onTabChange={(event, newValue) => setActiveTab(newValue)}
-      />
+    <Box>
+      {loading ? (
+        <div className="p-4 text-center">Loading...</div> 
+      ) : cryptoData.length === 0 ? (
+        <div className="p-4 text-center">No cryptocurrencies available.</div> 
+      ) : (
+        <CustomTable
+          columns={columns}
+          rows={rows}
+          showAddButton
+          addButtonTitle="Add Crypto"
+          titleStyle={tableTitleStyle}
+          onAddButtonClick={onAddButtonClick}
+          tabLabels={['Crypto Currency', 'FIAT Currency']}
+          activeTab={activeTab}
+          onTabChange={(event, newValue) => setActiveTab(newValue)}
+        />
+      )}
     </Box>
   );
 };

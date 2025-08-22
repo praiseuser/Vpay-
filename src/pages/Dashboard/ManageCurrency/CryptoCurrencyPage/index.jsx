@@ -10,14 +10,12 @@ const CryptoCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
   const [showAddCryptoForm, setShowAddCryptoForm] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCrypto, setSelectedCrypto] = useState(null);
-  const [cryptoData, setCryptoData] = useState([]);
+  const [cryptoData, setCryptoData] = useState([]); // Initialize as empty array
   
   const { cryptoCurrencies, loading, error } = useFetchCurrencies();
 
   useEffect(() => {
-    if (cryptoCurrencies.length > 0) {
-      setCryptoData(cryptoCurrencies);
-    }
+    setCryptoData(cryptoCurrencies); // Update with whatever comes from the server, even if empty
   }, [cryptoCurrencies]);
 
   const handleAddCryptoClick = () => {
