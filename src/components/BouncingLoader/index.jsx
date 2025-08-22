@@ -1,5 +1,5 @@
 import { Box, styled } from '@mui/material';
-import './bouncingLoader.css'; 
+import './BouncingLoader.css';
 
    const BouncingLoaderContainer = styled(Box)(({ theme }) => ({
      position: 'absolute',
