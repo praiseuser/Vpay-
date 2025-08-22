@@ -1,8 +1,9 @@
 import React from 'react';
 import CustomTable from '../../../../../components/CustomTable';
 import CustomButton from '../../../../../components/CustomButton';
-import { CircularProgress } from '@mui/material';
+import BouncingLoader from '../../../../../components/BouncingLoader';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { Box } from '@mui/material';
 
 const columns = [
   { id: 'number', label: '#', minWidth: 50 },
@@ -18,21 +19,19 @@ const columns = [
 
 export default function AdminTable({ admins, loading, onAddAdmin, onAddPermission, onShowPermissions }) {
   const rows = loading
-    ? Array.from({ length: 1 }).map(() => ({
-      number: '',
-      firstname: '',
-      lastname: '',
-      email: '',
-      phone: '',
-      gender: '',
-      admin_type: '',
-      country: '',
-      action: (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <CircularProgress size={24} />
-        </div>
-      ),
-    }))
+    ? [
+        {
+          number: '',
+          firstname: '',
+          lastname: '',
+          email: '',
+          phone: '',
+          gender: '',
+          admin_type: '',
+          country: '',
+          action: '', // Empty action since loader is now an overlay
+        },
+      ]
     : admins.map((admin, index) => ({
       number: index + 1,
       firstname: admin.firstname,
@@ -40,7 +39,7 @@ export default function AdminTable({ admins, loading, onAddAdmin, onAddPermissio
       email: admin.email,
       phone: admin.phone,
       gender: admin.gender,
-      admin_type: admin.admin_type || '', 
+      admin_type: admin.admin_type || '',
       country: admin.country_name || '',
       action: (
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
@@ -62,24 +61,40 @@ export default function AdminTable({ admins, loading, onAddAdmin, onAddPermissio
     }));
 
   return (
-    <CustomTable
-      columns={columns}
-      rows={rows}
-      showAddButton
-      addButtonTitle="Add ADMIN"
-      addButtonStyle={{ marginTop: '10px' }}
-      titleStyle={{
-        fontFamily: 'Inter sans-serif',
-        fontWeight: 600,
-        fontSize: '20px',
-        lineHeight: '100%',
-        letterSpacing: '0px',
-        color: '#333333',
-        marginLeft: '24px',
-        marginBottom: '8px',
-      }}
-      searchPlaceholder="search"
-      onAddButtonClick={onAddAdmin}
-    />
+    <Box sx={{ position: 'relative', minHeight: '300px' }}> {/* Increased minHeight for more space */}
+      <CustomTable
+        columns={columns}
+        rows={rows}
+        showAddButton
+        addButtonTitle="Add ADMIN"
+        addButtonStyle={{ marginTop: '10px' }}
+        titleStyle={{
+          fontFamily: 'Inter sans-serif',
+          fontWeight: 600,
+          fontSize: '20px',
+          lineHeight: '100%',
+          letterSpacing: '0px',
+          color: '#333333',
+          marginLeft: '24px',
+          marginBottom: '8px',
+        }}
+        searchPlaceholder="search"
+        onAddButtonClick={onAddAdmin}
+      />
+      {loading && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '65%', 
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1,
+            marginTop: '20px',
+          }}
+        >
+          <BouncingLoader />
+        </Box>
+      )}
+    </Box>
   );
 }

@@ -3,13 +3,13 @@ import UserDetailsDrawer from '../../ManageUser/UserDetailsDrawer';
 import { useFetchUserById } from '../../../../Hooks/useUsers';
 
 const UserDrawer = ({ open, onClose, userId }) => {
-  const { user, loading, error, fetchUser } = useFetchUserById();
+  const { user, loading, error, fetchUserById } = useFetchUserById();
 
   useEffect(() => {
     if (open && userId) {
-      fetchUser(userId);
+      fetchUserById(userId); 
     }
-  }, [open, userId, fetchUser]);
+  }, [open, userId, fetchUserById]);
 
   return <UserDetailsDrawer open={open} onClose={onClose} userId={userId} />;
 };

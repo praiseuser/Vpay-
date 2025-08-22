@@ -3,7 +3,6 @@ import { Box } from '@mui/material';
 import { useDeleteRate, useViewRate, useFetchRateCurrencies } from '../../../../Hooks/useRateCurrency';
 import EditRateModal from '../FiatRate/EditRateModal';
 import RateTable from '../FiatRate/RateTable';
-import LoadingOverlay from '../FiatRate/LoadingOverlay';
 import ErrorMessage from '../FiatRate/ErrorMessage';
 import ViewRateModal from '../FiatRate/ViewRateModal';
 
@@ -68,7 +67,6 @@ const FiatRate = ({ onAddButtonClick }) => {
         onEdit={handleEditClick}
         onView={handleViewClick}
       />
-      <LoadingOverlay loading={loading} />
       <ErrorMessage error={error || deleteError || viewError} />
       <EditRateModal
         open={modalOpen}

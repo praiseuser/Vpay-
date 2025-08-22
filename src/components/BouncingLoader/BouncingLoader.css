@@ -1,0 +1,17 @@
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+@keyframes colorChange {
+  0% { backgroundColor: #008080; }
+  50% { backgroundColor: #00CED1; }
+  100% { backgroundColor: #008080; }
+}
+.bouncing-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin: 0 10px;
+  background-color: #008080;
+  animation: bounce 1s infinite ease-in-out, colorChange 2s infinite;
+}

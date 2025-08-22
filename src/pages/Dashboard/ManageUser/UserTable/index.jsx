@@ -88,21 +88,32 @@ const UserTable = ({ users, loading, error, columns, onOpenDrawer }) => {
     );
 
   return (
-    <Box sx={{ position: 'relative', minHeight: '200px', '&::after': { content: '""', clear: 'both' } }}>
-      <div style={{ position: 'relative', minHeight: 'inherit' }}>
-        <CustomTable
-          columns={columns}
-          rows={formatRows(users || [])}
-          showAddButton={false}
+    <Box sx={{ position: 'relative', minHeight: '300px' }}> 
+      <CustomTable
+        columns={columns}
+        rows={formatRows(users || [])}
+        showAddButton={false}
+        sx={{
+          '& .MuiTableCell-root': { padding: '12px' },
+          opacity: loading ? 0.5 : 1,
+          position: 'relative',
+          zIndex: 0,
+        }}
+      />
+      {(!users || users.length === 0 || loading) && (
+        <Box
           sx={{
-            '& .MuiTableCell-root': { padding: '12px' },
-            opacity: loading ? 0.5 : 1,
-            position: 'relative',
-            zIndex: 0,
+            position: 'absolute',
+            top: '65%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1,
+            marginTop: '20px',
           }}
-        />
-        {(!users || users.length === 0 || loading) && <BouncingLoader />}
-      </div>
+        >
+          <BouncingLoader />
+        </Box>
+      )}
     </Box>
   );
 };

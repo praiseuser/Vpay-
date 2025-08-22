@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
+import BouncingLoader from '../../../../components/BouncingLoader';
 import { loadingOverlayStyle } from '../countryStyles';
 
 const LoadingOverlay = ({ loading }) => {
@@ -8,7 +9,7 @@ const LoadingOverlay = ({ loading }) => {
 
   return (
     <Box sx={loadingOverlayStyle}>
-      <CircularProgress size={30} sx={{ color: '#1976d2' }} />
+      <BouncingLoader />
     </Box>
   );
 };

@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Chip, CircularProgress } from '@mui/material';
+import { Box, Chip } from '@mui/material';
 import CustomTable from '../../../../../components/CustomTable';
 import CustomButton from '../../../../../components/CustomButton';
+import BouncingLoader from '../../../../../components/BouncingLoader';
 
 const RateTable = ({
   rateCurrencies,
@@ -41,7 +42,7 @@ const RateTable = ({
             type="delete"
             onClick={() => onDelete(item.id)}
             disabled={isRateLoading(item.id)}
-            icon={isRateLoading(item.id) ? <CircularProgress size={20} /> : null}
+            icon={isRateLoading(item.id) ? <BouncingLoader /> : null}
           />
           <CustomButton
             type="view"
@@ -62,9 +63,7 @@ const RateTable = ({
   ];
 
   return (
-    <Box
-     
-    >
+    <Box sx={{ position: 'relative', minHeight: '300px' }}>
       <CustomTable
         columns={columns}
         rows={formatRows(rateCurrencies)}
@@ -74,6 +73,20 @@ const RateTable = ({
         searchPlaceholder="search"
         onAddButtonClick={onAddButtonClick}
       />
+      {(viewLoading || rateCurrencies.length === 0) && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '65%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1,
+            marginTop: '20px',
+          }}
+        >
+          <BouncingLoader />
+        </Box>
+      )}
     </Box>
   );
 };

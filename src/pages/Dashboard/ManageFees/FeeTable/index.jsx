@@ -1,8 +1,8 @@
-import { Typography, CircularProgress, Box } from '@mui/material';
+import { Typography, Box, Chip } from '@mui/material';
 import PropTypes from 'prop-types';
 import CustomTable from '../../../../components/CustomTable';
 import CustomButton from '../../../../components/CustomButton';
-import { Chip } from '@mui/material';
+import BouncingLoader from '../../../../components/BouncingLoader';
 
 function FeeTable({
   fees,
@@ -30,9 +30,7 @@ function FeeTable({
   };
 
   return (
-    <Box
-     
-    >
+    <Box sx={{ position: 'relative', minHeight: '300px' }}> 
       <CustomTable
         columns={columns}
         rows={fees.map((fee) => ({
@@ -85,18 +83,14 @@ function FeeTable({
         <Box
           sx={{
             position: 'absolute',
-            top: '70%',
+            top: '65%', 
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            bgcolor: 'rgba(255, 255, 255, 0.8)',
-            borderRadius: '8px',
-            p: 2,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+            zIndex: 1,
+            marginTop: '20px', 
           }}
         >
-          <CircularProgress size={30} />
+          <BouncingLoader />
         </Box>
       )}
     </Box>
