@@ -17,7 +17,7 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
 
   useEffect(() => {
     console.log("Fetched fiatCurrencies:", fiatCurrencies);
-    setFiatData(fiatCurrencies);
+    setFiatData(fiatCurrencies || []);
   }, [fiatCurrencies]);
 
   const handleAddFiatClick = () => {
@@ -63,18 +63,14 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
         />
       ) : (
         <>
-          {error ? (
-            <div className="p-6 text-red-600">Error: {error}</div>
-          ) : (
-            <FiatTable
-              fiatData={fiatData}
-              handleEditClick={handleEditClick}
-              onAddButtonClick={handleAddFiatClick}
-              loading={loading}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
-          )}
+          <FiatTable
+            fiatData={fiatData}
+            handleEditClick={handleEditClick}
+            onAddButtonClick={handleAddFiatClick}
+            loading={loading}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
           <EditFiatStatusModal
             open={showEditModal}
             onClose={handleEditModalClose}
