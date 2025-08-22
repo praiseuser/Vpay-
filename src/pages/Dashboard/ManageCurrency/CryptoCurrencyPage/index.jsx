@@ -10,12 +10,12 @@ const CryptoCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
   const [showAddCryptoForm, setShowAddCryptoForm] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCrypto, setSelectedCrypto] = useState(null);
-  const [cryptoData, setCryptoData] = useState([]); // Initialize as empty array
-  
+  const [cryptoData, setCryptoData] = useState([]);
+
   const { cryptoCurrencies, loading, error } = useFetchCurrencies();
 
   useEffect(() => {
-    setCryptoData(cryptoCurrencies); // Update with whatever comes from the server, even if empty
+    setCryptoData(cryptoCurrencies || []);
   }, [cryptoCurrencies]);
 
   const handleAddCryptoClick = () => {
@@ -63,18 +63,14 @@ const CryptoCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
           <AddCryptoPage onCancel={handleBackToList} onSubmit={handleAddCrypto} />
         ) : (
           <>
-            {error ? (
-              <div className="p-6 text-red-600">Error: {error}</div>
-            ) : (
-              <CryptoTable
-                cryptoData={cryptoData}
-                onAddButtonClick={handleAddCryptoClick}
-                onEditClick={handleEditClick}
-                loading={loading}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-              />
-            )}
+            <CryptoTable
+              cryptoData={cryptoData}
+              onAddButtonClick={handleAddCryptoClick}
+              onEditClick={handleEditClick}
+              loading={loading}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
             <EditCryptoModal
               open={showEditModal}
               onClose={handleEditClose}
