@@ -16,8 +16,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ListIcon from '@mui/icons-material/List';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandLess';
+import ExpandLessIcon from '@mui/icons-material/ExpandMore';
 import { dashboardDrawerWidth } from '../../constants/dimensions';
 import { useLogout } from '../../Hooks/authentication';
 import { styles } from './styles';
@@ -49,6 +49,7 @@ const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
     { label: 'Profile', icon: <PersonIcon sx={{ fontSize: 18 }} />, link: '/dashboard/profile' },
     { label: 'Settings', icon: <SettingsIcon sx={{ fontSize: 18 }} />, link: '/dashboard/settings' },
     { label: 'Account Password', icon: <SettingsIcon sx={{ fontSize: 18 }} />, link: '/dashboard/account-password' },
+    { label: 'Payout Method', icon: <ReceiptIcon sx={{ fontSize: 18 }} />, link: '/dashboard/payout-method' },
     { label: 'logout', icon: <LogoutIcon sx={{ fontSize: 18 }} />, link: '/logout', onClick: logout },
   ];
 
@@ -65,6 +66,10 @@ const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
       item.onClick();
     } else {
       navigate(item.link);
+      if (!localCollapsed) {
+        setLocalCollapsed(true);
+        handleToggleCollapse();
+      }
     }
   };
 
@@ -87,7 +92,7 @@ const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
           </IconButton>
         ) : (
           <>
-            <Box sx={{ ml: 2, mt: 1, }}>
+            <Box sx={{ ml: 2, mt: 1 }}>
               <img src="/Vpaylogo.png" alt="Logo" style={{ width: 80, height: 30 }} />
             </Box>
             <IconButton onClick={handleToggle} sx={styles.toggleButton}>
@@ -112,13 +117,13 @@ const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
                 boxShadow: isActive(item.link) ? styles.navItem.active.shadow : 'none',
                 cursor: 'pointer',
                 ...(item.isDropdown
-                  ? {} // no hover effect for dropdown
+                  ? {}
                   : {
-                      '&:hover': {
-                        background: isActive(item.link) ? styles.navItem.active.hover : 'rgba(0, 255, 204, 0.1)',
-                        color: '#fff',
-                      },
-                    }),
+                    '&:hover': {
+                      background: isActive(item.link) ? styles.navItem.active.hover : 'rgba(0, 255, 204, 0.1)',
+                      color: '#fff',
+                    },
+                  }),
               }}
               onClick={() => handleItemClick(item)}
             >
@@ -141,7 +146,7 @@ const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
 
             {/* Dropdown Menu */}
             {item.isDropdown && openProviders && !localCollapsed && (
-              <Box sx={{ pl: 4 }}>
+              <Box sx={{ pl: 4, display: 'flex', flexDirection: 'column' }}>
                 {providerSubMenu.map((subItem) => (
                   <Box
                     key={subItem.label}
@@ -153,12 +158,20 @@ const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
                       cursor: 'pointer',
                       fontSize: '0.85rem',
                       padding: '6px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
                       '&:hover': {
                         background: isActive(subItem.link) ? styles.navItem.active.hover : 'rgba(0, 255, 204, 0.1)',
                         color: '#fff',
                       },
                     }}
-                    onClick={() => navigate(subItem.link)}
+                    onClick={() => {
+                      navigate(subItem.link);
+                      if (!localCollapsed) {
+                        setLocalCollapsed(true);
+                        handleToggleCollapse();
+                      }
+                    }}
                   >
                     {subItem.icon}
                     <span style={{ marginLeft: 8 }}>{subItem.label}</span>
