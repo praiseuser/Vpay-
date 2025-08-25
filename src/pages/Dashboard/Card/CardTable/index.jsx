@@ -1,22 +1,12 @@
 import { Box, FormControl, Select, MenuItem, Typography, CircularProgress, Chip } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
 import CheckIcon from '@mui/icons-material/Check';
 import PauseIcon from '@mui/icons-material/Pause';
 import BlockIcon from '@mui/icons-material/Block';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import CustomTable from '../../../../components/CustomTable'
-
-const StyledTableCell = styled('span')(({ theme }) => ({
-    fontFamily: 'Mada',
-    '&.table-text': {
-        color: '#888B93',
-        '&.font-weight-600': { fontWeight: 600 },
-        '&.font-weight-400': { fontWeight: 400 },
-        '&.font-weight-300': { fontWeight: 300 },
-    },
-}));
+import TableText from '../../../../components/TableText';
+import CustomTable from '../../../../components/CustomTable';
 
 const CardTable = ({ cards, filter, setFilter, loading, error, handleOpenModal }) => {
     const getStatus = (card) => {
@@ -44,14 +34,13 @@ const CardTable = ({ cards, filter, setFilter, loading, error, handleOpenModal }
 
     const formatRows = (data) =>
         data.map((item, index) => {
-            console.log('Formatting row:', item);
             return {
-                id: <StyledTableCell className="table-text font-weight-400">{index + 1}</StyledTableCell>, // Serial number starting from 1
-                cardNumber: <StyledTableCell className="table-text font-weight-400">{maskCardNumber(item.cardNumber)}</StyledTableCell>,
-                cvv: <StyledTableCell className="table-text font-weight-400">{maskCVV()}</StyledTableCell>,
-                expiryMonth: <StyledTableCell className="table-text font-weight-400">{item.expiryMonth || '-'}</StyledTableCell>,
-                expiryYear: <StyledTableCell className="table-text font-weight-400">{maskExpiryYear(item.expiryYear)}</StyledTableCell>,
-                cardName: <StyledTableCell className="table-text font-weight-600">{item.cardName || '-'}</StyledTableCell>,
+                id: <TableText>{index + 1}</TableText>, // Serial number starting from 1
+                cardNumber: <TableText>{maskCardNumber(item.cardNumber)}</TableText>,
+                cvv: <TableText>{maskCVV()}</TableText>,
+                expiryMonth: <TableText>{item.expiryMonth || '-'}</TableText>,
+                expiryYear: <TableText>{maskExpiryYear(item.expiryYear)}</TableText>,
+                cardName: <TableText>{item.cardName || '-'}</TableText>,
                 status: (
                     <Chip
                         label={getStatus(item) || '-'}
@@ -65,10 +54,10 @@ const CardTable = ({ cards, filter, setFilter, loading, error, handleOpenModal }
                         }}
                     />
                 ),
-                balance: <StyledTableCell className="table-text font-weight-400">{item.balance || '-'}</StyledTableCell>,
-                createdAt: <StyledTableCell className="table-text font-weight-400">{item.createdAt || '-'}</StyledTableCell>,
-                cardType: <StyledTableCell className="table-text font-weight-400">{item.cardType || '-'}</StyledTableCell>,
-                currencyId: <StyledTableCell className="table-text font-weight-400">{item.currencyId || '-'}</StyledTableCell>,
+                balance: <TableText>{item.balance || '-'}</TableText>,
+                createdAt: <TableText>{item.createdAt || '-'}</TableText>,
+                cardType: <TableText>{item.cardType || '-'}</TableText>,
+                currencyId: <TableText>{item.currencyId || '-'}</TableText>,
                 actions: (
                     <Box sx={{ position: 'relative' }}>
                         <Tooltip title="Manage Card">
@@ -82,7 +71,7 @@ const CardTable = ({ cards, filter, setFilter, loading, error, handleOpenModal }
         });
 
     const columns = [
-        { id: 'id', label: 'S/N', minWidth: 150 }, // Updated label to S/N for serial number
+        { id: 'id', label: 'S/N', minWidth: 150 }, 
         { id: 'cardNumber', label: 'CARD NUMBER', minWidth: 150 },
         { id: 'cvv', label: 'CVV', minWidth: 150 },
         { id: 'expiryMonth', label: 'EXPIRY MONTH', minWidth: 150 },

@@ -68,7 +68,7 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
     }
     
     setPasswordLoading(true);
-    const result = await editCurrency(crypto.id, formData, accountPassword); // Pass id, data, and password
+    const result = await editCurrency(crypto?.id, formData, accountPassword); // Safe access with optional chaining
     setPasswordLoading(false);
     
     if (result) {
@@ -82,6 +82,10 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
 
   const handleSubmit = async () => {
     if (validateForm() && passwordVerified) {
+      if (!crypto?.id) {
+        console.error('Crypto ID is missing, cannot proceed with edit');
+        return; // Prevent submission if ID is missing
+      }
       const result = await editCurrency(crypto.id, formData, accountPassword); // Use stored password if verified
       if (result) {
         onSave(result);

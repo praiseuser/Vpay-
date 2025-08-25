@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Paper } from '@mui/material';
 import styles from './AddCryptoPageStyles';
 import CryptoFormHeader from '../AddCryptoPage/CryptoFormHeader';
@@ -23,6 +23,7 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
     error, 
     success,
     showPasswordModal,
+    setShowPasswordModal, // Now accessible
     passwordVerified,
     resetState 
   } = useCreateCryptoCurrency();
@@ -53,28 +54,33 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
     
     if (success) {
       setAccountPassword('');
-      if (success) {
-        onSubmit(formData);
-        onCancel();
-      }
+      onSubmit(formData);
+      onCancel();
     }
   };
 
   const handlePasswordModalClose = () => {
     resetState(); // Reset state on close
+    onCancel(); // Close the form if password is canceled
   };
 
   const handleSubmit = () => {
     if (validateForm() && passwordVerified) {
-      createCryptoCurrency(formData, accountPassword); // Trigger creation if already verified
+      createCryptoCurrency(formData, accountPassword); // Proceed with creation if verified
       if (success) {
         onSubmit(formData);
         onCancel();
       }
     } else if (!passwordVerified) {
-      setShowPasswordModal(true); // Show modal if not verified
+      // Modal is already shown on load, no need to set it here
+      console.log('Please verify password first');
     }
   };
+
+  // Show password modal immediately on component mount
+  useEffect(() => {
+    setShowPasswordModal(true); // Trigger modal on page load
+  }, [setShowPasswordModal]); // Depend on setShowPasswordModal to avoid warnings
 
   return (
     <Box sx={styles.container}>

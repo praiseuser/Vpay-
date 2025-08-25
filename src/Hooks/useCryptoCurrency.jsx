@@ -60,7 +60,7 @@ const useCreateCryptoCurrency = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [passwordVerified, setPasswordVerified] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false); // Start as false
 
   const userState = useSelector((state) => state.user);
   const token = userState.token;
@@ -69,11 +69,13 @@ const useCreateCryptoCurrency = () => {
     setLoading(true);
     setError(null);
     setSuccess(false);
+    setShowPasswordModal(true); // Show modal only when creating is triggered
 
     if (!token || typeof token !== 'string' || token.trim() === '') {
       setError('Invalid or missing authentication token');
       customErrorToast('Invalid or missing authentication token');
       setLoading(false);
+      setShowPasswordModal(false); // Hide if token fails
       return false;
     }
 
@@ -96,7 +98,7 @@ const useCreateCryptoCurrency = () => {
       if (response.data.success) {
         setSuccess(true);
         setPasswordVerified(true);
-        setShowPasswordModal(false);
+        setShowPasswordModal(false); // Hide after success
         customSuccessToast('Crypto currency created successfully');
         return true;
       } else {
@@ -118,7 +120,7 @@ const useCreateCryptoCurrency = () => {
   const resetState = () => {
     setSuccess(false);
     setPasswordVerified(false);
-    setShowPasswordModal(true);
+    setShowPasswordModal(false); // Ensure modal stays hidden on reset
     setError(null);
   };
 
@@ -128,6 +130,7 @@ const useCreateCryptoCurrency = () => {
     error, 
     success,
     showPasswordModal,
+    setShowPasswordModal, // Expose the setter
     passwordVerified,
     resetState
   };
@@ -138,7 +141,7 @@ const useEditFiatStatus = () => {
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
   const [passwordVerified, setPasswordVerified] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false); // Start as false
 
   const userState = useSelector((state) => state.user);
   const token = userState.token;
@@ -148,11 +151,13 @@ const useEditFiatStatus = () => {
     setError(null);
     setSuccess(false);
     setSuccessMessage(null);
+    setShowPasswordModal(true); // Show modal only when editing is triggered
 
     if (!token || typeof token !== 'string' || token.trim() === '') {
       setError('Invalid or missing authentication token');
       customErrorToast('Invalid or missing authentication token');
       setLoading(false);
+      setShowPasswordModal(false); // Hide if token fails
       return null;
     }
 
@@ -177,7 +182,7 @@ const useEditFiatStatus = () => {
       setSuccessMessage(message);
       customSuccessToast(message);
       setPasswordVerified(true);
-      setShowPasswordModal(false);
+      setShowPasswordModal(false); // Hide after success
       return response.data;
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Invalid password or failed to update cryptocurrency';
@@ -192,7 +197,7 @@ const useEditFiatStatus = () => {
   const resetState = () => {
     setSuccess(false);
     setPasswordVerified(false);
-    setShowPasswordModal(true);
+    setShowPasswordModal(false); // Ensure modal stays hidden on reset
     setError(null);
     setSuccessMessage(null);
   };
