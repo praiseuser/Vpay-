@@ -35,7 +35,7 @@ const CustomTabs = ({ tabLabels, value, onChange }) => {
               borderRadius: '4px',
               textTransform: 'uppercase',
               borderColor: value === index ? 'transparent' : '#EAEAEA',
-              backgroundColor: value === index ? 'primary.main' : 'transparent',
+              backgroundColor: value === index ? '#02042D' : 'transparent', // Changed to #02042D
               minWidth: { xs: '80px', sm: '100px' },
             }}
           >
