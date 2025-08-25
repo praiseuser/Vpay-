@@ -25,7 +25,6 @@ const Card = ({ collapsed }) => {
     } = useFetchCards();
 
     useEffect(() => {
-        console.log('Fetched cards in Card.js:', fetchedCards);
         if (fetchedCards.length > 0) {
             const mappedCards = fetchedCards.map(card => ({
                 ...card,
@@ -34,7 +33,6 @@ const Card = ({ collapsed }) => {
                 isBlocked: card.status.toLowerCase() === 'blocked',
                 expirationDate: `${card.expiryMonth || 'N/A'}/${card.expiryYear || 'N/A'}`,
             }));
-            console.log('Mapped cards in Card.js:', mappedCards);
             setCards(mappedCards);
         }
     }, [fetchedCards]);

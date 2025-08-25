@@ -2,7 +2,6 @@ import axios from 'axios';
 import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../config/path';
-import { toast } from 'react-toastify';
 import CustomErrorToast from '../components/CustomErrorToast';
 import CustomSuccessToast from '../components/CustomSuccessToast';
 import { useCallback } from 'react';
@@ -22,16 +21,15 @@ const useFetchCards = () => {
         setError(null);
 
         if (!token) {
-            console.warn('No token found in useFetchCards');
             setError('Authentication token is missing');
-            toast.error('Authentication token is missing');
+            CustomErrorToast('Authentication token is missing');
             setLoading(false);
             return false;
         }
 
         if (!accountPassword) {
             setError('Account password is required');
-            toast.error('Account password is required');
+            CustomErrorToast('Account password is required');
             setLoading(false);
             return false;
         }
@@ -44,8 +42,6 @@ const useFetchCards = () => {
                     'account-password': accountPassword,
                 },
             });
-
-            console.log('Fetched cards response:', response.data);
 
             const data = response.data.result || [];
             const formattedCards = Array.isArray(data)
@@ -65,10 +61,9 @@ const useFetchCards = () => {
                 }))
                 : [];
 
-            
             if (formattedCards.length === 0) {
                 setError('No cards available');
-                toast.info('No cards found');
+                CustomErrorToast('No cards found');
             } else {
                 setCards(formattedCards);
             }
@@ -77,16 +72,13 @@ const useFetchCards = () => {
             setShowPasswordModal(false);
             hasFetched.current = true;
             return true;
-
         } catch (err) {
             const errorMessage = err.response?.data?.message || err.message || 'Invalid password or failed to fetch cards';
-            console.error('Error fetching cards:', err.response ? { status: err.response.status, data: err.response.data } : err.message);
             setError(errorMessage);
-            toast.error(errorMessage);
+            CustomErrorToast(errorMessage);
             return false;
         } finally {
             setLoading(false);
-            console.log('Fetch cards operation completed. Loading:', false);
         }
     };
 
@@ -108,6 +100,7 @@ const useFetchCards = () => {
         resetState
     };
 };
+
 const useUpdateCardStatus = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -118,16 +111,14 @@ const useUpdateCardStatus = () => {
         setError(null);
 
         if (!token) {
-            console.warn('No token found in useUpdateCardStatus');
             setError('Authentication token is missing');
-            toast.error('Authentication token is missing');
+            CustomErrorToast('Authentication token is missing');
             setLoading(false);
             return false;
         }
 
         try {
-            console.log(`Updating card ${cardId} status to ${status} at: ${API_BASE_URL}/user/card/status`);
-            const response = await axios.post(
+            await axios.post(
                 `${API_BASE_URL}/user/card/status`,
                 { cardId, status },
                 {
@@ -138,26 +129,19 @@ const useUpdateCardStatus = () => {
                 }
             );
 
-            console.log('Update card status response:', response.data);
-            toast.success(`Card ${status.toLowerCase()}d successfully`);
+            CustomSuccessToast(`Card ${status.toLowerCase()}d successfully`);
             return true;
         } catch (err) {
             const errorMessage = err.response?.data?.message || err.message || `Failed to ${status.toLowerCase()} card`;
-            console.error('Error updating card status:', {
-                status: err.response?.status,
-                data: err.response?.data,
-                message: err.message,
-            });
             setError(errorMessage);
-            toast.error(errorMessage);
+            CustomErrorToast(errorMessage);
             return false;
         } finally {
             setLoading(false);
-            console.log('Status update operation completed. Loading:', false);
         }
     }, [token]);
 
     return { updateCardStatus, loading, error };
 };
 
-export { useFetchCards, useUpdateCardStatus };   
+export { useFetchCards, useUpdateCardStatus };

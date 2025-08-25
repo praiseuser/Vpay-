@@ -5,6 +5,7 @@ import CryptoFormHeader from '../AddCryptoPage/CryptoFormHeader';
 import CryptoFormFields from '../AddCryptoPage/CryptoFormFields';
 import CryptoFormActions from '../AddCryptoPage/CryptoFormActions';
 import { useCreateCryptoCurrency } from '../../../Hooks/useCryptoCurrency';
+import PasswordModal from '../Card/PasswordModal';
 
 const AddCryptoPage = ({ onCancel, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -13,8 +14,18 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
     status: 'Active',
   });
   const [errors, setErrors] = useState({});
+  const [accountPassword, setAccountPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const { createCryptoCurrency, loading, error, success } = useCreateCryptoCurrency();
+  const { 
+    createCryptoCurrency, 
+    loading, 
+    error, 
+    success,
+    showPasswordModal,
+    passwordVerified,
+    resetState 
+  } = useCreateCryptoCurrency();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,24 +42,51 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      const newCrypto = {
-        crypto_name: formData.selectedCrypto,
-        network: formData.selectedNetwork,
-        status: formData.status === 'Active' ? '1' : '0',
-      };
-      console.log("Data being sent to create Crypto Currency:", newCrypto);
-      createCryptoCurrency(newCrypto);
+  const handlePasswordSubmit = async () => {
+    if (!accountPassword.trim()) {
+      return;
+    }
+    
+    setPasswordLoading(true);
+    const success = await createCryptoCurrency(formData, accountPassword); // Pass formData and password
+    setPasswordLoading(false);
+    
+    if (success) {
+      setAccountPassword('');
       if (success) {
-        onSubmit(newCrypto);
+        onSubmit(formData);
         onCancel();
       }
     }
   };
 
+  const handlePasswordModalClose = () => {
+    resetState(); // Reset state on close
+  };
+
+  const handleSubmit = () => {
+    if (validateForm() && passwordVerified) {
+      createCryptoCurrency(formData, accountPassword); // Trigger creation if already verified
+      if (success) {
+        onSubmit(formData);
+        onCancel();
+      }
+    } else if (!passwordVerified) {
+      setShowPasswordModal(true); // Show modal if not verified
+    }
+  };
+
   return (
     <Box sx={styles.container}>
+      <PasswordModal 
+        open={showPasswordModal} 
+        onClose={handlePasswordModalClose}
+        onSubmit={handlePasswordSubmit}
+        password={accountPassword}
+        setPassword={setAccountPassword}
+        loading={passwordLoading || loading}
+        error={error}
+      />
       <Paper sx={styles.paper}>
         <CryptoFormHeader />
         <Box sx={styles.formContainer}>

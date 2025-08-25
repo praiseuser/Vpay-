@@ -71,7 +71,6 @@ export const useFetchProvider = () => {
 
     return { providers, loading, error };
 };
-
 export const useCreateProvider = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -183,8 +182,6 @@ export const useCreateProvider = () => {
   
     return { createProvider, loading, error, countries };
   };
-
-
   export const useUpdateProvider = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

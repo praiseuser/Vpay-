@@ -74,24 +74,24 @@ const OtpPage = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: { xs: 2, sm: 4 },
+          padding: { xs: 1, sm: 2, md: 4 }, // Match Login padding
         }}
       >
         <Box
           sx={{
             backgroundColor: '#fff',
-            borderRadius: 8,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-            padding: { xs: 4, sm: 6 },
-            width: { xs: '90%', sm: 450, md: 500 },
-            maxWidth: 500,
-            minHeight: 550,
+            borderRadius: '20px',
+            boxShadow: '0 12px 32px rgba(0,0,0,0.3)', // Match Login shadow
+            padding: { xs: 4, sm: 5, md: 6 }, // Match Login padding for height
+            width: { xs: '95%', sm: '85%', md: '55%' }, // Match Login width
+            maxWidth: 720, // Match Login maxWidth
+            minHeight: { xs: 500, sm: 550, md: 600 }, // Match Login minHeight
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
             position: 'relative',
-            border: '2px solid #0A0F3F',
+            border: '2px solid #0A0F3F', // Match Login border
             '&:before': {
               content: '""',
               position: 'absolute',

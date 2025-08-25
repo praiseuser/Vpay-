@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material';
 
 const OtpOptions = ({ options, selectedOption, onSelect, otpSentOption, sx }) => (
-  <Box sx={sx.container}>
+  <Box sx={{ ...sx.container, width: '100%', justifyContent: 'center' }}>
     {options.map((option) => (
       <Button
         key={option}

@@ -21,32 +21,35 @@ import Card from "../pages/Dashboard/Card";
 import Transaction from "../pages/Dashboard/Transaction";
 import Support from "../pages/Dashboard/Support";
 import AccountPassword from "../pages/Dashboard/AccountPassword";
+import ProtectedRoute from "../ProtectedRoute";
 
 const DashboardRoutes = () => {
   return (
-    <DashboardLayout>
-      <Routes>
-        <Route path="/dashboard" element={<DashboardHome />} />
-        <Route path="/dashboard/currency" element={<ManageCurrency />} />
-        <Route path="/dashboard/rate" element={<ManageRate />} />
-        <Route path="/dashboard/countries" element={<ManageCountries />} />
-        <Route path="/dashboard/fees" element={<ManageFees />} />
-        <Route path="/dashboard/admin" element={<ManageAdmin />} />
-        <Route path="/dashboard/user" element={<ManageUser />} />
-        <Route path="/dashboard/add-fiat" element={<AddFiatPage />} />
-        <Route path="/dashboard/add-crypto" element={<AddCryptoPage />} />
-        <Route path="/dashboard/user" element={<User />} />
-        <Route path="/dashboard/profile" element={<ProfilePage />} />
-        <Route path="/dashboard/settings" element={<SettingsPage />} />
-        <Route path="/dashboard/network-provider" element={<NetworkProvider />} />
-        <Route path="/dashboard/bill-provider" element={<BillProvider />} />
-        <Route path="/dashboard/betting-provider" element={<BettingProvider />} />
-        <Route path="/dashboard/card" element={<Card />} />
-        <Route path="/dashboard/transaction" element={<Transaction />} />
-        <Route path="/dashboard/support" element={<Support />} />
-        <Route path="/dashboard/account-password" element={<AccountPassword />} />
-      </Routes> 
-    </DashboardLayout>
+    <ProtectedRoute>
+      <DashboardLayout>
+        <Routes>
+          <Route path="" element={<DashboardHome />} />
+          <Route path="currency" element={<ManageCurrency />} />
+          <Route path="rate" element={<ManageRate />} />
+          <Route path="countries" element={<ManageCountries />} />
+          <Route path="fees" element={<ManageFees />} />
+          <Route path="admin" element={<ManageAdmin />} />
+          <Route path="user" element={<ManageUser />} />
+          <Route path="add-fiat" element={<AddFiatPage />} />
+          <Route path="add-crypto" element={<AddCryptoPage />} />
+          <Route path="user" element={<User />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="network-provider" element={<NetworkProvider />} />
+          <Route path="bill-provider" element={<BillProvider />} />
+          <Route path="betting-provider" element={<BettingProvider />} />
+          <Route path="card" element={<Card />} />
+          <Route path="transaction" element={<Transaction />} />
+          <Route path="support" element={<Support />} />
+          <Route path="account-password" element={<AccountPassword />} />
+        </Routes>
+      </DashboardLayout>
+    </ProtectedRoute>
   );
 };
 

@@ -1,5 +1,6 @@
-import { BrowserRouter } from "react-router-dom";
-import Router from "./routes";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import DashboardRoutes from "./routes/Dashboard";
+import PublicRoutes from "./routes/Public";
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import { ToastContainer } from "react-toastify";
@@ -13,17 +14,24 @@ import { useEffect } from "react";
 
 const App = () => {
   useEffect(() => {
-    clearPersistedState();
+    const clearState = async () => {
+      await clearPersistedState();
+      console.log("Persisted state cleared");
+    };
+    clearState();
   }, []);
 
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
         <ThemeProvider theme={theme}>
           <BrowserRouter>
             <CssBaseline />
             <UserContextProvider>
-              <Router />
+              <Routes>
+                <Route path="/*" element={<PublicRoutes />} />
+                <Route path="/dashboard/*" element={<DashboardRoutes />} /> 
+              </Routes>
               <ToastContainer
                 position="top-right"
                 autoClose={5000}

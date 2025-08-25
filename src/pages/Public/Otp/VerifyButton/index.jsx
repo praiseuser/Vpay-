@@ -6,6 +6,8 @@ const VerifyButton = ({ loading, styles, disabled }) => {
     <Box
       sx={{
         ...styles.signupButton,
+        width: '100%', 
+        maxWidth: '300px', 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

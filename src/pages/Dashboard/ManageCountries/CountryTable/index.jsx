@@ -6,12 +6,16 @@ import { Box } from '@mui/material';
 import { rowStyle, tableTitleStyle } from '../countryStyles';
 import { useDeleteCountry, useFetchCountryCurrencies, useViewCountryById } from '../../../../Hooks/useCountryCurrency';
 import CountryViewModal from '../CountryTable/CountryViewModal';
+import PasswordModal from '../../Card/PasswordModal';
 
 const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, loading: fetchLoading }) => {
   const [selectedId, setSelectedId] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCountry, setModalCountry] = useState(null); 
+
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+
   const { deleteCountry, loading: deleteLoading, error, success } = useDeleteCountry();
   const { countryCurrencies, loading: fetchLoadingFromHook, refetch } = useFetchCountryCurrencies();
   const { viewCountry, country: viewedCountry, loading: viewLoading, error: viewError } = useViewCountryById();
@@ -22,6 +26,7 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
     setCurrencies(initialCurrencies || countryCurrencies);
   }, [initialCurrencies, countryCurrencies]);
 
+
   useEffect(() => {
     if (viewId && !viewLoading) {
       viewCountry(viewId);
@@ -30,22 +35,35 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
 
   useEffect(() => {
     if (viewedCountry && !viewError && !viewLoading) {
-      console.log('Setting modalCountry:', viewedCountry);
       setModalCountry(viewedCountry);
     } else if (viewError) {
-      console.error(`Error viewing country with ID ${viewId}:`, viewError);
       setModalCountry(null);
-    } else {
-      console.log('viewedCountry is null or loading, not setting modalCountry yet');
     }
   }, [viewedCountry, viewError, viewLoading, viewId]);
 
   useEffect(() => {
     if (modalCountry) {
-      console.log('Opening modal with modalCountry:', modalCountry);
       setModalOpen(true);
     }
   }, [modalCountry]);
+
+  const handleDeleteClick = (id) => {
+    setSelectedId(id);
+    setPasswordModalOpen(true); // 👈 open password modal instead of deleting directly
+  };
+
+  const handlePasswordConfirm = async (password) => {
+    if (!selectedId) return;
+
+    // call API with password (if your hook supports it, else adjust)
+    await deleteCountry(selectedId, password);
+
+    if (success) {
+      refetch();
+    }
+    setSelectedId(null);
+    setPasswordModalOpen(false);
+  };
 
   const columns = [
     { id: 'serial', label: 'S/N', minWidth: 80 },
@@ -62,8 +80,7 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
     data.map((item, index) => {
       const isDeleteLoading = deleteLoading && selectedId === item.id;
       const isViewLoading = viewLoading && viewId === item.id;
-      console.log(`Delete button for ID ${item.id} - isDeleteLoading: ${isDeleteLoading}, deleteLoading: ${deleteLoading}, selectedId: ${selectedId}`);
-      console.log(`View button for ID ${item.id} - isViewLoading: ${isViewLoading}, viewLoading: ${viewLoading}, viewId: ${viewId}`);
+
       return {
         serial: <span className="table-text font-weight-500">{index + 1}</span>,
         currency: <span className="table-text font-weight-700">{item.Currency_Id}</span>,
@@ -73,11 +90,11 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
         flag: <span className="table-text font-weight-500">{item.Country_Flag || 'N/A'}</span>,
         status: <CustomButton type={item.status === 'active' ? 'red' : 'green'} />,
         action: (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, position: 'relative' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CustomButton type="edit" />
             <CustomButton
               type="delete"
-              onClick={() => setSelectedId(item.id)}
+              onClick={() => handleDeleteClick(item.id)}
               loading={isDeleteLoading}
               disabled={fetchLoadingFromHook || fetchLoading}
             />
@@ -92,27 +109,10 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
       };
     });
 
-  useEffect(() => {
-    if (selectedId && !deleteLoading && !fetchLoadingFromHook && !fetchLoading) {
-      deleteCountry(selectedId).then(() => {
-        if (success) {
-          console.log(`Country with ID ${selectedId} deleted successfully`);
-          setSelectedId(null);
-          refetch();
-        } else if (error) {
-          console.error(`Error deleting country with ID ${selectedId}:`, error);
-          setSelectedId(null);
-        }
-      });
-    }
-  }, [selectedId, deleteLoading, fetchLoadingFromHook, fetchLoading, deleteCountry, success, error, refetch]);
-
   const rows = formatRows(currencies);
 
   return (
-    <Box
-     
-    >
+    <Box>
       <CustomTable
         columns={columns}
         rows={rows}
@@ -130,6 +130,13 @@ const CountryTable = ({ countryCurrencies: initialCurrencies, onAddButtonClick, 
           setModalCountry(null);
         }}
         country={modalCountry}
+      />
+      <PasswordModal
+        open={passwordModalOpen}
+        onClose={() => setPasswordModalOpen(false)}
+        onConfirm={handlePasswordConfirm}
+        loading={deleteLoading}
+        password={""}
       />
     </Box>
   );

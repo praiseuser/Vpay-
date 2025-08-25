@@ -5,23 +5,28 @@ import {
   MenuItem,
   Typography,
   Button,
-  Modal,
   CircularProgress,
   Select,
 } from '@mui/material';
 import { useCreateRate } from '../../../../Hooks/useRateCurrency';
+import PasswordModal from '../../Card/PasswordModal';
 
 const CreateRateForm = ({ handleCancel }) => {
   const {
     createRate,
     isCreating,
-    error,
+    error: hookError,
     currencies = [],
+    passwordVerified,
+    showPasswordModal,
+    resetState,
   } = useCreateRate();
 
   const [rate, setRate] = useState('');
   const [status, setStatus] = useState('1');
   const [selectedCurrencyId, setSelectedCurrencyId] = useState('');
+  const [accountPassword, setAccountPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   useEffect(() => {
     console.log('Current currencies in form:', currencies);
@@ -31,12 +36,16 @@ const CreateRateForm = ({ handleCancel }) => {
     e.preventDefault();
     const statusValue = status === 'null' ? null : status;
 
-    const result = await createRate(selectedCurrencyId, rate, statusValue);
-    if (result.success) {
-      setRate('');
-      setStatus('1');
-      setSelectedCurrencyId('');
-      handleCancel();
+    if (passwordVerified) {
+      const result = await createRate(selectedCurrencyId, rate, statusValue, accountPassword);
+      if (result.success) {
+        setRate('');
+        setStatus('1');
+        setSelectedCurrencyId('');
+        handleCancel();
+      }
+    } else {
+      setShowPasswordModal(true);
     }
   };
 
@@ -51,26 +60,44 @@ const CreateRateForm = ({ handleCancel }) => {
     }
   };
 
+  const handlePasswordSubmit = async () => {
+    if (!accountPassword.trim()) {
+      return;
+    }
+    
+    setPasswordLoading(true);
+    const result = await createRate(selectedCurrencyId, rate, status, accountPassword);
+    setPasswordLoading(false);
+    
+    if (result.success) {
+      setAccountPassword('');
+      setRate('');
+      setStatus('1');
+      setSelectedCurrencyId('');
+      handleCancel();
+    }
+  };
+
+  const handlePasswordModalClose = () => {
+    resetState();
+  };
+
   return (
-    <Modal
-      open={true}
-      onClose={handleCancel}
-      aria-labelledby="create-rate-modal"
-      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-    >
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: 400,
-          bgcolor: 'white',
-          borderRadius: '16px',
-          p: 3,
-          boxShadow: 24,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-        }}
-      >
+    <Box sx={{ width: '100%', p: 3 }}>
+      <PasswordModal 
+        open={showPasswordModal} 
+        onClose={handlePasswordModalClose}
+        onSubmit={handlePasswordSubmit}
+        password={accountPassword}
+        setPassword={setAccountPassword}
+        loading={passwordLoading || isCreating}
+        // Removed error prop to let PasswordModal handle its own errors
+      />
+      <Box sx={{ 
+        opacity: showPasswordModal ? 0.3 : 1,
+        pointerEvents: showPasswordModal ? 'none' : 'auto',
+        transition: 'opacity 0.3s ease'
+      }}>
         <Typography
           id="create-rate-modal"
           sx={{
@@ -85,7 +112,7 @@ const CreateRateForm = ({ handleCancel }) => {
         </Typography>
 
         {/* Currency Dropdown */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
           <Typography
             sx={{
               fontFamily: 'Raleway',
@@ -138,7 +165,7 @@ const CreateRateForm = ({ handleCancel }) => {
         </Box>
 
         {/* Rate Field */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
           <Typography
             sx={{
               fontFamily: 'Raleway',
@@ -173,7 +200,7 @@ const CreateRateForm = ({ handleCancel }) => {
           />
         </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
           <Typography
             sx={{
               fontFamily: 'Raleway',
@@ -210,13 +237,8 @@ const CreateRateForm = ({ handleCancel }) => {
           </Select>
         </Box>
 
-        {error && (
-          <Typography color="error" sx={{ fontFamily: 'Inter', fontSize: '12px' }}>
-            {error}
-          </Typography>
-        )}
-
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+        {/* Removed error message display from the form */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Typography
             sx={{
               fontFamily: 'Inter',
@@ -271,7 +293,7 @@ const CreateRateForm = ({ handleCancel }) => {
           </Button>
         </Box>
       </Box>
-    </Modal>
+    </Box>
   );
 };
 

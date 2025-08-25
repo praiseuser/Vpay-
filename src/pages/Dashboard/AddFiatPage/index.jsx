@@ -9,11 +9,15 @@ import {
     Button,
 } from '@mui/material';
 import { useCreateFiatCurrency } from '../../../Hooks/useFiatCurrency';
+import PasswordModal from '../Card/PasswordModal';
 
 const AddFiatPage = ({ onCancel }) => {
     const [fiatCurrency, setFiatCurrency] = useState('');
     const [status, setStatus] = useState(1);
-    const { createFiatCurrency, loading, error, success } = useCreateFiatCurrency();
+    const [accountPassword, setAccountPassword] = useState('');
+    const [passwordLoading, setPasswordLoading] = useState(false);
+
+    const { createFiatCurrency, loading, error, success, showPasswordModal, passwordVerified, resetState } = useCreateFiatCurrency();
 
     const handleSubmit = async () => {
         if (!fiatCurrency.trim()) {
@@ -28,15 +32,37 @@ const AddFiatPage = ({ onCancel }) => {
 
         console.log("Data before sending to hook:", fiatData);
 
-        await createFiatCurrency(fiatData);
+        if (passwordVerified) {
+            const success = await createFiatCurrency(fiatData, accountPassword); 
+            if (success) {
+                setFiatCurrency('');
+                setStatus(1);
+                onCancel();
+            }
+        } else {
+            setShowPasswordModal(true); // Show modal if not verified
+        }
+    };
 
+    const handlePasswordSubmit = async () => {
+        if (!accountPassword.trim()) {
+            return;
+        }
+        
+        setPasswordLoading(true);
+        const success = await createFiatCurrency({ fiat_currency: fiatCurrency, status }, accountPassword); // Pass form data and password
+        setPasswordLoading(false);
+        
         if (success) {
+            setAccountPassword('');
             setFiatCurrency('');
             setStatus(1);
             onCancel();
-        } else if (error) {
-            alert(error);
         }
+    };
+
+    const handlePasswordModalClose = () => {
+        resetState(); // Reset state on close
     };
 
     return (
@@ -50,6 +76,15 @@ const AddFiatPage = ({ onCancel }) => {
                 px: 2,
             }}
         >
+            <PasswordModal 
+                open={showPasswordModal} 
+                onClose={handlePasswordModalClose}
+                onSubmit={handlePasswordSubmit}
+                password={accountPassword}
+                setPassword={setAccountPassword}
+                loading={passwordLoading || loading}
+                error={error}
+            />
             <Paper
                 sx={{
                     width: '100%',

@@ -4,6 +4,7 @@ import { useEditFiatStatus } from '../../../../Hooks/useCryptoCurrency';
 import CryptoFormInputs from '../../ManageCurrency/EditCryptoModal/CryptoFormInputs';
 import ModalActions from '../../ManageCurrency/EditCryptoModal/ModalActions';
 import PropTypes from 'prop-types';
+import PasswordModal from '../../Card/PasswordModal';
 
 const modalStyle = {
   position: 'absolute',
@@ -21,16 +22,17 @@ const modalStyle = {
   gap: 3,
 };
 
-
 const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
   const [formData, setFormData] = useState({
     crypto_name: '',
     network: '',
     status: 'Inactive',
   });
-
   const [errors, setErrors] = useState({});
-  const { editCurrency, loading } = useEditFiatStatus();
+  const [accountPassword, setAccountPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const { editCurrency, loading, error, success, successMessage, showPasswordModal, passwordVerified, resetState } = useEditFiatStatus();
 
   useEffect(() => {
     if (crypto) {
@@ -60,57 +62,85 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (validateForm()) {
-      const updatedCrypto = {
-        crypto_name: formData.crypto_name,
-        network: formData.network,
-        status: formData.status === 'Active' ? '1' : '0',
-      };
+  const handlePasswordSubmit = async () => {
+    if (!accountPassword.trim()) {
+      return;
+    }
+    
+    setPasswordLoading(true);
+    const result = await editCurrency(crypto.id, formData, accountPassword); // Pass id, data, and password
+    setPasswordLoading(false);
+    
+    if (result) {
+      setAccountPassword('');
+    }
+  };
 
-      const result = await editCurrency(crypto.id, updatedCrypto);
+  const handlePasswordModalClose = () => {
+    resetState(); // Reset state on close
+  };
+
+  const handleSubmit = async () => {
+    if (validateForm() && passwordVerified) {
+      const result = await editCurrency(crypto.id, formData, accountPassword); // Use stored password if verified
       if (result) {
         onSave(result);
         onClose();
       }
+    } else if (!passwordVerified) {
+      setShowPasswordModal(true); // Show modal if not verified
     }
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      aria-labelledby="edit-crypto-modal"
-      aria-describedby="edit-crypto-modal-description"
-    >
-      <Box sx={modalStyle}>
-        <Typography
-          variant="h6"
-          sx={{
-            fontFamily: 'Inter',
-            fontWeight: 700,
-            fontSize: '24px',
-            color: '#4A85F6',
-          }}
-        >
-          Edit Cryptocurrency
-        </Typography>
+    <>
+      <PasswordModal 
+        open={showPasswordModal} 
+        onClose={handlePasswordModalClose}
+        onSubmit={handlePasswordSubmit}
+        password={accountPassword}
+        setPassword={setAccountPassword}
+        loading={passwordLoading || loading}
+        error={error}
+      />
+      <Modal
+        open={open}
+        onClose={onClose}
+        aria-labelledby="edit-crypto-modal"
+        aria-describedby="edit-crypto-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontFamily: 'Inter',
+              fontWeight: 700,
+              fontSize: '24px',
+              color: '#4A85F6',
+            }}
+          >
+            Edit Cryptocurrency
+          </Typography>
 
-        <CryptoFormInputs
-          formData={formData}
-          errors={errors}
-          handleChange={handleChange}
-          networkOptions={networkOptions}
-          statusOptions={statusOptions}
-        />
+          <CryptoFormInputs
+            formData={formData}
+            errors={errors}
+            handleChange={handleChange}
+            networkOptions={networkOptions}
+            statusOptions={statusOptions}
+          />
 
-        <ModalActions
-          onCancel={onClose}
-          onSave={handleSubmit}
-          loading={loading}
-        />
-      </Box>
-    </Modal>
+          <ModalActions
+            onCancel={onClose}
+            onSave={handleSubmit}
+            loading={loading}
+            error={error}
+            success={success}
+            successMessage={successMessage}
+          />
+        </Box>
+      </Modal>
+    </>
   );
 };
 

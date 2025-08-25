@@ -1,12 +1,14 @@
 import React from 'react';
 import { MuiOtpInput } from 'mui-one-time-password-input';
+import { Box } from '@mui/material';
 
 const OtpInput = ({ value, onChange, length = 6 }) => {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
+        width: '100%',
         display: 'flex',
-        justifyContent: 'center',  
+        justifyContent: 'center',
         marginBottom: '16px',
       }}
     >
@@ -15,8 +17,10 @@ const OtpInput = ({ value, onChange, length = 6 }) => {
         onChange={onChange}
         length={length}
         sx={{
+          width: '100%',
           display: 'flex',
           gap: '8px',
+          justifyContent: 'center',
           '& .MuiInputBase-root': {
             fontFamily: 'Inter',
             fontSize: '18px',
@@ -35,7 +39,7 @@ const OtpInput = ({ value, onChange, length = 6 }) => {
           },
         }}
       />
-    </div>
+    </Box>
   );
 };
 

@@ -17,7 +17,7 @@ const userSlice = createSlice({
     },
     logoutUser: (state) => {
       state.user = null;
-      state.token = null; 
+      state.token = null;
       console.log("User after logout:", state.user);
       console.log("Token after logout:", state.token);
     },

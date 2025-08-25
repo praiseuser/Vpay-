@@ -5,10 +5,11 @@ import EditRateModal from '../FiatRate/EditRateModal';
 import RateTable from '../FiatRate/RateTable';
 import ErrorMessage from '../FiatRate/ErrorMessage';
 import ViewRateModal from '../FiatRate/ViewRateModal';
+import PasswordModal from '../../Card/PasswordModal';
 
 const FiatRate = ({ onAddButtonClick }) => {
   const { rateCurrencies, loading, error } = useFetchRateCurrencies();
-  const { deleteRate, isRateLoading, error: deleteError } = useDeleteRate();
+  const { deleteRate, isRateLoading, error: deleteError, successMessage, showPasswordModal, passwordVerified, accountPassword, setAccountPassword, passwordLoading, resetState } = useDeleteRate();
   const { rate, loading: viewLoading, error: viewError, fetchRate } = useViewRate();
   const [modalOpen, setModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -55,30 +56,55 @@ const FiatRate = ({ onAddButtonClick }) => {
     setViewModalOpen(false);
   };
 
+  const handlePasswordSubmit = async () => {
+    if (!accountPassword.trim()) {
+      return;
+    }
+    await deleteRate(null); // Trigger delete with verified password
+  };
+
+  const handlePasswordModalClose = () => {
+    resetState();
+  };
+
   return (
     <Box sx={{ position: 'relative' }}>
-      <RateTable
-        rateCurrencies={rateCurrencies}
-        isRateLoading={isRateLoading}
-        activeRateId={activeRateId}
-        viewLoading={viewLoading}
-        onAddButtonClick={onAddButtonClick}
-        onDelete={handleDelete}
-        onEdit={handleEditClick}
-        onView={handleViewClick}
+      <PasswordModal 
+        open={showPasswordModal} 
+        onClose={handlePasswordModalClose}
+        onSubmit={handlePasswordSubmit}
+        password={accountPassword}
+        setPassword={setAccountPassword}
+        loading={passwordLoading}
       />
-      <ErrorMessage error={error || deleteError || viewError} />
-      <EditRateModal
-        open={modalOpen}
-        onClose={handleModalClose}
-        rateData={selectedRate}
-      />
-      <ViewRateModal
-        open={viewModalOpen}
-        onClose={handleViewModalClose}
-        rate={rate}
-        loading={viewLoading}
-      />
+      <Box sx={{ 
+        opacity: showPasswordModal ? 0.3 : 1,
+        pointerEvents: showPasswordModal ? 'none' : 'auto',
+        transition: 'opacity 0.3s ease'
+      }}>
+        <RateTable
+          rateCurrencies={rateCurrencies}
+          isRateLoading={isRateLoading}
+          activeRateId={activeRateId}
+          viewLoading={viewLoading}
+          onAddButtonClick={onAddButtonClick}
+          onDelete={handleDelete}
+          onEdit={handleEditClick}
+          onView={handleViewClick}
+        />
+        <ErrorMessage error={error || deleteError || viewError} />
+        <EditRateModal
+          open={modalOpen}
+          onClose={handleModalClose}
+          rateData={selectedRate}
+        />
+        <ViewRateModal
+          open={viewModalOpen}
+          onClose={handleViewModalClose}
+          rate={rate}
+          loading={viewLoading}
+        />
+      </Box>
     </Box>
   );
 };

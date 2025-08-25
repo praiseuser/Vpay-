@@ -45,18 +45,19 @@ const Login = () => {
           backgroundColor: '#fff',
           borderRadius: '20px',
           boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
-          padding: { xs: 3, sm: 4, md: 5 },
+          padding: { xs: 4, sm: 5, md: 6 }, // Increased padding for more height
           width: { xs: '95%', sm: '85%', md: '55%' },
           maxWidth: 720,
-          minHeight: { xs: 450, sm: 500, md: 560 },
+          minHeight: { xs: 500, sm: 550, md: 600 }, // Increased minHeight for more vertical space
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           position: 'relative',
           border: '2px solid #0A0F3F',
+          // Subtle glow effect
+          boxShadow: '0 0 15px rgba(10, 15, 63, 0.3), 0 12px 32px rgba(0,0,0,0.3)',
         }}
       >
-
         <form
           onSubmit={handleSubmit}
           className="login-box"
