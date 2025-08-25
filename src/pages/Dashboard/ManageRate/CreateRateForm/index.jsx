@@ -19,6 +19,7 @@ const CreateRateForm = ({ handleCancel }) => {
     currencies = [],
     passwordVerified,
     showPasswordModal,
+    setShowPasswordModal,
     resetState,
   } = useCreateRate();
 
@@ -36,6 +37,11 @@ const CreateRateForm = ({ handleCancel }) => {
     e.preventDefault();
     const statusValue = status === 'null' ? null : status;
 
+    if (!selectedCurrencyId || !rate) {
+      toast.error("Please fill all required fields (Currency and Rate)");
+      return;
+    }
+
     if (passwordVerified) {
       const result = await createRate(selectedCurrencyId, rate, statusValue, accountPassword);
       if (result.success) {
@@ -45,7 +51,7 @@ const CreateRateForm = ({ handleCancel }) => {
         handleCancel();
       }
     } else {
-      setShowPasswordModal(true);
+      setShowPasswordModal(true); // Show modal only after valid form submission
     }
   };
 
@@ -66,7 +72,8 @@ const CreateRateForm = ({ handleCancel }) => {
     }
     
     setPasswordLoading(true);
-    const result = await createRate(selectedCurrencyId, rate, status, accountPassword);
+    const statusValue = status === 'null' ? null : status;
+    const result = await createRate(selectedCurrencyId, rate, statusValue, accountPassword);
     setPasswordLoading(false);
     
     if (result.success) {
@@ -80,19 +87,11 @@ const CreateRateForm = ({ handleCancel }) => {
 
   const handlePasswordModalClose = () => {
     resetState();
+    handleCancel();
   };
 
   return (
     <Box sx={{ width: '100%', p: 3 }}>
-      <PasswordModal 
-        open={showPasswordModal} 
-        onClose={handlePasswordModalClose}
-        onSubmit={handlePasswordSubmit}
-        password={accountPassword}
-        setPassword={setAccountPassword}
-        loading={passwordLoading || isCreating}
-        // Removed error prop to let PasswordModal handle its own errors
-      />
       <Box sx={{ 
         opacity: showPasswordModal ? 0.3 : 1,
         pointerEvents: showPasswordModal ? 'none' : 'auto',
@@ -237,7 +236,6 @@ const CreateRateForm = ({ handleCancel }) => {
           </Select>
         </Box>
 
-        {/* Removed error message display from the form */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Typography
             sx={{
@@ -291,6 +289,15 @@ const CreateRateForm = ({ handleCancel }) => {
               </Typography>
             )}
           </Button>
+          <PasswordModal 
+            open={showPasswordModal} 
+            onClose={handlePasswordModalClose}
+            onSubmit={handlePasswordSubmit}
+            password={accountPassword}
+            setPassword={setAccountPassword}
+            loading={passwordLoading || isCreating}
+            error={hookError}
+          />
         </Box>
       </Box>
     </Box>

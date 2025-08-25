@@ -130,7 +130,7 @@ const useCreateCryptoCurrency = () => {
     error, 
     success,
     showPasswordModal,
-    setShowPasswordModal, // Expose the setter
+    setShowPasswordModal, 
     passwordVerified,
     resetState
   };
@@ -202,7 +202,7 @@ const useEditFiatStatus = () => {
     setSuccessMessage(null);
   };
 
-  return { editCurrency, loading, error, success, successMessage, passwordVerified, showPasswordModal, resetState };
+  return { editCurrency, loading, error, success, successMessage, passwordVerified, showPasswordModal, setShowPasswordModal, resetState };
 };
 
 export { useFetchCurrencies, useCreateCryptoCurrency, useEditFiatStatus };

@@ -5,7 +5,6 @@ import { useAddCountry } from "../../../../Hooks/useCountryCurrency";
 import { toast } from "react-toastify";
 import CountryFormFields from "../AddCountryForm/CountryFormFields";
 import FormActions from "../AddCountryForm/FormActions";
-import PasswordModal from '../../Card/PasswordModal';
 import {
   formContainerStyle,
   titleStyle,
@@ -37,6 +36,7 @@ const AddCountryForm = ({ onCancel }) => {
     error,
     success,
     showPasswordModal,
+    setShowPasswordModal,
     passwordVerified,
     resetState,
   } = useAddCountry();
@@ -89,7 +89,7 @@ const AddCountryForm = ({ onCancel }) => {
     setFormData((prev) => ({ ...prev, status }));
   };
 
-  // ✅ Password modal submit
+  // Password modal submit
   const handlePasswordSubmit = async () => {
     if (!accountPassword.trim()) return;
 
@@ -105,9 +105,10 @@ const AddCountryForm = ({ onCancel }) => {
 
   const handlePasswordModalClose = () => {
     resetState();
+    onCancel();
   };
 
-  // ✅ Main form submit
+  // Main form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -125,22 +126,13 @@ const AddCountryForm = ({ onCancel }) => {
       if (success) {
         onCancel();
       }
+    } else {
+      setShowPasswordModal(true); // Show modal only after valid form submission
     }
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={formContainerStyle}>
-      {/* ✅ Password Modal */}
-      <PasswordModal
-        open={showPasswordModal}
-        onClose={handlePasswordModalClose}
-        onSubmit={handlePasswordSubmit}
-        password={accountPassword}
-        setPassword={setAccountPassword}
-        loading={passwordLoading || loading}
-        error={error}
-      />
-
       <Typography variant="h6" sx={titleStyle}>
         Add New Country
       </Typography>
@@ -158,7 +150,18 @@ const AddCountryForm = ({ onCancel }) => {
 
       {error && <Typography sx={errorStyle}>{error}</Typography>}
 
-      <FormActions onCancel={onCancel} loading={loading} />
+      <FormActions
+        onCancel={onCancel}
+        loading={loading}
+        showPasswordModal={showPasswordModal}
+        setShowPasswordModal={setShowPasswordModal}
+        handlePasswordSubmit={handlePasswordSubmit}
+        handlePasswordModalClose={handlePasswordModalClose}
+        accountPassword={accountPassword}
+        setAccountPassword={setAccountPassword}
+        passwordLoading={passwordLoading}
+        error={error}
+      />
     </Box>
   );
 };

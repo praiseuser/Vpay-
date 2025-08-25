@@ -1,8 +1,21 @@
 import React from 'react';
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
+import PasswordModal from '../../Card/PasswordModal';
 import styles from '../AddCryptoPageStyles';
 
-const CryptoFormActions = ({ onCancel, onSubmit, loading, error }) => {
+const CryptoFormActions = ({ 
+  onCancel, 
+  onSubmit, 
+  loading, 
+  error,
+  showPasswordModal,
+  setShowPasswordModal,
+  handlePasswordSubmit,
+  handlePasswordModalClose,
+  accountPassword,
+  setAccountPassword,
+  passwordLoading
+}) => {
   return (
     <Box sx={styles.buttonsContainer}>
       <Typography
@@ -28,6 +41,15 @@ const CryptoFormActions = ({ onCancel, onSubmit, loading, error }) => {
           {error}
         </Typography>
       )}
+      <PasswordModal 
+        open={showPasswordModal} 
+        onClose={handlePasswordModalClose}
+        onSubmit={handlePasswordSubmit}
+        password={accountPassword}
+        setPassword={setAccountPassword}
+        loading={passwordLoading || loading}
+        error={error}
+      />
     </Box>
   );
 };

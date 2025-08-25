@@ -74,7 +74,7 @@ const useCreateRate = () => {
   const [currencies, setCurrencies] = useState([]);
   const hasFetchedCurrencies = useRef(false);
   const [passwordVerified, setPasswordVerified] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false); // Changed to false
 
   const userState = useSelector((state) => state.user);
   const token = userState.token;
@@ -187,11 +187,11 @@ const useCreateRate = () => {
   const resetState = () => {
     setIsCreating(false);
     setPasswordVerified(false);
-    setShowPasswordModal(true);
+    setShowPasswordModal(false); // Changed to false
     setError(null);
   };
 
-  return { createRate, isCreating, error, currencies, passwordVerified, showPasswordModal, resetState };
+  return { createRate, isCreating, error, currencies, passwordVerified, showPasswordModal, setShowPasswordModal, resetState };
 };
 const useDeleteRate = () => {
   const [loadingStates, setLoadingStates] = useState({});

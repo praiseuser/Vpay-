@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, Paper } from '@mui/material';
 import styles from './AddCryptoPageStyles';
 import CryptoFormHeader from '../AddCryptoPage/CryptoFormHeader';
 import CryptoFormFields from '../AddCryptoPage/CryptoFormFields';
 import CryptoFormActions from '../AddCryptoPage/CryptoFormActions';
 import { useCreateCryptoCurrency } from '../../../Hooks/useCryptoCurrency';
-import PasswordModal from '../Card/PasswordModal';
 
 const AddCryptoPage = ({ onCancel, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -23,7 +22,7 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
     error, 
     success,
     showPasswordModal,
-    setShowPasswordModal, // Now accessible
+    setShowPasswordModal, 
     passwordVerified,
     resetState 
   } = useCreateCryptoCurrency();
@@ -71,28 +70,13 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
         onSubmit(formData);
         onCancel();
       }
-    } else if (!passwordVerified) {
-      // Modal is already shown on load, no need to set it here
-      console.log('Please verify password first');
+    } else if (validateForm() && !passwordVerified) {
+      setShowPasswordModal(true); // Show modal only after valid form submission
     }
   };
 
-  // Show password modal immediately on component mount
-  useEffect(() => {
-    setShowPasswordModal(true); // Trigger modal on page load
-  }, [setShowPasswordModal]); // Depend on setShowPasswordModal to avoid warnings
-
   return (
     <Box sx={styles.container}>
-      <PasswordModal 
-        open={showPasswordModal} 
-        onClose={handlePasswordModalClose}
-        onSubmit={handlePasswordSubmit}
-        password={accountPassword}
-        setPassword={setAccountPassword}
-        loading={passwordLoading || loading}
-        error={error}
-      />
       <Paper sx={styles.paper}>
         <CryptoFormHeader />
         <Box sx={styles.formContainer}>
@@ -107,6 +91,13 @@ const AddCryptoPage = ({ onCancel, onSubmit }) => {
               onSubmit={handleSubmit}
               loading={loading}
               error={error}
+              showPasswordModal={showPasswordModal}
+              setShowPasswordModal={setShowPasswordModal}
+              handlePasswordSubmit={handlePasswordSubmit}
+              handlePasswordModalClose={handlePasswordModalClose}
+              accountPassword={accountPassword}
+              setAccountPassword={setAccountPassword}
+              passwordLoading={passwordLoading}
             />
           </Box>
         </Box>

@@ -17,7 +17,7 @@ const AddFiatPage = ({ onCancel }) => {
     const [accountPassword, setAccountPassword] = useState('');
     const [passwordLoading, setPasswordLoading] = useState(false);
 
-    const { createFiatCurrency, loading, error, success, showPasswordModal, passwordVerified, resetState } = useCreateFiatCurrency();
+    const { createFiatCurrency, loading, error, success, showPasswordModal, setShowPasswordModal, passwordVerified, resetState } = useCreateFiatCurrency();
 
     const handleSubmit = async () => {
         if (!fiatCurrency.trim()) {
@@ -40,7 +40,7 @@ const AddFiatPage = ({ onCancel }) => {
                 onCancel();
             }
         } else {
-            setShowPasswordModal(true); // Show modal if not verified
+            setShowPasswordModal(true); // Show modal only after valid form submission
         }
     };
 
@@ -63,6 +63,7 @@ const AddFiatPage = ({ onCancel }) => {
 
     const handlePasswordModalClose = () => {
         resetState(); // Reset state on close
+        onCancel(); // Close the form if password is canceled
     };
 
     return (
@@ -76,15 +77,6 @@ const AddFiatPage = ({ onCancel }) => {
                 px: 2,
             }}
         >
-            <PasswordModal 
-                open={showPasswordModal} 
-                onClose={handlePasswordModalClose}
-                onSubmit={handlePasswordSubmit}
-                password={accountPassword}
-                setPassword={setAccountPassword}
-                loading={passwordLoading || loading}
-                error={error}
-            />
             <Paper
                 sx={{
                     width: '100%',
@@ -267,6 +259,15 @@ const AddFiatPage = ({ onCancel }) => {
                         </Typography>
                     </Button>
                 </Box>
+                <PasswordModal 
+                    open={showPasswordModal} 
+                    onClose={handlePasswordModalClose}
+                    onSubmit={handlePasswordSubmit}
+                    password={accountPassword}
+                    setPassword={setAccountPassword}
+                    loading={passwordLoading || loading}
+                    error={error}
+                />
             </Paper>
         </Box>
     );

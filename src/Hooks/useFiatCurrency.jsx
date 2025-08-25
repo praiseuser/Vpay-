@@ -58,7 +58,7 @@ const useCreateFiatCurrency = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [passwordVerified, setPasswordVerified] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(true);
+  const [showPasswordModal, setShowPasswordModal] = useState(false); // Start as false
 
   const userState = useSelector((state) => state.user);
   const token = userState.token;
@@ -67,6 +67,7 @@ const useCreateFiatCurrency = () => {
     setLoading(true);
     setError(null);
     setSuccess(false);
+    setShowPasswordModal(true); // Show modal only when creating is triggered
 
     const payload = {
       ...fiatData,
@@ -77,6 +78,7 @@ const useCreateFiatCurrency = () => {
       setError('Invalid or missing authentication token');
       customErrorToast('Invalid or missing authentication token');
       setLoading(false);
+      setShowPasswordModal(false); // Hide if token fails
       return false;
     }
 
@@ -99,7 +101,7 @@ const useCreateFiatCurrency = () => {
       if (response.data.success) {
         setSuccess(true);
         setPasswordVerified(true);
-        setShowPasswordModal(false);
+        setShowPasswordModal(false); // Hide after success
         customSuccessToast('Fiat currency created successfully');
         return true;
       } else {
@@ -121,11 +123,11 @@ const useCreateFiatCurrency = () => {
   const resetState = () => {
     setSuccess(false);
     setPasswordVerified(false);
-    setShowPasswordModal(true);
+    setShowPasswordModal(false); // Ensure modal stays hidden on reset
     setError(null);
   };
 
-  return { createFiatCurrency, loading, error, success, passwordVerified, showPasswordModal, resetState };
+  return { createFiatCurrency, loading, error, success, passwordVerified, showPasswordModal, setShowPasswordModal, resetState };
 };
 
 export { useFetchFiatCurrencies, useCreateFiatCurrency };

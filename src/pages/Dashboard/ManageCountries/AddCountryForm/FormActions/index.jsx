@@ -1,9 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Typography, Box, CircularProgress } from '@mui/material';
+import PasswordModal from '../../../Card/PasswordModal';
 import { actionsContainerStyle, submitButtonStyle } from '../countryFormStyles';
 
-const FormActions = ({ onCancel, loading }) => (
+const FormActions = ({ 
+  onCancel, 
+  loading,
+  showPasswordModal,
+  setShowPasswordModal,
+  handlePasswordSubmit,
+  handlePasswordModalClose,
+  accountPassword,
+  setAccountPassword,
+  passwordLoading,
+  error
+}) => (
   <Box sx={actionsContainerStyle}>
     <Typography
       onClick={onCancel}
@@ -31,12 +43,29 @@ const FormActions = ({ onCancel, loading }) => (
     >
       {loading ? 'Adding...' : 'Submit'}
     </Button>
+    <PasswordModal 
+      open={showPasswordModal} 
+      onClose={handlePasswordModalClose}
+      onSubmit={handlePasswordSubmit}
+      password={accountPassword}
+      setPassword={setAccountPassword}
+      loading={passwordLoading || loading}
+      error={error}
+    />
   </Box>
 );
 
 FormActions.propTypes = {
   onCancel: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
+  showPasswordModal: PropTypes.bool.isRequired,
+  setShowPasswordModal: PropTypes.func.isRequired,
+  handlePasswordSubmit: PropTypes.func.isRequired,
+  handlePasswordModalClose: PropTypes.func.isRequired,
+  accountPassword: PropTypes.string.isRequired,
+  setAccountPassword: PropTypes.func.isRequired,
+  passwordLoading: PropTypes.bool.isRequired,
+  error: PropTypes.string,
 };
 
 export default FormActions;

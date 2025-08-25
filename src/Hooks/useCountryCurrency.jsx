@@ -72,7 +72,7 @@ const useAddCountry = () => {
     const [success, setSuccess] = useState(false);
     const [fiatCurrencies, setFiatCurrencies] = useState([]);
     const [passwordVerified, setPasswordVerified] = useState(false);
-    const [showPasswordModal, setShowPasswordModal] = useState(true);
+    const [showPasswordModal, setShowPasswordModal] = useState(false); // Changed to false
     const hasFetchedCurrencies = useRef(false);
 
     const token = useSelector((state) => state.user.token);
@@ -187,7 +187,7 @@ const useAddCountry = () => {
     const resetState = () => {
         setSuccess(false);
         setPasswordVerified(false);
-        setShowPasswordModal(true);
+        setShowPasswordModal(false); // Changed to false
         setError(null);
     };
 

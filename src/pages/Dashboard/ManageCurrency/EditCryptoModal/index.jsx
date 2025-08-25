@@ -32,7 +32,7 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
   const [accountPassword, setAccountPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const { editCurrency, loading, error, success, successMessage, showPasswordModal, passwordVerified, resetState } = useEditFiatStatus();
+  const { editCurrency, loading, error, success, successMessage, showPasswordModal, setShowPasswordModal, passwordVerified, resetState } = useEditFiatStatus();
 
   useEffect(() => {
     if (crypto) {
@@ -73,11 +73,14 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
     
     if (result) {
       setAccountPassword('');
+      onSave(result);
+      onClose();
     }
   };
 
   const handlePasswordModalClose = () => {
     resetState(); // Reset state on close
+    onClose(); // Close the modal if password is canceled
   };
 
   const handleSubmit = async () => {
@@ -91,8 +94,8 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
         onSave(result);
         onClose();
       }
-    } else if (!passwordVerified) {
-      setShowPasswordModal(true); // Show modal if not verified
+    } else if (validateForm() && !passwordVerified) {
+      setShowPasswordModal(true); // Show modal only after valid form submission
     }
   };
 
