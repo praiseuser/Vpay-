@@ -1,15 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  TextField,
-  MenuItem,
-  Typography,
-  Button,
-  CircularProgress,
-  Select,
-} from '@mui/material';
+import { Box, Typography, Button, CircularProgress } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { useCreateRate } from '../../../../Hooks/useRateCurrency';
 import PasswordModal from '../../Card/PasswordModal';
+import InputField from '../CreateRateForm/InputField';
+import ProgressIndicator from '../CreateRateForm/ProgressIndicator';
+import { keyframes } from '@emotion/react';
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
+const FormContainer = styled(Box)`
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  &:before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    animation: ${pulse} 6s infinite;
+  }
+`;
 
 const CreateRateForm = ({ handleCancel }) => {
   const {
@@ -28,10 +52,29 @@ const CreateRateForm = ({ handleCancel }) => {
   const [selectedCurrencyId, setSelectedCurrencyId] = useState('');
   const [accountPassword, setAccountPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [isFieldComplete, setIsFieldComplete] = useState({
+    currency: false,
+    rate: false,
+    status: false,
+  });
 
   useEffect(() => {
     console.log('Current currencies in form:', currencies);
   }, [currencies]);
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'currency_id') {
+      setSelectedCurrencyId(value);
+      setIsFieldComplete((prev) => ({ ...prev, currency: !!value }));
+    } else if (name === 'rate') {
+      setRate(value);
+      setIsFieldComplete((prev) => ({ ...prev, rate: !!value }));
+    } else if (name === 'status') {
+      setStatus(value);
+      setIsFieldComplete((prev) => ({ ...prev, status: !!value }));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,21 +91,11 @@ const CreateRateForm = ({ handleCancel }) => {
         setRate('');
         setStatus('1');
         setSelectedCurrencyId('');
+        setIsFieldComplete({ currency: false, rate: false, status: false });
         handleCancel();
       }
     } else {
-      setShowPasswordModal(true); // Show modal only after valid form submission
-    }
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'currency_id') {
-      setSelectedCurrencyId(value);
-    } else if (name === 'rate') {
-      setRate(value);
-    } else if (name === 'status') {
-      setStatus(value);
+      setShowPasswordModal(true);
     }
   };
 
@@ -81,6 +114,7 @@ const CreateRateForm = ({ handleCancel }) => {
       setRate('');
       setStatus('1');
       setSelectedCurrencyId('');
+      setIsFieldComplete({ currency: false, rate: false, status: false });
       handleCancel();
     }
   };
@@ -90,180 +124,89 @@ const CreateRateForm = ({ handleCancel }) => {
     handleCancel();
   };
 
+  const isFormValid = selectedCurrencyId && rate && status;
+
   return (
-    <Box sx={{ width: '100%', p: 3 }}>
-      <Box sx={{ 
-        opacity: showPasswordModal ? 0.3 : 1,
-        pointerEvents: showPasswordModal ? 'none' : 'auto',
-        transition: 'opacity 0.3s ease'
-      }}>
+    <FormContainer>
+      <Box sx={{ position: 'relative', zIndex: 1 }}>
         <Typography
           id="create-rate-modal"
           sx={{
             fontFamily: 'Inter',
-            fontWeight: 700,
+            fontWeight: 500,
             fontSize: '20px',
-            color: '#4A85F6',
-            mb: 2,
+            color: '#02042D',
+            mb: 3,
           }}
         >
           Create Rate
         </Typography>
 
-        {/* Currency Dropdown */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-          <Typography
-            sx={{
-              fontFamily: 'Raleway',
-              fontWeight: 600,
-              fontSize: '14px',
-              color: '#363853',
-            }}
-          >
-            Currency
-          </Typography>
-          <Select
-            name="currency_id"
-            value={selectedCurrencyId}
-            onChange={handleFormChange}
-            variant="outlined"
-            fullWidth
-            displayEmpty
-            renderValue={(value) =>
-              value
-                ? currencies.find((c) => c.currency_id === value)?.currency_name || 'Select a currency'
-                : 'Select a currency'
-            }
-            sx={{
-              backgroundColor: '#FAFAFA',
-              borderRadius: '10px',
-              '& .MuiOutlinedInput-root': {
-                height: '40px',
-                borderRadius: '10px',
-                backgroundColor: '#FAFAFA',
-                '& fieldset': {
-                  borderColor: '#D9D9D9',
-                  borderWidth: '1px',
-                },
-              },
-              '& .MuiMenuItem-root': {
-                color: '#000',
-              },
-            }}
-          >
-            {currencies.length > 0 ? (
-              currencies.map((currency) => (
-                <MenuItem key={currency.currency_id} value={currency.currency_id}>
-                  {currency.currency_name}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem disabled>No currencies available</MenuItem>
-            )}
-          </Select>
-        </Box>
+        <InputField
+          label="Currency"
+          name="currency_id"
+          value={selectedCurrencyId}
+          onChange={handleFormChange}
+          options={currencies.map(currency => ({ value: currency.currency_id, label: currency.currency_name }))}
+        />
+        <InputField
+          label="Rate"
+          name="rate"
+          value={rate}
+          onChange={handleFormChange}
+          type="number"
+          placeholder="e.g., 50000"
+        />
+        <InputField
+          label="Status"
+          name="status"
+          value={status}
+          onChange={handleFormChange}
+          options={[
+            { value: '1', label: 'Enabled' },
+            { value: '0', label: 'Disabled' },
+            { value: 'null', label: 'Null' },
+          ]}
+        />
 
-        {/* Rate Field */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-          <Typography
-            sx={{
-              fontFamily: 'Raleway',
-              fontWeight: 600,
-              fontSize: '14px',
-              color: '#363853',
-            }}
-          >
-            Rate
-          </Typography>
-          <TextField
-            name="rate"
-            type="number"
-            value={rate}
-            onChange={handleFormChange}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3, mr: '80px' }}>
+          <Button
             variant="outlined"
-            fullWidth
-            placeholder="e.g., 50000"
-            sx={{
-              backgroundColor: '#FAFAFA',
-              borderRadius: '10px',
-              '& .MuiOutlinedInput-root': {
-                height: '40px',
-                borderRadius: '10px',
-                backgroundColor: '#FAFAFA',
-                '& fieldset': {
-                  borderColor: '#D9D9D9',
-                  borderWidth: '1px',
-                },
-              },
-            }}
-          />
-        </Box>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-          <Typography
-            sx={{
-              fontFamily: 'Raleway',
-              fontWeight: 600,
-              fontSize: '14px',
-              color: '#363853',
-            }}
-          >
-            Status
-          </Typography>
-          <Select
-            name="status"
-            value={status}
-            onChange={handleFormChange}
-            variant="outlined"
-            fullWidth
-            sx={{
-              backgroundColor: '#FAFAFA',
-              borderRadius: '10px',
-              '& .MuiOutlinedInput-root': {
-                height: '40px',
-                borderRadius: '10px',
-                backgroundColor: '#FAFAFA',
-                '& fieldset': {
-                  borderColor: '#D9D9D9',
-                  borderWidth: '1px',
-                },
-              },
-            }}
-          >
-            <MenuItem value="1">Enabled</MenuItem>
-            <MenuItem value="0">Disabled</MenuItem>
-            <MenuItem value="null">Null</MenuItem>
-          </Select>
-        </Box>
-
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Typography
+            onClick={handleCancel}
             sx={{
               fontFamily: 'Inter',
               fontWeight: 700,
               fontSize: '12px',
               textTransform: 'capitalize',
+              borderRadius: '12px',
               color: '#73757C',
-              cursor: 'pointer',
+              borderColor: '#D9D9D9',
+              padding: '10px 25px',
+              '&:hover': {
+                borderColor: '#4A85F6',
+                color: '#4A85F6',
+              },
             }}
-            onClick={handleCancel}
           >
             Cancel
-          </Typography>
+          </Button>
           <Button
             variant="contained"
             onClick={handleSubmit}
-            disabled={isCreating}
+            disabled={isCreating || !isFormValid}
             sx={{
               fontFamily: 'Inter',
               fontWeight: 700,
-              fontSize: '12px',
+              fontSize: '14px',
               textTransform: 'capitalize',
-              borderRadius: '10px',
-              backgroundColor: '#208BC9',
-              padding: '10px 30px',
-              boxShadow: 'none',
+              borderRadius: '12px',
+              backgroundColor: '#02042D',
+              padding: '10px 35px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
               position: 'relative',
+              '&:disabled': {
+                backgroundColor: '#b0bec5',
+              },
             }}
           >
             {isCreating ? (
@@ -281,7 +224,7 @@ const CreateRateForm = ({ handleCancel }) => {
                 sx={{
                   fontFamily: 'Inter',
                   fontWeight: '700',
-                  fontSize: '12px',
+                  fontSize: '14px',
                   color: '#FFFFFF',
                 }}
               >
@@ -289,8 +232,8 @@ const CreateRateForm = ({ handleCancel }) => {
               </Typography>
             )}
           </Button>
-          <PasswordModal 
-            open={showPasswordModal} 
+          <PasswordModal
+            open={showPasswordModal}
             onClose={handlePasswordModalClose}
             onSubmit={handlePasswordSubmit}
             password={accountPassword}
@@ -300,7 +243,9 @@ const CreateRateForm = ({ handleCancel }) => {
           />
         </Box>
       </Box>
-    </Box>
+
+      <ProgressIndicator steps={[isFieldComplete.currency, isFieldComplete.rate, isFieldComplete.status]} />
+    </FormContainer>
   );
 };
 

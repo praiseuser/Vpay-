@@ -183,17 +183,16 @@ export const useFetchAllSupportTickets = (page = 1) => {
       const data = response.data.result?.tickets || [];
       const formattedTickets = Array.isArray(data)
         ? data.map((item) => ({
-          id: item.id || null,
-          ticketNumber: item.ticket_number || null,
-          subject: item.subject || 'No Subject',
-          status: item.status === '1' ? 'Closed' : item.status === '0' ? 'Open' : 'In Progress',
-          createdAt: item.created_at || null,
-        }))
+            id: item.id || null,
+            ticketNumber: item.ticket_number || null,
+            subject: item.subject || 'No Subject',
+            status: item.status === '1' ? 'Closed' : item.status === '0' ? 'Open' : 'In Progress',
+            createdAt: item.created_at || null,
+          }))
         : [];
 
       setTickets(formattedTickets);
       if (formattedTickets.length === 0) {
-        setError('No support tickets available');
         toast(<CustomErrorToast message="No support tickets found" />);
       }
     } catch (err) {

@@ -9,7 +9,10 @@ const CryptoTable = ({ cryptoData, onAddButtonClick, onEditClick, loading, activ
   const columns = [
     { id: 'crypto_name', label: 'CRYPTO NAME', minWidth: 150 },
     { id: 'network', label: 'NETWORK', minWidth: 150 },
+    { id: 'crypto_symbol', label: 'CRYPTO SYMBOL', minWidth: 150 },
     { id: 'status', label: 'STATUS', minWidth: 120 },
+    { id: 'chain', label: 'CHAIN', minWidth: 120 },
+    { id: 'crypto_image', label: 'CRYPTO IMAGE', minWidth: 120 },
     { id: 'action', label: '', minWidth: 180 },
   ];
 

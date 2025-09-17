@@ -4,8 +4,6 @@ import {
   Box,
   Grid,
   Typography,
-  Button,
-  Stack,
 } from '@mui/material';
 import CurrencyField from '../CountryFormFields/CurrencyField';
 import TextInputField from '../CountryFormFields/TextInputField';
@@ -21,9 +19,6 @@ const CountryFormFields = ({
   fiatCurrencies,
   statusOptions,
   loading,
-  onCancel,
-  onSubmit,
-  error,
 }) => {
   const safeFormData = formData || {
     currency_id: '',
@@ -35,8 +30,8 @@ const CountryFormFields = ({
   };
 
   return (
-    <Box sx={{ width: '100%', p: 2 }}>
-      <Typography variant="h6" gutterBottom>
+    <Box sx={{ width: '100%', p: 2, backgroundColor: '#F9FAFB', borderRadius: 8 }}>
+      <Typography variant="h6" sx={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, color: '#1E3A8A', mb: 2 }}>
         Add New Country
       </Typography>
 
@@ -48,6 +43,7 @@ const CountryFormFields = ({
             fiatCurrencies={fiatCurrencies}
             loading={loading}
             size="small"
+            sx={{ width: '100%' }}
           />
         </Grid>
 
@@ -58,6 +54,7 @@ const CountryFormFields = ({
             onChange={(e) => handleTextChange('country_name', e.target.value)}
             required
             size="small"
+            sx={{ width: '100%' }}
           />
         </Grid>
 
@@ -68,6 +65,7 @@ const CountryFormFields = ({
             onChange={(e) => handleTextChange('country_code', e.target.value)}
             required
             size="small"
+            sx={{ width: '100%' }}
           />
         </Grid>
 
@@ -78,6 +76,7 @@ const CountryFormFields = ({
             onChange={(e) => handleTextChange('country_dial_code', e.target.value)}
             required
             size="small"
+            sx={{ width: '100%' }}
           />
         </Grid>
 
@@ -88,6 +87,7 @@ const CountryFormFields = ({
             statusOptions={statusOptions}
             required
             size="small"
+            sx={{ width: '100%' }}
           />
         </Grid>
 
@@ -95,16 +95,9 @@ const CountryFormFields = ({
           <ImageUploadField
             onImageUpload={handleImageUpload}
             imageSrc={safeFormData.country_flag}
+            sx={{ width: '100%' }}
           />
         </Grid>
-
-        {error && (
-          <Grid item xs={12}>
-            <Typography color="error" variant="body2" sx={{ textAlign: 'center' }}>
-              {error}
-            </Typography>
-          </Grid>
-        )}
       </Grid>
     </Box>
   );
@@ -126,9 +119,6 @@ CountryFormFields.propTypes = {
   fiatCurrencies: PropTypes.array.isRequired,
   statusOptions: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  error: PropTypes.string,
 };
 
 export default CountryFormFields;

@@ -1,10 +1,10 @@
-import { Box, Typography, CircularProgress, Button } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ReplyIcon from '@mui/icons-material/Reply';
 import EditIcon from '@mui/icons-material/Edit';
 import CustomTable from '../../../../components/CustomTable';
-
+import CustomLoader from '../../../../components/CustomLoader'; // Assuming this is the path to your CustomLoader
 
 const StyledTableCell = styled('span')(({ theme }) => ({
   fontFamily: 'Mada',
@@ -15,9 +15,24 @@ const StyledTableCell = styled('span')(({ theme }) => ({
   },
 }));
 
-const SupportTable = ({ tickets, loading, error, onDelete, onReplyOpen, onStatusOpen, deletingTicketId }) => {
-  const formatRows = (data) =>
-    data.map((ticket) => ({
+const SupportTable = ({ tickets, loading, error, onDelete, onReplyOpen, onStatusOpen, deletingTicketId, emptyMessage = 'No tickets available' }) => {
+  const formatRows = (data) => {
+    if (!data || data.length === 0) {
+      return [
+        {
+          id: <StyledTableCell></StyledTableCell>,
+          subject: <StyledTableCell></StyledTableCell>,
+          status: <StyledTableCell></StyledTableCell>,
+          createdAt: <StyledTableCell></StyledTableCell>,
+          actions: (
+            <StyledTableCell>
+              <Typography sx={{ textAlign: 'center', color: '#757575' }}>{emptyMessage}</Typography>
+            </StyledTableCell>
+          ),
+        },
+      ];
+    }
+    return data.map((ticket) => ({
       id: <StyledTableCell>{ticket.ticketNumber}</StyledTableCell>,
       subject: <StyledTableCell>{ticket.subject}</StyledTableCell>,
       status: <StyledTableCell>{ticket.status}</StyledTableCell>,
@@ -31,11 +46,12 @@ const SupportTable = ({ tickets, loading, error, onDelete, onReplyOpen, onStatus
             <EditIcon />
           </Button>
           <Button onClick={() => onDelete(ticket.id)} disabled={deletingTicketId === ticket.id}>
-            {deletingTicketId === ticket.id ? <CircularProgress size={20} /> : <DeleteIcon />}
+            {deletingTicketId === ticket.id ? <CustomLoader size={20} /> : <DeleteIcon />}
           </Button>
         </StyledTableCell>
       ),
     }));
+  };
 
   const columns = [
     { id: 'id', label: 'TICKET #', minWidth: 100 },
@@ -53,7 +69,7 @@ const SupportTable = ({ tickets, loading, error, onDelete, onReplyOpen, onStatus
     );
 
   return (
-    <Box sx={{ position: 'relative' }}>
+    <Box sx={{ position: 'relative', minHeight: '200px' }}>
       {loading && (
         <Box
           sx={{
@@ -69,14 +85,14 @@ const SupportTable = ({ tickets, loading, error, onDelete, onReplyOpen, onStatus
             zIndex: 1,
           }}
         >
-          <CircularProgress />
+          <CustomLoader />
         </Box>
       )}
       <CustomTable
         columns={columns}
         rows={formatRows(tickets)}
         showAddButton={false}
-        sx={{ '& .MuiTableCell-root': { padding: '12px' } }}
+        sx={{ '& .MuiTableCell-root': { padding: '12px' }, opacity: loading ? 0.5 : 1 }}
       />
     </Box>
   );

@@ -13,22 +13,7 @@ const styles = {
       paddingRight: 2,
     },
   },
-  paper: {
-    width: '100%',
-    border: '2px solid #DCE7EC',
-    borderRadius: '20px',
-    backgroundColor: 'white',
-    padding: 4,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.05)',
-    '@media (max-width: 600px)': {
-      padding: 2,
-      borderRadius: '16px',
-      gap: 3,
-    },
-  },
+ 
   title: {
     fontFamily: 'Inter',
     fontWeight: 700,

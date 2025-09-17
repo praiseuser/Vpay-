@@ -14,32 +14,19 @@ const columns = [
 
 export default function ManageAdminRolesPage() {
   const [showAddRoleForm, setShowAddRoleForm] = useState(false);
- 
-  const { adminTypes: fetchedAdminTypes, loading, refetch } = useFetchAdminTypes();
-  const [adminTypes, setAdminTypes] = useState([]);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewRoleId, setViewRoleId] = useState(null);
-
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
 
-  useEffect(() => {
-    if (!loading && fetchedAdminTypes.length) {
-      setAdminTypes(fetchedAdminTypes);
-    }
-  }, [fetchedAdminTypes, loading]);
+  const { adminTypes: fetchedAdminTypes, loading, refetch } = useFetchAdminTypes();
 
-  const handleAddRoleClick = () => {
-    setShowAddRoleForm(true);
-  };
+  const handleAddRoleClick = () => setShowAddRoleForm(true);
+  const handleBackToList = () => setShowAddRoleForm(false);
 
-  const handleBackToList = () => {
+  const handleRoleAdded = async () => {
     setShowAddRoleForm(false);
-  };
-
-  const handleRoleAdded = (newRole) => {
-    setAdminTypes((prev) => [...prev, newRole]);
-    setShowAddRoleForm(false);
+    await refetch(); // <-- fetch latest roles from backend
   };
 
   const handleEditClick = (role) => {
@@ -47,9 +34,9 @@ export default function ManageAdminRolesPage() {
     setEditModalOpen(true);
   };
 
-  const handleRoleUpdated = () => {
+  const handleRoleUpdated = async () => {
     setEditModalOpen(false);
-    refetch();
+    await refetch();
   };
 
   const handleViewClick = (role) => {
@@ -74,7 +61,7 @@ export default function ManageAdminRolesPage() {
       ];
     }
 
-    return adminTypes.map((type) => ({
+    return (fetchedAdminTypes || []).map((type) => ({
       id: type.id || type._id,
       admin_type: type.admin_type,
       actions: (
@@ -84,7 +71,7 @@ export default function ManageAdminRolesPage() {
         </Box>
       ),
     }));
-  }, [adminTypes, loading]);
+  }, [fetchedAdminTypes, loading]);
 
   return (
     <Box sx={{ width: '100%', padding: '16px', backgroundColor: '#fff', borderRadius: '13px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
@@ -94,7 +81,7 @@ export default function ManageAdminRolesPage() {
         <CustomTable
           columns={columns}
           rows={rows}
-          showAddButton={true}
+          showAddButton
           addButtonTitle="Add Roles"
           onAddButtonClick={handleAddRoleClick}
           showFilterButton={false}

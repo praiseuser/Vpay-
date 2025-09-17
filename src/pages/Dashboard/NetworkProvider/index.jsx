@@ -15,7 +15,7 @@ const NetworkProvider = () => {
     });
 
     return (
-        <Box sx={{ p: 1, backgroundColor: 'whitesmoke' }}>
+        <Box sx={{ p: 1, }}>
             <FilterSection filter={filter} setFilter={setFilter} providers={providers} />
             <ProviderTable
                 loading={loading}
@@ -23,7 +23,6 @@ const NetworkProvider = () => {
                 activeStatuses={activeStatuses}
                 toggleProviderStatus={toggleProviderStatus}
             />
-            <ErrorDisplay error={error} />
         </Box>
     );
 };

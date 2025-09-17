@@ -9,7 +9,6 @@ import {
   ManageUser,
   AddFiatPage,
   AddCryptoPage,
-  User,
   ProfilePage,
   SettingsPage,
 } from "../pages/Dashboard";
@@ -22,6 +21,10 @@ import Transaction from "../pages/Dashboard/Transaction";
 import Support from "../pages/Dashboard/Support";
 import AccountPassword from "../pages/Dashboard/AccountPassword";
 import ProtectedRoute from "../ProtectedRoute";
+import DetailsPage from "../pages/Dashboard/DetailsPage";
+
+
+
 
 const DashboardRoutes = () => {
   return (
@@ -37,7 +40,6 @@ const DashboardRoutes = () => {
           <Route path="user" element={<ManageUser />} />
           <Route path="add-fiat" element={<AddFiatPage />} />
           <Route path="add-crypto" element={<AddCryptoPage />} />
-          <Route path="user" element={<User />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="network-provider" element={<NetworkProvider />} />
@@ -47,6 +49,7 @@ const DashboardRoutes = () => {
           <Route path="transaction" element={<Transaction />} />
           <Route path="support" element={<Support />} />
           <Route path="account-password" element={<AccountPassword />} />
+          <Route path="details-Page" element={<DetailsPage />} />
         </Routes>
       </DashboardLayout>
     </ProtectedRoute>

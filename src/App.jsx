@@ -16,7 +16,6 @@ const App = () => {
   useEffect(() => {
     const clearState = async () => {
       await clearPersistedState();
-      console.log("Persisted state cleared");
     };
     clearState();
   }, []);
@@ -63,3 +62,9 @@ const App = () => {
 };
 
 export default App;
+
+
+
+
+
+  

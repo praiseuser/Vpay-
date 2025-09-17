@@ -2,7 +2,19 @@ import { useEffect } from 'react';
 import { useCreateFeeCurrency } from '../../../../Hooks/useFeeCurrency';
 
 export function useAddFeeLogic({ initialFormData, setFormData, handleCreateFee }) {
-  const { createFiatCurrency, loading, error, success } = useCreateFeeCurrency();
+  const {
+    createFiatCurrency,
+    loading,
+    error,
+    success,
+    successMessage,
+    showPasswordModal,
+    setShowPasswordModal,
+    accountPassword,
+    setAccountPassword,
+    passwordVerified,
+    resetState,
+  } = useCreateFeeCurrency();
 
   useEffect(() => {
     setFormData(initialFormData);
@@ -12,52 +24,52 @@ export function useAddFeeLogic({ initialFormData, setFormData, handleCreateFee }
     const { name, value, checked, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        type === 'checkbox'
-          ? checked
-          : name === 'fee_amount' || name === 'max_limit'
-            ? Number(value)
-            : value,
+      [name]: type === 'checkbox' ? checked : name === 'fee_amount' || name === 'max_limit' ? Number(value) || 0 : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = { ...initialFormData };
+
     const VALID_FEE_NAMES = ['Swap', 'Send', 'PayApp', 'Payout'];
     const VALID_FEE_TYPES = ['percentage', 'fixed'];
 
-    if (!VALID_FEE_NAMES.includes(initialFormData.fee_name)) {
+    if (!formData.fee_name || !VALID_FEE_NAMES.includes(formData.fee_name)) {
       return;
     }
-
-    if (!VALID_FEE_TYPES.includes(initialFormData.fee_type)) {
+    if (!formData.fee_type || !VALID_FEE_TYPES.includes(formData.fee_type)) {
       return;
     }
-
-    const feeAmount = Number(initialFormData.fee_amount);
+    const feeAmount = Number(formData.fee_amount);
     if (isNaN(feeAmount) || feeAmount <= 0) {
       return;
     }
-
-    if (initialFormData.has_max_limit) {
-      const maxLimit = Number(initialFormData.max_limit);
+    if (formData.has_max_limit) {
+      const maxLimit = Number(formData.max_limit);
       if (isNaN(maxLimit) || maxLimit <= 0) {
         return;
       }
     }
 
     const payload = {
-      fee_name: initialFormData.fee_name || '',
-      fee_type: initialFormData.fee_type || '',
-      fee_amount: Number(initialFormData.fee_amount) || 0,
-      status: Boolean(initialFormData.status),
-      has_max_limit: Boolean(initialFormData.has_max_limit),
-      max_limit: initialFormData.has_max_limit ? Number(initialFormData.max_limit) || 0 : null,
+      fee_name: formData.fee_name || '',
+      fee_type: formData.fee_type || '',
+      fee_amount: Number(formData.fee_amount) || 0,
+      status: Boolean(formData.status),
+      has_max_limit: Boolean(formData.has_max_limit),
+      max_limit: formData.has_max_limit ? Number(formData.max_limit) || 0 : null,
     };
 
-    await createFiatCurrency(payload);
-    if (success && !error) {
-      handleCreateFee();
+    console.log('Sending payload to createFiatCurrency:', payload);
+
+    if (passwordVerified) {
+      const success = await createFiatCurrency(payload, accountPassword);
+      if (success) {
+        handleCreateFee(payload);
+      }
+    } else {
+      setShowPasswordModal(true); 
     }
   };
 
@@ -67,6 +79,13 @@ export function useAddFeeLogic({ initialFormData, setFormData, handleCreateFee }
     loading,
     error,
     success,
+    createFiatCurrency,
+    showPasswordModal,
+    setShowPasswordModal,
+    accountPassword,
+    setAccountPassword,
+    passwordVerified,
+    resetState,
   };
 }
 

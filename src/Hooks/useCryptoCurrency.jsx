@@ -60,7 +60,7 @@ const useCreateCryptoCurrency = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [passwordVerified, setPasswordVerified] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false); // Start as false
+  const [showPasswordModal, setShowPasswordModal] = useState(false); 
 
   const userState = useSelector((state) => state.user);
   const token = userState.token;
@@ -69,13 +69,13 @@ const useCreateCryptoCurrency = () => {
     setLoading(true);
     setError(null);
     setSuccess(false);
-    setShowPasswordModal(true); // Show modal only when creating is triggered
+    setShowPasswordModal(true); 
 
     if (!token || typeof token !== 'string' || token.trim() === '') {
       setError('Invalid or missing authentication token');
       customErrorToast('Invalid or missing authentication token');
       setLoading(false);
-      setShowPasswordModal(false); // Hide if token fails
+      setShowPasswordModal(false); 
       return false;
     }
 
@@ -98,7 +98,7 @@ const useCreateCryptoCurrency = () => {
       if (response.data.success) {
         setSuccess(true);
         setPasswordVerified(true);
-        setShowPasswordModal(false); // Hide after success
+        setShowPasswordModal(false); 
         customSuccessToast('Crypto currency created successfully');
         return true;
       } else {

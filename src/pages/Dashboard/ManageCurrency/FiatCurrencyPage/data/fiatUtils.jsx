@@ -22,6 +22,7 @@ const formatRows = (data, handleEditClick, loading) => {
           </Box>
         ),
         fiat_currency_code: '',
+        country_code: '', // Added for loading state
         status: '',
         action: '',
       },
@@ -44,6 +45,11 @@ const formatRows = (data, handleEditClick, loading) => {
         {item.fiat_currency_code}
       </span>
     ),
+    country_code: (
+      <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>
+        {item.country_code}
+      </span>
+    ), // Added country_code
     status: (
       <Chip
         label={item.status === '1' || item.status === 1 ? 'Enabled' : 'Disabled'}

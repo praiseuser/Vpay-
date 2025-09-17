@@ -32,9 +32,9 @@ const Support = () => {
   }, [activeTabIndex, fetchAllTickets, fetchOpenTickets, fetchClosedTickets]);
 
   useEffect(() => {
-    if (activeTabIndex === 0) setTickets(allTickets);
-    else if (activeTabIndex === 1) setTickets(openTickets);
-    else if (activeTabIndex === 2) setTickets(closedTickets);
+    if (activeTabIndex === 0) setTickets(allTickets || []);
+    else if (activeTabIndex === 1) setTickets(openTickets || []);
+    else if (activeTabIndex === 2) setTickets(closedTickets || []);
   }, [activeTabIndex, allTickets, openTickets, closedTickets]);
 
   const handleReplyOpen = (ticket) => {
@@ -103,6 +103,7 @@ const Support = () => {
         onReplyOpen={handleReplyOpen}
         onStatusOpen={handleStatusOpen}
         deletingTicketId={deletingTicketId}
+        emptyMessage="No tickets available"
       />
       <ReplyModal
         open={replyOpen}

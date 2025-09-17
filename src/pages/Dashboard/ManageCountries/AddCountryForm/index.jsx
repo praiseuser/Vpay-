@@ -16,6 +16,17 @@ const statusOptions = [
   { label: "INACTIVE", value: "0" },
 ];
 
+
+const getBase64extension = (base64String) => {
+  if (!base64String) return null;
+  const match = base64String.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+  if (match && match[1]) {
+    const mimeType = match[1].toLowerCase();
+    return mimeType.split('/')[1]; 
+  }
+  return null;
+};
+
 const AddCountryForm = ({ onCancel }) => {
   const [formData, setFormData] = useState({
     currency_id: "",
@@ -41,7 +52,7 @@ const AddCountryForm = ({ onCancel }) => {
     resetState,
   } = useAddCountry();
 
-  // Handle auto-status when selecting a currency
+
   useEffect(() => {
     const selectedCurrency = fiatCurrencies.find(
       (c) => String(c.currency_id) === String(formData.currency_id)
@@ -80,7 +91,13 @@ const AddCountryForm = ({ onCancel }) => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setFormData((prev) => ({ ...prev, country_flag: reader.result }));
+      const base64String = reader.result;
+      const extension = getBase64extension(base64String);
+      if (extension && ["jpg", "jpeg", "png"].includes(extension)) {
+        setFormData((prev) => ({ ...prev, country_flag: base64String }));
+      } else {
+        toast.error("Please upload a valid image file (jpg, jpeg, or png)");
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -89,7 +106,6 @@ const AddCountryForm = ({ onCancel }) => {
     setFormData((prev) => ({ ...prev, status }));
   };
 
-  // Password modal submit
   const handlePasswordSubmit = async () => {
     if (!accountPassword.trim()) return;
 
@@ -108,7 +124,7 @@ const AddCountryForm = ({ onCancel }) => {
     onCancel();
   };
 
-  // Main form submit
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -116,7 +132,7 @@ const AddCountryForm = ({ onCancel }) => {
       toast.error("Please select a valid currency");
       return;
     }
-    if (!formData.country_flag.startsWith("data:image/")) {
+    if (!formData.country_flag || !formData.country_flag.startsWith("data:image/")) {
       toast.error("Please upload a valid flag image");
       return;
     }
@@ -127,7 +143,7 @@ const AddCountryForm = ({ onCancel }) => {
         onCancel();
       }
     } else {
-      setShowPasswordModal(true); // Show modal only after valid form submission
+      setShowPasswordModal(true); 
     }
   };
 

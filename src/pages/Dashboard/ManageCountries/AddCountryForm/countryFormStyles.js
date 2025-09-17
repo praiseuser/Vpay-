@@ -1,119 +1,97 @@
 const formContainerStyle = {
   width: '100%',
+  maxWidth: 600,
   margin: '0 auto',
-  mt: 7,
+  mt: 4,
   p: 3,
-  border: '2px solid #E0E0E0',
+  border: '1px solid #E5E7EB',
   borderRadius: 12,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 2,
-  background: 'white',
-
-  position: 'relative',
+  background: '#FFFFFF',
+  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
 };
 
 const formFieldsStyle = {
   display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: 2.5,
+  gridTemplateColumns: '1fr',
+  gap: 1.5,
   width: '100%',
-  height: 'auto',
 };
 
 const titleStyle = {
-  fontFamily: 'Mada, sans-serif',
-  fontWeight: 700,
+  fontFamily: 'Poppins, sans-serif',
+  fontWeight: 600,
   textAlign: 'left',
-  fontSize: '16px',
+  fontSize: '18px',
   mb: 2,
-  color: '#2E3B55',
-  position: 'relative',
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    bottom: '-6px',
-    left: 0,
-    width: '40px',
-    height: '2px',
-    backgroundColor: '#02042D',
-  },
+  color: '#1E3A8A',
 };
 
 const imagePreviewStyle = {
-  mb: 1.5,
+  mb: 1,
   display: 'flex',
   alignItems: 'center',
-  gap: 1.5,
+  gap: 1,
   '& img': {
     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
   },
 };
 
 const imageStyle = {
-  width: 80,
-  height: 50,
-  borderRadius: 8,
-  mt: 0.5,
-  border: '2px solid #02042D',
+  width: 60,
+  height: 40,
+  borderRadius: 6,
+  border: '1px solid #D1D5DB',
 };
 
 const errorStyle = {
-  color: '#D32F2F',
-  fontSize: '14px',
+  color: '#DC2626',
+  fontSize: '12px',
   mb: 1.5,
-  fontFamily: 'Mada, sans-serif',
-  fontWeight: 600,
+  fontFamily: 'Poppins, sans-serif',
+  fontWeight: 500,
 };
 
 const actionsContainerStyle = {
   display: 'flex',
-  justifyContent: 'flex-end',
-  mt: 2.5,
-  gap: 1.5,
+  justifyContent: 'space-between',
+  mt: 2,
 };
 
 const cancelButtonStyle = {
   fontSize: '14px',
-  padding: '8px 20px',
-  backgroundColor: '#E0E0E0',
-  color: '#2E3B55',
-  '&:hover': {
-    backgroundColor: '#B0BEC5',
-  },
-  fontFamily: 'Mada, sans-serif',
-  fontWeight: 600,
+  padding: '6px 16px',
+  color: '#6B7280',
+  fontFamily: 'Poppins, sans-serif',
+  fontWeight: 500,
   borderRadius: 8,
   textTransform: 'none',
 };
 
 const submitButtonStyle = {
   fontSize: '14px',
-  padding: '8px 24px',
-  background: 'linear-gradient(90deg, #1976d2, #42A5F5)',
-  '&:hover': {
-    background: 'linear-gradient(90deg, #1565c0, #2196F3)',
-  },
-  fontFamily: 'Mada, sans-serif',
-  fontWeight: 600,
-  borderRadius: 8,
-  textTransform: 'none',
+  padding: '8px 20px',
+  background: 'linear-gradient(45deg, #3B82F6, #60A5FA)',
   color: '#FFFFFF',
+  fontFamily: 'Poppins, sans-serif',
+  fontWeight: 600,
+  borderRadius: 12,
+  textTransform: 'none',
+  '&:hover': {
+    background: 'linear-gradient(45deg, #2563EB, #3B82F6)',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+  },
 };
 
 const inputFieldStyle = {
   width: '100%',
   '& .MuiOutlinedInput-root': {
-    width: '100%',
-    height: '48px',
+    height: '40px',
     '& fieldset': {
-      borderColor: 'grey',
+      borderColor: '#D1D5DB',
       borderWidth: '1px',
-      borderRadius: 3,
+      borderRadius: 6,
     },
-
   },
-
 };
 
 export {

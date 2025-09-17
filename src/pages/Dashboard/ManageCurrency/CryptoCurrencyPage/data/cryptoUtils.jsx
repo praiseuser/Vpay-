@@ -1,7 +1,8 @@
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
 import { rowStyle } from '../cryptoStyles';
 import CustomButton from '../../../../../components/CustomButton';
-
+import TableText from '../../../../../components/TableText';
+import CustomLoader from '../../../../../components/CustomLoader';
 
 const formatRows = (data, onEditClick, loading) => {
   if (loading && data.length === 0) {
@@ -13,15 +14,19 @@ const formatRows = (data, onEditClick, loading) => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              minHeight: '60px',
+              minHeight: '20px',
               width: '100%',
               padding: 0,
+              marginTop: '13px',
             }}
           >
-            <CircularProgress size={24} />
+            <CustomLoader />
           </Box>
         ),
         network: '',
+        crypto_symbol: '',
+        chain: '',
+        crypto_image: '',
         status: '',
         action: '',
       },
@@ -33,15 +38,26 @@ const formatRows = (data, onEditClick, loading) => {
   }
 
   return data.map((item) => ({
-    crypto_name: (
-      <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>
-        {item.crypto_name}
-      </span>
-    ),
-    network: (
-      <span style={{ ...rowStyle, fontWeight: 400, color: '#363853' }}>
-        {item.network}
-      </span>
+    crypto_name: <TableText style={rowStyle}>{item.crypto_name}</TableText>,
+    network: <TableText style={rowStyle}>{item.network}</TableText>,
+    crypto_symbol: <TableText style={rowStyle}>{item.crypto_symbol || 'N/A'}</TableText>,
+    chain: <TableText style={rowStyle}>{item.chain || 'N/A'}</TableText>,
+    crypto_image: (
+      <Box style={rowStyle}>
+        {item.crypto_image ? (
+          <img
+            src={item.crypto_image}
+            alt={item.crypto_name}
+            style={{ width: '40px', height: '40px', borderRadius: '50%' }}
+            onError={(e) => {
+              e.target.src = '';
+              console.log('Image load error for:', item.crypto_image);
+            }}
+          />
+        ) : (
+          <TableText>N/A</TableText>
+        )}
+      </Box>
     ),
     status: <CustomButton type={item.status === '1' ? 'green' : 'red'} />,
     action: (

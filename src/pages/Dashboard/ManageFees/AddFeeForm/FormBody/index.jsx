@@ -1,143 +1,108 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
-  FormControlLabel,
-  Checkbox,
-  Box,
-  styled,
-  Typography,
-} from '@mui/material';
+import { Box } from '@mui/material';
+import InputField from '../../AddFeeForm/InputField';
+import ProgressIndicator from '../../AddFeeForm/ProgressIndicator';
 
-const StyledFormControl = styled(FormControl)(({ theme }) => ({
-  minWidth: 200,
-  flex: 1,
-  '& .MuiInputBase-root': {
-    height: 40,
-    fontSize: '0.85rem',
-  },
-  '& .MuiInputLabel-root': {
-    fontWeight: 600,
-    fontSize: '0.85rem',
-  },
-}));
+const FormBody = ({ formData, handleChange, loading }) => {
+  const steps = [
+    !!formData.fee_name && formData.fee_name !== '',
+    !!formData.fee_amount,
+    formData.has_max_limit ? !!formData.max_limit : true,
+  ]; // Only active if fields are filled
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  minWidth: 200,
-  flex: 1,
-  '& .MuiInputBase-root': {
-    height: 40,
-    fontSize: '0.85rem',
-  },
-  '& .MuiInputLabel-root': {
-    fontWeight: 600,
-    fontSize: '0.85rem',
-  },
-}));
-
-const FormBody = ({ formData, handleChange, loading }) => (
-  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2, width: '100%' }}>
-    {/* Row 1: Fee Name & Fee Type */}
-    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-      <StyledFormControl>
-        <InputLabel>Fee Name</InputLabel>
-        <Select
-          name="fee_name"
-          value={formData.fee_name || ''}
-          onChange={handleChange}
-          disabled={loading}
+  return (
+    <Box sx={{ position: 'relative', zIndex: 1 }}>
+      {/* Row 1: Fee Name */}
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+        <InputField
           label="Fee Name"
-        >
-          <MenuItem value=""><em>Select Fee Name</em></MenuItem>
-          {['Swap', 'Send', 'PayApp', 'Payout'].map((name) => (
-            <MenuItem key={name} value={name}>{name}</MenuItem>
-          ))}
-        </Select>
-      </StyledFormControl>
-
-      <StyledFormControl>
-        <InputLabel>Fee Type</InputLabel>
-        <Select
-          name="fee_type"
-          value={formData.fee_type || ''}
+          name="fee_name"
+          value={formData.fee_name}
           onChange={handleChange}
+          options={[
+            { value: '', label: 'Select Fee Name' },
+            { value: 'Swap', label: 'Swap' },
+            { value: 'Send', label: 'Send' },
+            { value: 'PayApp', label: 'PayApp' },
+            { value: 'Payout', label: 'Payout' },
+          ]}
           disabled={loading}
+        />
+      </Box>
+
+      {/* Row 2: Fee Type */}
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+        <InputField
           label="Fee Type"
-        >
-          <MenuItem value=""><em>Select Fee Type</em></MenuItem>
-          {['percentage', 'fixed'].map((type) => (
-            <MenuItem key={type} value={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </MenuItem>
-          ))}
-        </Select>
-      </StyledFormControl>
-    </Box>
-
-    {/* Row 2: Fee Amount */}
-    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-      <StyledTextField
-        label="Fee Amount"
-        name="fee_amount"
-        type="number"
-        inputProps={{ min: 0.01, step: '0.01' }}
-        helperText={formData.fee_type === 'percentage' ? 'Enter % (e.g., 1.5)' : 'Enter amount'}
-        value={formData.fee_amount || ''}
-        onChange={handleChange}
-        disabled={loading}
-        required
-      />
-    </Box>
-
-    {/* Row 3: Checkboxes */}
-    <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-      <FormControlLabel
-        control={
-          <Checkbox
-            name="status"
-            checked={!!formData.status}
-            onChange={handleChange}
-            disabled={loading}
-            sx={{ p: 0.5 }}
-          />
-        }
-        label={<Typography fontSize="0.85rem">Enabled</Typography>}
-      />
-      <FormControlLabel
-        control={
-          <Checkbox
-            name="has_max_limit"
-            checked={!!formData.has_max_limit}
-            onChange={handleChange}
-            disabled={loading}
-            sx={{ p: 0.5 }}
-          />
-        }
-        label={<Typography fontSize="0.85rem">Has Max Limit</Typography>}
-      />
-    </Box>
-
-    {/* Row 4: Max Limit (conditional) */}
-    {formData.has_max_limit && (
-      <Box sx={{ display: 'flex', gap: 2 }}>
-        <StyledTextField
-          label="Max Limit"
-          name="max_limit"
-          type="number"
-          inputProps={{ min: 0.01, step: '0.01' }}
-          value={formData.max_limit || ''}
+          name="fee_type"
+          value={formData.fee_type}
           onChange={handleChange}
+          options={[
+            { value: '', label: 'Select Fee Type' },
+            { value: 'percentage', label: 'Percentage' },
+            { value: 'fixed', label: 'Fixed' },
+          ]}
+          disabled={loading}
+        />
+      </Box>
+
+      {/* Row 3: Fee Amount */}
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+        <InputField
+          label="Fee Amount"
+          name="fee_amount"
+          value={formData.fee_amount}
+          onChange={handleChange}
+          type="number"
+          placeholder={formData.fee_type === 'percentage' ? 'e.g., 1.5%' : 'Enter amount'}
           disabled={loading}
           required
         />
       </Box>
-    )}
-  </Box>
-);
+
+      {/* Row 4: Enabled */}
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+        <InputField
+          label="Enabled"
+          name="status"
+          value={formData.status}
+          onChange={handleChange}
+          isCheckbox={true}
+          disabled={loading}
+        />
+      </Box>
+
+      {/* Row 5: Has Max Limit */}
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+        <InputField
+          label="Has Max Limit"
+          name="has_max_limit"
+          value={formData.has_max_limit}
+          onChange={handleChange}
+          isCheckbox={true}
+          disabled={loading}
+        />
+      </Box>
+
+      {formData.has_max_limit && (
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+          <InputField
+            label="Max Limit"
+            name="max_limit"
+            value={formData.max_limit}
+            onChange={handleChange}
+            type="number"
+            disabled={loading}
+            required
+          />
+        </Box>
+      )}
+
+      <ProgressIndicator steps={steps} />
+    </Box>
+  );
+};
 
 FormBody.propTypes = {
   formData: PropTypes.shape({

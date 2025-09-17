@@ -331,21 +331,32 @@ const useViewRate = () => {
         },
       });
 
-      if (typeof response.data !== 'object' || response.data === null) {
+      console.log('API Response:', response.data); // Debug log
+
+      let rateData = null;
+      if (response.data && typeof response.data === 'object') {
+        // Check if data is directly in response.data
+        if (response.data.currency_id && response.data.rate) {
+          rateData = response.data;
+        }
+        // Check if data is in result array
+        else if (Array.isArray(response.data.result) && response.data.result.length > 0) {
+          rateData = response.data.result[0];
+        }
+        // Check if data is in a different key (e.g., data)
+        else if (response.data.data && typeof response.data.data === 'object' && response.data.data.currency_id && response.data.data.rate) {
+          rateData = response.data.data;
+        }
+
+        if (!rateData || !rateData.currency_id || !rateData.rate) {
+          throw new Error('Rate data missing expected fields (currency_id or rate)');
+        }
+
+        setRate(rateData);
+        return rateData;
+      } else {
         throw new Error('Invalid response format: Expected JSON object');
       }
-
-      if (!Array.isArray(response.data.result) || response.data.result.length === 0) {
-        throw new Error('Response missing rate data in result array');
-      }
-
-      const rateData = response.data.result[0];
-      if (!rateData.currency_id && !rateData.rate) {
-        throw new Error('Rate data missing expected fields (currency_id or rate)');
-      }
-
-      setRate(rateData);
-      return rateData;
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to retrieve rate';
       setError(errorMessage);

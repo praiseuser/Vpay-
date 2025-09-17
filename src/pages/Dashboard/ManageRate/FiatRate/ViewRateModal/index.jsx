@@ -15,13 +15,12 @@ const ViewRateModal = ({ open, onClose, rate, loading }) => (
         sx={{
           position: 'absolute',
           top: '50%',
-          right: 13,
-          transform: 'translateY(-50%)',
+          left: '50%',
+          transform: 'translate(-50%, -50%)', 
           width: 300,
-          height: '100vh',
           bgcolor: '#FFFFFF',
-          borderRadius: '44px',
-          border: '2px solidrgb(7, 6, 6)',
+          borderRadius: '16px',
+          border: '2px solid #DCE7EC',
           boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
           p: 4,
           display: 'flex',
@@ -29,6 +28,7 @@ const ViewRateModal = ({ open, onClose, rate, loading }) => (
           justifyContent: 'center',
           alignItems: 'center',
           overflowY: 'auto',
+          maxHeight: '80vh', 
         }}
       >
         <Typography
@@ -56,7 +56,7 @@ const ViewRateModal = ({ open, onClose, rate, loading }) => (
           >
             Loading...
           </Typography>
-        ) : rate && rate.currency_id ? (
+        ) : rate && (rate.currency_id || rate.rate) ? (
           <Box sx={{ mb: 4, textAlign: 'center' }}>
             <Typography
               sx={{
@@ -67,7 +67,7 @@ const ViewRateModal = ({ open, onClose, rate, loading }) => (
                 mb: 2,
               }}
             >
-              <strong>Currency ID:</strong> {rate.currency_id}
+              <strong>Currency ID:</strong> {rate.currency_id || 'N/A'}
             </Typography>
             <Typography
               sx={{
@@ -103,7 +103,7 @@ const ViewRateModal = ({ open, onClose, rate, loading }) => (
               mb: 2,
             }}
           >
-            No rate data available. Check if the API endpoint is correct.
+            No rate data available. Check if the API endpoint or ID is correct.
           </Typography>
         )}
       </Box>

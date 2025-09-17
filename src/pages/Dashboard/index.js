@@ -11,6 +11,6 @@ export { default as ManageAdminRolesPage } from "./ManageAdmin/ManageAdminRolesP
 export { default as ManageUser } from "./ManageUser"
 export { default as AddFiatPage } from "./AddFiatPage"
 export { default as AddCryptoPage } from "./AddCryptoPage"
-export { default as User } from "./User"
 export { default as ProfilePage } from "./ProfilePage"
 export { default as SettingsPage } from "./SettingsPage"
+export { default as DetailsPage } from "./DetailsPage"

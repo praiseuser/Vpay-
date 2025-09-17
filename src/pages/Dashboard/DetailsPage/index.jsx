@@ -6,7 +6,7 @@ import UserIdentifyCard from "./UserIdentifyCard";
 import UserActionCard from "./UserActionCard";
 import { cardStyle } from "./userStyles";
 
-export default function User() {
+export default function DetailsPage() {
   return (
     <Box
       sx={{

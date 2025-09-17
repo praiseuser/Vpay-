@@ -46,7 +46,7 @@ const FiatRate = ({ onAddButtonClick }) => {
       setViewModalOpen(true);
       console.log('View modal opened for rate ID:', id);
     } catch (err) {
-      console.error('Failed to fetch rate details for ID:', id);
+      console.error('Failed to fetch rate details for ID:', id, err);
     } finally {
       setActiveRateId(null);
     }

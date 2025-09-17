@@ -135,10 +135,11 @@ const useFetchAdminTypes = () => {
   };
 
   useEffect(() => {
-    if (token && !hasFetched.current) {
+    if (token) {
       fetchAdminTypes();
     }
   }, [token]);
+
 
   return { adminTypes, loading, error, refetch: fetchAdminTypes };
 };

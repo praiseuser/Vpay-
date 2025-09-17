@@ -7,9 +7,9 @@ const TableText = ({ children, variant = 'body2', ...props }) => {
     <Typography
       variant={variant}
       sx={{
-        fontSize: '13px',
-        fontFamily: 'Inter, sans-serif',
-        color: 'grey',
+        fontSize: '13px !important',
+        fontFamily: 'Mada, sans-serif',
+        color: 'black',
         fontWeight: 300,
         ...props.sx,
       }}

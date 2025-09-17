@@ -3,53 +3,73 @@ import { Typography } from '@mui/material';
 import { styles } from './ViewRolesPermissions/styles';
 import { useFetchAdmin, useAddAdmin } from '../../../../Hooks/useRolesPermission';
 import ViewRolesPermissions from '../AllAdminPage/ViewRolesPermissions';
-import PermissionForm from '../AllAdminPage/PermissionForm';
 import AddAdminForm from '../AllAdminPage/AddAdminForm';
 import AdminTable from '../AllAdminPage/AdminTable';
 
 export default function AllAdminPage() {
   const [showPermissions, setShowPermissions] = useState(false);
   const [showAddPermissionForm, setShowAddPermissionForm] = useState(false);
-  const [selectedId, setSelectedId] = useState(null); // Reverted to selectedId
-  const [selectedAdmin, setSelectedAdmin] = useState(null);
-
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const { admins, loading } = useFetchAdmin();
+  const [selectedId, setSelectedId] = useState(null);
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
+
+
+  const { admins, loading, refetch: refetchAdmins } = useFetchAdmin();
   const { adminTypes, countries } = useAddAdmin();
 
-  const handleShowPermissions = (id) => {
-    const admin = admins.find((a) => a.id === id); // Find admin by id
-    console.log('Admin selected for permissions with id:', id, 'admin:', admin);
-
+  const handleShowPermissions = (admin_id) => {
+    const admin = admins.find((a) => String(a.admin_id) === String(admin_id));
     if (admin) {
-      setSelectedId(id); // Set selectedId to the passed id
+      setSelectedId(admin_id);
       setSelectedAdmin(admin);
       setShowPermissions(true);
-    } else {
-      console.warn('Admin not found for id:', id);
     }
   };
 
+  const handleAddPermission = async (admin_id) => {
+    const admin = admins.find((a) => String(a.admin_id) === String(admin_id));
+    if (admin) {
+      setSelectedId(admin_id);
+      setSelectedAdmin(admin);
+      setShowAddPermissionForm(true);
+    }
+  };
+
+  const handlePermissionUpdateSuccess = () => {
+    refetchAdmins();
+    setShowPermissions(false);
+    setShowAddPermissionForm(false);
+  };
+
+  const handleAddAdminSuccess = () => {
+    refetchAdmins();
+    setShowAddForm(false);
+  };
+
   return (
-    <div style={{ ...styles.container, overflow: 'none', position: 'relative', zIndex: 1 }}>
+    <div style={{ ...styles.container, overflow: 'hidden', position: 'relative', zIndex: 1 }}>
       {showPermissions ? (
         <ViewRolesPermissions
-          id={selectedId} // Reverted to id
+          Adminid={selectedAdmin?.id}
+          AdminUniqueId={selectedAdmin?.admin_id}
           firstName={selectedAdmin?.firstname || 'Unknown'}
           lastName={selectedAdmin?.lastname || 'Unknown'}
           onBack={() => setShowPermissions(false)}
+          onSuccess={handlePermissionUpdateSuccess}
         />
       ) : showAddPermissionForm ? (
         <PermissionFormSection
-          selectedAdminId={selectedId} // Using selectedId
+          selectedAdminId={selectedId}
           adminTypes={adminTypes}
           onCancel={() => setShowAddPermissionForm(false)}
+          onSuccess={handlePermissionUpdateSuccess}
         />
       ) : showAddForm ? (
         <AddAdminFormSection
           adminTypes={adminTypes}
           countries={countries}
+          onSuccess={handleAddAdminSuccess}
         />
       ) : (
         <AdminTable
@@ -57,56 +77,26 @@ export default function AllAdminPage() {
           loading={loading}
           onAddAdmin={() => setShowAddForm(true)}
           onShowPermissions={handleShowPermissions}
-          onAddPermission={(id) => {
-            const admin = admins.find((a) => a.id === id); // Using only id
-            console.log('Selected Admin for Add Permission with id:', id, 'admin:', admin);
-            setSelectedId(id); // Set selectedId to the passed id
-            setShowAddPermissionForm(true);
-          }}
+          onAddPermission={handleAddPermission}
         />
       )}
     </div>
   );
 }
 
-function PermissionFormSection({ selectedAdminId, adminTypes, onCancel }) {
+
+function PermissionFormSection({ selectedAdminId, adminTypes, onCancel, onSuccess }) {
   return (
-    <div style={{ overflow: 'none', position: 'relative', zIndex: 1301 }}>
-      <Header title="Add Permission" onCancel={onCancel} />
-      <PermissionForm
-        selectedAdminId={selectedAdminId}
-        adminTypes={adminTypes}
-        loadingTypes={false}
-        onCancel={onCancel}
-      />
+    <div style={{ overflow: 'hidden', position: 'relative', zIndex: 1301 }}>
     </div>
   );
 }
 
-function AddAdminFormSection({ adminTypes, countries }) {
+function AddAdminFormSection({ adminTypes, countries, onSuccess }) {
   return (
-    <div style={{ overflow: 'none', position: 'relative', zIndex: 1301 }}>
-      <Header title="Add Admin" />
-      <AddAdminForm adminTypes={adminTypes} countries={countries} />
+    <div style={{ overflow: 'hidden', position: 'relative', zIndex: 1301 }}>
+      <AddAdminForm adminTypes={adminTypes} countries={countries} onSuccess={onSuccess} />
     </div>
   );
 }
 
-function Header({ title, onCancel }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-      <Typography variant="h5" style={{ marginLeft: '16px', fontWeight: 600 }}>
-        {title}
-      </Typography>
-      {onCancel && (
-        <Typography
-          variant="h6"
-          style={{ marginRight: '16px', fontWeight: 600, cursor: 'pointer', color: '#1976d2' }}
-          onClick={onCancel}
-        >
-          Cancel
-        </Typography>
-      )}
-    </div>
-  );
-}

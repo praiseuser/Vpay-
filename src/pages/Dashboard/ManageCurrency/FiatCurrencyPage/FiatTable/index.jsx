@@ -10,6 +10,7 @@ const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activ
     { id: 'sn', label: 'S/N', minWidth: 50 },
     { id: 'fiat_currency_name', label: 'FIAT CURRENCY NAME', minWidth: 150 },
     { id: 'fiat_currency_code', label: 'FIAT CURRENCY CODE', minWidth: 150 },
+    { id: 'country_code', label: 'COUNTRY CODE', minWidth: 150 },
     { id: 'status', label: 'STATUS', minWidth: 120 },
     { id: 'action', label: 'ACTION', minWidth: 150 },
   ];
@@ -17,9 +18,7 @@ const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activ
   const rows = formatRows(fiatData, handleEditClick, loading);
 
   return (
-    <Box
-      
-    >
+    <Box>
       <CustomTable
         columns={columns}
         rows={rows}
@@ -28,7 +27,7 @@ const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activ
         showFilterStyle={{ marginTop: '40px' }}
         addButtonTitle="Add FIAT"
         addButtonStyle={{}}
-        title="Manage Fiat"
+
         titleStyle={tableTitleStyle}
         searchPlaceholder="Search fiat..."
         onAddButtonClick={onAddButtonClick}
@@ -43,7 +42,9 @@ const FiatTable = ({ fiatData, handleEditClick, onAddButtonClick, loading, activ
 FiatTable.propTypes = {
   fiatData: PropTypes.arrayOf(
     PropTypes.shape({
-      Fiat_Currency: PropTypes.string.isRequired,
+      fiat_currency_name: PropTypes.string.isRequired,
+      fiat_currency_code: PropTypes.string.isRequired,
+      country_code: PropTypes.string.isRequired, // Added prop type
       status: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     })
   ).isRequired,

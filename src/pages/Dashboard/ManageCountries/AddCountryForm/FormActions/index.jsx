@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Typography, Box, CircularProgress } from '@mui/material';
 import PasswordModal from '../../../Card/PasswordModal';
-import { actionsContainerStyle, submitButtonStyle } from '../countryFormStyles';
 
 const FormActions = ({ 
   onCancel, 
@@ -16,18 +15,18 @@ const FormActions = ({
   passwordLoading,
   error
 }) => (
-  <Box sx={actionsContainerStyle}>
+  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3, px: 2 }}>
     <Typography
       onClick={onCancel}
       sx={{
         fontSize: '14px',
-        color: '#2E3B55',
-        fontFamily: 'Mada, sans-serif',
-        fontWeight: 600,
+        color: '#6B7280',
+        fontFamily: 'Poppins, sans-serif',
+        fontWeight: 500,
         cursor: 'pointer',
-        alignSelf: 'center',
+        textDecoration: 'underline',
         '&:hover': {
-          textDecoration: 'underline',
+          color: '#1E40AF',
         },
       }}
     >
@@ -38,8 +37,21 @@ const FormActions = ({
       color="primary"
       type="submit"
       disabled={loading}
-      startIcon={loading ? <CircularProgress color="inherit" size={18} /> : null}
-      sx={submitButtonStyle}
+      startIcon={loading ? <CircularProgress color="inherit" size={16} /> : null}
+      sx={{
+        fontSize: '14px',
+        padding: '8px 20px',
+        background: 'linear-gradient(45deg, #3B82F6, #60A5FA)',
+        color: '#FFFFFF',
+        fontFamily: 'Poppins, sans-serif',
+        fontWeight: 600,
+        borderRadius: 12,
+        textTransform: 'none',
+        '&:hover': {
+          background: 'linear-gradient(45deg, #2563EB, #3B82F6)',
+          boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+        },
+      }}
     >
       {loading ? 'Adding...' : 'Submit'}
     </Button>

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Box, Divider } from '@mui/material';
 import PropTypes from 'prop-types';
 import useAddFeeLogic from '../AddFeeForm/useAddFeeLogic';
@@ -6,16 +6,27 @@ import FormHeader from '../AddFeeForm/FormHeader';
 import FormBody from '../AddFeeForm/FormBody';
 import FormFooter from '../AddFeeForm/FormFooter';
 import StatusMessage from '../AddFeeForm/StatusMessage';
+import PasswordModal from '../../Card/PasswordModal';
+import { FormContainer } from './style';
 
 const AddFeeForm = ({ formData: initialFormData, setFormData, handleCreateFee, handleCancel }) => {
   const formRef = useRef(null);
   const {
     handleChange,
     handleSubmit,
-    loading,
-    error,
-    success,
+    loading: formLoading,
+    error: formError,
+    success: formSuccess,
+    createFiatCurrency,
+    showPasswordModal,
+    setShowPasswordModal,
+    accountPassword,
+    setAccountPassword,
+    passwordVerified,
+    resetState,
   } = useAddFeeLogic({ initialFormData, setFormData, handleCreateFee });
+
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const handleAddFeeClick = () => {
     if (formRef.current) {
@@ -23,39 +34,57 @@ const AddFeeForm = ({ formData: initialFormData, setFormData, handleCreateFee, h
     }
   };
 
+  const handlePasswordSubmit = async (password) => {
+    setPasswordLoading(true);
+    const trimmedPassword = password.trim();
+    if (!trimmedPassword) {
+      setPasswordLoading(false);
+      return;
+    }
+    const latestFormData = { ...initialFormData };
+    const success = await createFiatCurrency(latestFormData, trimmedPassword);
+
+    if (success) {
+      setShowPasswordModal(false);
+      setAccountPassword('');
+      handleCreateFee(latestFormData);
+    } else {
+      console.log('Password submission failed:', formError);
+    }
+    setPasswordLoading(false);
+  };
+
+  const handlePasswordModalClose = () => {
+    resetState();
+    handleCancel();
+  };
+
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      ref={formRef}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        padding: '24px',
-        width: '100%',
-        height: 'auto',
-        margin: '0 auto',
-        backgroundColor: '#fff',
-        border: '2px solid #E0E0E0',
-        borderRadius: '12px',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-      }}
-    >
+    <FormContainer component="form" onSubmit={handleSubmit} ref={formRef}>
+      <PasswordModal
+        open={showPasswordModal}
+        onClose={handlePasswordModalClose}
+        onSubmit={handlePasswordSubmit}
+        password={accountPassword}
+        setPassword={setAccountPassword}
+        loading={passwordLoading || formLoading}
+        error={null}
+      />
       <FormHeader />
       <Divider sx={{ width: '100%', borderColor: '#E0E0E0', mb: 2 }} />
-      <StatusMessage loading={loading} error={error} success={success} />
+      <StatusMessage loading={formLoading} error={formError} success={formSuccess} />
       <FormBody
         formData={initialFormData}
         handleChange={handleChange}
-        loading={loading}
+        loading={formLoading}
       />
       <FormFooter
-        loading={loading}
+        loading={formLoading}
         handleCancel={handleCancel}
         handleAddFeeClick={handleAddFeeClick}
+        formData={initialFormData}
       />
-    </Box>
+    </FormContainer>
   );
 };
 

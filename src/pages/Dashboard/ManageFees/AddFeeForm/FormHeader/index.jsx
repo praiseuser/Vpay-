@@ -3,9 +3,16 @@ import { Typography } from '@mui/material';
 
 const FormHeader = () => (
   <Typography
-    variant="h6"
+    variant="h5" 
     align="left"
-    sx={{ mt: 5 }} 
+    sx={{
+      fontFamily: 'Inter', 
+      fontWeight: 700, 
+      fontSize: '20px', 
+      color: '#02042D', 
+      mt: 3, 
+      mb: 2, 
+    }}
   >
     Add New Fee
   </Typography>

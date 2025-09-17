@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import {
   Modal,
   Box,
+  Typography,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useUpdateFee } from '../../../../Hooks/useFeeCurrency';
 import { toast } from 'react-toastify';
 import FeeForm from '../EditFeeModal/FeeForm';
-import Typography from '@mui/material/Typography';
 import LoadingErrorDisplay from '../EditFeeModal/LoadingErrorDisplay';
+import PasswordModal from '../../Card/PasswordModal';
 import ActionButtons from '../EditFeeModal/ActionsButton';
 
 function EditFeeModal({ open, fee, onClose, onUpdate }) {
@@ -24,7 +25,7 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
     has_max_limit: false,
     max_limit: '',
   });
-  const { updateFee, loading, error } = useUpdateFee();
+  const { updateFee, loading, showPasswordModal, setShowPasswordModal, accountPassword, setAccountPassword, resetState } = useUpdateFee();
 
   useEffect(() => {
     if (fee) {
@@ -52,7 +53,7 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting update fee:', formData);
+    console.log('Submitting update fee - FormData:', formData);
 
     if (!VALID_FEE_NAMES.includes(formData.fee_name)) {
       toast.error('Fee name must be one of: Swap, Send, PayApp, Payout', {
@@ -86,27 +87,38 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
       }
     }
 
-    const payload = {
-      fee_name: formData.fee_name,
-      fee_type: formData.fee_type,
-      fee_amount: feeAmount,
-      status: formData.status,
-      has_max_limit: formData.has_max_limit,
-      max_limit: formData.has_max_limit ? parseFloat(formData.max_limit) : null,
-    };
-
-    try {
-      const feeId = fee?.id || fee?._id;
-      console.log('EditFeeModal - Fee ID being sent to updateFee:', feeId);
-      if (!feeId) {
-        throw new Error('No fee ID provided');
-      }
-      await updateFee(feeId, payload);
-      onUpdate();
-    } catch (err) {
-      console.error('Error updating fee:', err);
-      toast.error(err.message || 'Failed to update fee', { toastId: 'edit-fee-error' });
+    const feeId = fee?.id || fee?._id;
+    if (!feeId) {
+      toast.error('No fee ID provided', { toastId: 'edit-fee-id-error' });
+      return;
     }
+
+    const success = await updateFee(feeId, formData, accountPassword);
+    if (success) {
+      onUpdate(); // Trigger parent to refresh data
+      onClose(); // Close modal on success
+    }
+  };
+
+  const handlePasswordSubmit = async (password) => {
+    const trimmedPassword = password.trim();
+    if (!trimmedPassword) {
+      console.log('Invalid password: empty or only spaces');
+      return;
+    }
+    setAccountPassword(trimmedPassword);
+    const feeId = fee?.id || fee?._id;
+    const success = await updateFee(feeId, formData, trimmedPassword);
+    if (success) {
+      onUpdate(); // Trigger parent to refresh data
+      onClose(); // Close modal on success
+    }
+  };
+
+  const handlePasswordModalClose = () => {
+    setShowPasswordModal(false);
+    resetState();
+    onClose();
   };
 
   if (!fee && open) {
@@ -167,7 +179,6 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
         <Typography id="edit-fee-modal-title" variant="h6" sx={{ mb: 3 }}>
           Edit Fee
         </Typography>
-        <LoadingErrorDisplay loading={loading} error={error} />
         <FeeForm
           formData={formData}
           handleChange={handleChange}
@@ -179,6 +190,14 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
           loading={loading}
           onClose={onClose}
           onSubmit={handleSubmit}
+        />
+        <PasswordModal
+          open={showPasswordModal}
+          onClose={handlePasswordModalClose}
+          onSubmit={handlePasswordSubmit}
+          password={accountPassword}
+          setPassword={setAccountPassword}
+          loading={loading}
         />
       </Box>
     </Modal>

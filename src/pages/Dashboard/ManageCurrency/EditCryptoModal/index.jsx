@@ -26,7 +26,7 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
   const [formData, setFormData] = useState({
     crypto_name: '',
     network: '',
-    status: 'Inactive',
+    status: '0', 
   });
   const [errors, setErrors] = useState({});
   const [accountPassword, setAccountPassword] = useState('');
@@ -39,13 +39,16 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
       setFormData({
         crypto_name: crypto.crypto_name || '',
         network: crypto.network || '',
-        status: crypto.status === '1' ? 'Active' : 'Inactive',
+        status: crypto.status === '1' ? '1' : '0', 
       });
     }
   }, [crypto]);
 
   const networkOptions = ['mainnet', 'testnet'];
-  const statusOptions = ['Active', 'Inactive'];
+  const statusOptions = [
+    { label: 'Active', value: '1' },
+    { label: 'Inactive', value: '0' },
+  ]; 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,7 +71,7 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
     }
     
     setPasswordLoading(true);
-    const result = await editCurrency(crypto?.id, formData, accountPassword); // Safe access with optional chaining
+    const result = await editCurrency(crypto?.id, formData, accountPassword); 
     setPasswordLoading(false);
     
     if (result) {
@@ -79,23 +82,23 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
   };
 
   const handlePasswordModalClose = () => {
-    resetState(); // Reset state on close
-    onClose(); // Close the modal if password is canceled
+    resetState(); 
+    onClose(); 
   };
 
   const handleSubmit = async () => {
     if (validateForm() && passwordVerified) {
       if (!crypto?.id) {
         console.error('Crypto ID is missing, cannot proceed with edit');
-        return; // Prevent submission if ID is missing
+        return;
       }
-      const result = await editCurrency(crypto.id, formData, accountPassword); // Use stored password if verified
+      const result = await editCurrency(crypto.id, formData, accountPassword); 
       if (result) {
         onSave(result);
         onClose();
       }
     } else if (validateForm() && !passwordVerified) {
-      setShowPasswordModal(true); // Show modal only after valid form submission
+      setShowPasswordModal(true);
     }
   };
 
@@ -134,7 +137,7 @@ const EditCryptoModal = ({ open, onClose, crypto, onSave }) => {
             errors={errors}
             handleChange={handleChange}
             networkOptions={networkOptions}
-            statusOptions={statusOptions}
+            statusOptions={statusOptions} 
           />
 
           <ModalActions

@@ -1,6 +1,5 @@
 import React from 'react';
 import CustomTable from '../../../../../components/CustomTable';
-import CustomButton from '../../../../../components/CustomButton';
 import BouncingLoader from '../../../../../components/BouncingLoader';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Box } from '@mui/material';
@@ -19,19 +18,7 @@ const columns = [
 
 export default function AdminTable({ admins, loading, onAddAdmin, onAddPermission, onShowPermissions }) {
   const rows = loading
-    ? [
-        {
-          number: '',
-          firstname: '',
-          lastname: '',
-          email: '',
-          phone: '',
-          gender: '',
-          admin_type: '',
-          country: '',
-          action: '', // Empty action since loader is now an overlay
-        },
-      ]
+    ? []
     : admins.map((admin, index) => ({
       number: index + 1,
       firstname: admin.firstname,
@@ -39,17 +26,14 @@ export default function AdminTable({ admins, loading, onAddAdmin, onAddPermissio
       email: admin.email,
       phone: admin.phone,
       gender: admin.gender,
-      admin_type: admin.admin_type || '',
+      admin_type: admin.admin_types && admin.admin_types.length > 0
+        ? admin.admin_types.join(', ')
+        : '',
       country: admin.country_name || '',
       action: (
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <CustomButton
-            type="permission"
-            onClick={() => onAddPermission(admin._id || admin.id || admin.userId)}
-            style={{ padding: '4px 10px', fontSize: '12px' }}
-          />
           <ChevronRightIcon
-            onClick={() => onShowPermissions(admin._id || admin.id || admin.userId)}
+            onClick={() => onShowPermissions(admin.admin_id)}
             style={{
               color: '#1976d2',
               cursor: 'pointer',
@@ -61,7 +45,7 @@ export default function AdminTable({ admins, loading, onAddAdmin, onAddPermissio
     }));
 
   return (
-    <Box sx={{ position: 'relative', minHeight: '300px' }}> {/* Increased minHeight for more space */}
+    <Box sx={{ position: 'relative', minHeight: '300px' }}>
       <CustomTable
         columns={columns}
         rows={rows}
@@ -85,7 +69,7 @@ export default function AdminTable({ admins, loading, onAddAdmin, onAddPermissio
         <Box
           sx={{
             position: 'absolute',
-            top: '65%', 
+            top: '65%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             zIndex: 1,

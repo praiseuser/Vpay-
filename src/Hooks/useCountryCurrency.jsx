@@ -67,131 +67,131 @@ const useFetchCountryCurrencies = () => {
     return { countryCurrencies, loading, error };
 };
 const useAddCountry = () => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const [fiatCurrencies, setFiatCurrencies] = useState([]);
-    const [passwordVerified, setPasswordVerified] = useState(false);
-    const [showPasswordModal, setShowPasswordModal] = useState(false); // Changed to false
-    const hasFetchedCurrencies = useRef(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [fiatCurrencies, setFiatCurrencies] = useState([]);
+  const [passwordVerified, setPasswordVerified] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const hasFetchedCurrencies = useRef(false);
 
-    const token = useSelector((state) => state.user.token);
+  const token = useSelector((state) => state.user.token);
 
-    useEffect(() => {
-        const fetchFiatCurrencies = async () => {
-            setLoading(true);
-            setError(null);
+  useEffect(() => {
+    const fetchFiatCurrencies = async () => {
+      setLoading(true);
+      setError(null);
 
-            try {
-                const response = await axios.get(`${API_BASE_URL}/admin/fiat-currencies`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
+      try {
+        const response = await axios.get(`${API_BASE_URL}/admin/fiat-currencies`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-                const data = response.data.result || response.data || [];
-                const formattedCurrencies = Array.isArray(data)
-                    ? data.map((item) => ({
-                        currency_id: String(item.id || item.currency_id || 'Unknown'),
-                        currency_name: item.fiat_currency || item.name || item.currency_name || 'Unknown',
-                        country_name: item.country_name || 'N/A',
-                        country_code: item.country_code || 'N/A',
-                        country_dial_code: item.dial_code || item.phone_code || 'N/A',
-                        status: item.status || 'active',
-                    }))
-                    : [];
+        const data = response.data.result || response.data || [];
+        const formattedCurrencies = Array.isArray(data)
+          ? data.map((item) => ({
+            currency_id: String(item.id || item.currency_id || 'Unknown'),
+            currency_name: item.fiat_currency || item.name || item.currency_name || 'Unknown',
+            country_name: item.country_name || 'N/A',
+            country_code: item.country_code || 'N/A',
+            country_dial_code: item.dial_code || item.phone_code || 'N/A',
+            status: item.status || 'active',
+          }))
+          : [];
 
-                if (formattedCurrencies.length === 0) {
-                    setError('No fiat currencies available from the API');
-                    CustomErrorToast('No fiat currencies available');
-                } else {
-                    setFiatCurrencies(formattedCurrencies);
-                    if (!hasFetchedCurrencies.current) {
-                        CustomSuccessToast('Fiat currencies loaded successfully');
-                        hasFetchedCurrencies.current = true;
-                    }
-                }
-            } catch (err) {
-                const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch fiat currencies';
-                setError(errorMessage);
-                CustomErrorToast(errorMessage);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (token && !hasFetchedCurrencies.current) {
-            fetchFiatCurrencies();
-        } else if (!token) {
-            setError('Authentication token is missing');
-            CustomErrorToast('Authentication token is missing');
-            setLoading(false);
+        if (formattedCurrencies.length === 0) {
+          setError('No fiat currencies available from the API');
+          CustomErrorToast('No fiat currencies available');
+        } else {
+          setFiatCurrencies(formattedCurrencies);
+          if (!hasFetchedCurrencies.current) {
+            CustomSuccessToast('Fiat currencies loaded successfully');
+            hasFetchedCurrencies.current = true;
+          }
         }
-    }, [token]);
-
-    const addCountry = async (countryData, accountPassword) => {
-        setLoading(true);
-        setError(null);
-        setSuccess(false);
-
-        if (!token || typeof token !== 'string' || token.trim() === '') {
-            setError('Invalid or missing authentication token');
-            CustomErrorToast('Invalid or missing authentication token');
-            setLoading(false);
-            return false;
-        }
-
-        if (!accountPassword || typeof accountPassword !== 'string' || accountPassword.trim() === '') {
-            setError('Account password is required');
-            CustomErrorToast('Account password is required');
-            setLoading(false);
-            return false;
-        }
-
-        try {
-            const response = await axios.post(
-                `${API_BASE_URL}/admin/countries/create`,
-                countryData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'account-password': accountPassword,
-                    },
-                }
-            );
-
-            if (response.data.success) {
-                setSuccess(true);
-                setPasswordVerified(true);
-                setShowPasswordModal(false);
-                CustomSuccessToast('Country added successfully!');
-                return true;
-            } else {
-                const message = response.data.message || 'Failed to add country';
-                setError(message);
-                CustomErrorToast(message);
-                return false;
-            }
-        } catch (err) {
-            const message = err.response?.data?.message || err.message || 'Failed to add country';
-            setError(message);
-            CustomErrorToast(message);
-            return false;
-        } finally {
-            setLoading(false);
-        }
+      } catch (err) {
+        const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch fiat currencies';
+        setError(errorMessage);
+        CustomErrorToast(errorMessage);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const resetState = () => {
-        setSuccess(false);
-        setPasswordVerified(false);
-        setShowPasswordModal(false); // Changed to false
-        setError(null);
-    };
+    if (token && !hasFetchedCurrencies.current) {
+      fetchFiatCurrencies();
+    } else if (!token) {
+      setError('Authentication token is missing');
+      CustomErrorToast('Authentication token is missing');
+      setLoading(false);
+    }
+  }, [token]);
 
-    return { addCountry, fiatCurrencies, loading, error, success, resetState, passwordVerified, showPasswordModal, setShowPasswordModal, setPasswordVerified };
+  const addCountry = async (countryData, accountPassword) => {
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    if (!token || typeof token !== 'string' || token.trim() === '') {
+      setError('Invalid or missing authentication token');
+      CustomErrorToast('Invalid or missing authentication token');
+      setLoading(false);
+      return false;
+    }
+
+    if (!accountPassword || typeof accountPassword !== 'string' || accountPassword.trim() === '') {
+      setError('Account password is required');
+      CustomErrorToast('Account password is required');
+      setLoading(false);
+      return false;
+    }
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/admin/countries/create`,
+        countryData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'account-password': accountPassword,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setSuccess(true);
+        setPasswordVerified(true);
+        setShowPasswordModal(false);
+        CustomSuccessToast('Country added successfully!');
+        return true;
+      } else {
+        const message = response.data.message || 'Failed to add country';
+        setError(message);
+        CustomErrorToast(message);
+        return false;
+      }
+    } catch (err) {
+      const message = err.response?.data?.message || err.message || 'Failed to add country';
+      setError(message);
+      CustomErrorToast(message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetState = () => {
+    setSuccess(false);
+    setPasswordVerified(false);
+    setShowPasswordModal(false); 
+    setError(null);
+  };
+
+  return { addCountry, fiatCurrencies, loading, error, success, resetState, passwordVerified, showPasswordModal, setShowPasswordModal, setPasswordVerified };
 };
 const useDeleteCountry = () => {
     const [loading, setLoading] = useState(false);
