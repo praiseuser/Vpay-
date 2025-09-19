@@ -3,28 +3,37 @@ import CustomSwitch from "../../../../../../components/CustomSwitch";
 
 const permissionsList = ["Create", "Read", "Update", "Delete"];
 
-const PermissionCard = ({ moduleName, data, setFormattedPermissions, handlePermissionChange, handleAdminTypeToggle, index }) => {
+const PermissionCard = ({
+  adminTypeId,
+  data,
+  setFormattedPermissions,
+  handlePermissionChange,
+  handleAdminTypeToggle,
+  index,
+}) => {
   const handleToggle = () => {
     const isEnabled = !data.enabled;
     setFormattedPermissions((prev) => ({
       ...prev,
-      [moduleName]: {
-        ...prev[moduleName],
+      [adminTypeId]: {
+        ...prev[adminTypeId],
         enabled: isEnabled,
         checked: isEnabled,
-        ...(isEnabled ? {} : { create: false, read: false, update: false, delete: false }),
+        ...(isEnabled
+          ? {}
+          : { create: false, read: false, update: false, delete: false }),
       },
     }));
-    handleAdminTypeToggle(moduleName, isEnabled);
+    handleAdminTypeToggle(adminTypeId, isEnabled);
   };
 
   const handleSwitchChange = (perm) => {
     const newValue = !data[perm.toLowerCase()];
     setFormattedPermissions((prev) => ({
       ...prev,
-      [moduleName]: { ...prev[moduleName], [perm.toLowerCase()]: newValue },
+      [adminTypeId]: { ...prev[adminTypeId], [perm.toLowerCase()]: newValue },
     }));
-    handlePermissionChange(moduleName, perm.toLowerCase(), newValue);
+    handlePermissionChange(adminTypeId, perm.toLowerCase(), newValue);
   };
 
   return (
@@ -59,8 +68,12 @@ const PermissionCard = ({ moduleName, data, setFormattedPermissions, handlePermi
 
       <Box display="flex" alignItems="center" mb={1}>
         <Checkbox checked={data.enabled || false} onChange={handleToggle} sx={{ mr: 1 }} />
-        <Typography variant="subtitle1" fontWeight="600" sx={{ fontFamily: "Inter, sans-serif", color: "#2d3748" }}>
-          {moduleName}
+        <Typography
+          variant="subtitle1"
+          fontWeight="600"
+          sx={{ fontFamily: "Inter, sans-serif", color: "#2d3748" }}
+        >
+          {data.displayName}
         </Typography>
       </Box>
 

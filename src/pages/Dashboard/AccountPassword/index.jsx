@@ -1,7 +1,14 @@
 import React from 'react';
-import { Button, TextField, Box, Typography, Alert, InputAdornment, IconButton } from '@mui/material';
+import {
+  Button,
+  TextField,
+  Box,
+  Typography,
+  InputAdornment,
+  IconButton,
+} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import usePasswordManagement from '../../../Hooks/useAccountPassword';
+import { usePasswordManagement } from '../../../Hooks/useAccountPassword';
 
 const AccountPassword = ({ adminId }) => {
   const {
@@ -12,8 +19,6 @@ const AccountPassword = ({ adminId }) => {
     otp,
     setOtp,
     loading,
-    error,
-    success,
     otpSent,
     requestOtp,
     createPassword,
@@ -23,7 +28,7 @@ const AccountPassword = ({ adminId }) => {
   const [showPassword, setShowPassword] = React.useState(false);
 
   const handleRequestOtp = () => {
-    if (!password.trim()) {
+    if (!(password || '').trim()) {
       alert('Please enter a password first');
       return;
     }
@@ -31,11 +36,11 @@ const AccountPassword = ({ adminId }) => {
   };
 
   const handleCreatePassword = () => {
-    if (!password.trim()) {
+    if (!(password || '').trim()) {
       alert('Please enter a password');
       return;
     }
-    if (!otp.trim()) {
+    if (!(otp || '').trim()) {
       alert('Please enter the OTP');
       return;
     }
@@ -48,11 +53,21 @@ const AccountPassword = ({ adminId }) => {
   };
 
   return (
-    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4, p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
+    <Box
+      sx={{
+        maxWidth: 400,
+        mx: 'auto',
+        mt: 4,
+        p: 2,
+        border: '1px solid #ccc',
+        borderRadius: 2,
+      }}
+    >
       <Typography variant="h6" gutterBottom>
         Create Account Password {adminId}
       </Typography>
-      
+
+      {/* Password input */}
       <TextField
         label="New Password"
         type={showPassword ? 'text' : 'password'}
@@ -77,7 +92,8 @@ const AccountPassword = ({ adminId }) => {
           ),
         }}
       />
-      
+
+      {/* OTP medium */}
       <TextField
         select
         label="OTP Medium"
@@ -91,7 +107,8 @@ const AccountPassword = ({ adminId }) => {
         <option value="email">Email</option>
         <option value="sms">SMS</option>
       </TextField>
-      
+
+      {/* OTP input */}
       <TextField
         label="OTP"
         value={otp}
@@ -100,32 +117,35 @@ const AccountPassword = ({ adminId }) => {
         sx={{ mb: 2 }}
         required
         disabled={loading || !otpSent}
-        placeholder={otpSent ? "Enter the OTP sent to your " + otpMedium : "Request OTP first"}
+        placeholder={
+          otpSent ? `Enter the OTP sent to your ${otpMedium}` : 'Request OTP first'
+        }
       />
-      
+
+      {/* Buttons */}
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-        <Button 
-          variant="contained" 
-          onClick={handleRequestOtp} 
-          disabled={loading || !password.trim() || otpSent}
+        <Button
+          variant="contained"
+          onClick={handleRequestOtp}
+          disabled={loading || !(password || '').trim() || otpSent}
           sx={{ mb: 2 }}
         >
           {loading ? 'Sending...' : 'Request OTP'}
         </Button>
-        
-        <Button 
-          variant="contained" 
+
+        <Button
+          variant="contained"
           color="success"
-          onClick={handleCreatePassword} 
-          disabled={loading || !otpSent || !password.trim() || !otp.trim()}
+          onClick={handleCreatePassword}
+          disabled={loading || !otpSent || !(password || '').trim() || !(otp || '').trim()}
           sx={{ mb: 2 }}
         >
           {loading ? 'Creating...' : 'Create Password'}
         </Button>
-        
-        <Button 
-          variant="outlined" 
-          onClick={handleReset} 
+
+        <Button
+          variant="outlined"
+          onClick={handleReset}
           disabled={loading}
           sx={{ mb: 2 }}
         >

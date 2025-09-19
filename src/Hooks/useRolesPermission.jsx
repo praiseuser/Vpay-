@@ -137,9 +137,10 @@ export const useFetchAdmin = (refreshTrigger) => {
           phone: item.phone || "",
           gender: item.gender || "",
           country_name: item.country_name || "",
-          admin_type: item.admin_type || "",
+          admin_types: item.admin_types || [],
         }))
         : [];
+
 
       if (formattedAdmins.length === 0) {
         setError("No admin data available");
@@ -258,7 +259,7 @@ export const useAddAdmin = () => {
     loadingTypes,
   };
 };
-export const useFetchAdminPermissions = (userId) => {
+export const useFetchAdminPermissions = (adminId) => {
   const token = useSelector((state) => state.user.token);
   const [permissions, setPermissions] = useState({});
   const [loading, setLoading] = useState(true);
@@ -269,17 +270,17 @@ export const useFetchAdminPermissions = (userId) => {
       setLoading(true);
       setError(null);
 
-      if (!userId || !token || isNaN(Number(userId))) {
+      if (!adminId || !token || isNaN(Number(adminId))) {
         setPermissions({});
         setLoading(false);
-        console.warn("Invalid userId or missing token", { userId, token });
+        console.warn("Invalid adminId or missing token", { adminId, token });
         return;
       }
 
-      console.log("Fetching permissions for userId:", userId);
+      console.log("Fetching permissions for adminId:", adminId);
 
       const res = await axios.get(
-        `${API_BASE_URL}/admin/role-permissions/${userId}`,
+        `${API_BASE_URL}/admin/role-permissions/${adminId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -294,40 +295,41 @@ export const useFetchAdminPermissions = (userId) => {
         if (bDate !== aDate) return bDate - aDate;
 
         const score = (perm) =>
-          [perm.create, perm.read, perm.update, perm.delete].filter(Boolean).length;
+          [perm.create, perm.read, perm.update, perm.delete].filter(Boolean)
+            .length;
 
         return score(b) - score(a);
       });
 
       const uniquePermissionsMap = {};
       for (const perm of sortedData) {
-        if (!uniquePermissionsMap[perm.admin_type]) {
-          uniquePermissionsMap[perm.admin_type] = perm;
+        if (!uniquePermissionsMap[perm.id]) {
+          uniquePermissionsMap[perm.id] = perm;
         }
       }
+
       const permObj = {};
       Object.values(uniquePermissionsMap).forEach((perm) => {
-        const moduleName = perm.admin_type;
-        permObj[moduleName] = {
+        const permId = String(perm.id);
+        permObj[permId] = {
           create: Boolean(perm.create),
           read: Boolean(perm.read),
           update: Boolean(perm.update),
           delete: Boolean(perm.delete),
           status: Boolean(perm.status),
           admin_type_id: Number(perm.admin_type_id),
-          id: Number(perm.id || perm.admin_type_id),
+          id: Number(perm.id),
           checked: false,
         };
-
       });
 
-      console.log("Parsed permissions for userId:", userId, permObj);
+      console.log("Parsed permissions for adminId:", adminId, permObj);
       setPermissions(permObj);
     } catch (err) {
       setError(err.message || "Failed to fetch permissions");
       console.error(
         "Fetch error:",
-        userId,
+        adminId,
         err.response?.status,
         err.response?.data,
         err.message
@@ -340,7 +342,7 @@ export const useFetchAdminPermissions = (userId) => {
 
   useEffect(() => {
     fetchPermissions();
-  }, [userId, token]);
+  }, [adminId, token]);
 
   return {
     permissions,
@@ -350,7 +352,7 @@ export const useFetchAdminPermissions = (userId) => {
     refetchPermissions: fetchPermissions,
   };
 };
-export const useUpdateAdminPermissions = (adminUniqueId, permissions, setPermissions) => {
+export const useUpdateAdminPermissions = (adminId, permissions, setPermissions) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState(null);
 
@@ -376,7 +378,6 @@ export const useUpdateAdminPermissions = (adminUniqueId, permissions, setPermiss
     }));
   };
 
-
   const updatePermissions = (formattedPermissions) => {
     return async (accountPassword) => {
       setIsUpdating(true);
@@ -396,8 +397,11 @@ export const useUpdateAdminPermissions = (adminUniqueId, permissions, setPermiss
           }
         });
 
+        console.log("Admin ID (param now):", adminId);
+        console.log("Final Permissions Payload:", permissionsPayload);
+
         const response = await axios.post(
-          `${API_BASE_URL}/admin/admin/role-permission/update/${adminUniqueId}`,
+          `${API_BASE_URL}/admin/admin/role-permission/update/${adminId}`,
           permissionsPayload,
           {
             headers: {
@@ -554,6 +558,8 @@ export const useFetchAllRoles = () => {
       const response = await axios.get(`${API_BASE_URL}/admin/admins/types`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      console.log("Roles API raw response:", response.data);
 
       const result = Array.isArray(response.data.result) ? response.data.result : [];
       setRoles(result);

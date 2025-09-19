@@ -51,13 +51,14 @@ export default function AllAdminPage() {
     <div style={{ ...styles.container, overflow: 'hidden', position: 'relative', zIndex: 1 }}>
       {showPermissions ? (
         <ViewRolesPermissions
-          Adminid={selectedAdmin?.id}
-          AdminUniqueId={selectedAdmin?.admin_id}
+          adminId={selectedAdmin?.admin_id}
+          userId={selectedAdmin?.id}
           firstName={selectedAdmin?.firstname || 'Unknown'}
           lastName={selectedAdmin?.lastname || 'Unknown'}
           onBack={() => setShowPermissions(false)}
           onSuccess={handlePermissionUpdateSuccess}
         />
+
       ) : showAddPermissionForm ? (
         <PermissionFormSection
           selectedAdminId={selectedId}

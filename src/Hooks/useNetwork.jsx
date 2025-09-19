@@ -25,7 +25,7 @@ export const useUpdateNetwork = () => {
         setNetwork(currentNetwork);
       } catch (err) {
         setError(err.message);
-        toast(<CustomErrorToast message="Failed to load network" />);
+        // toast(<CustomErrorToast message="Failed to load network" />);
         setNetwork('mainnet');
       } finally {
         setLoading(false);

@@ -17,32 +17,33 @@ const columns = [
 ];
 
 export default function AdminTable({ admins, loading, onAddAdmin, onAddPermission, onShowPermissions }) {
+
   const rows = loading
     ? []
     : admins.map((admin, index) => ({
-      number: index + 1,
-      firstname: admin.firstname,
-      lastname: admin.lastname,
-      email: admin.email,
-      phone: admin.phone,
-      gender: admin.gender,
-      admin_type: admin.admin_types && admin.admin_types.length > 0
-        ? admin.admin_types.join(', ')
-        : '',
-      country: admin.country_name || '',
-      action: (
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <ChevronRightIcon
-            onClick={() => onShowPermissions(admin.admin_id)}
-            style={{
-              color: '#1976d2',
-              cursor: 'pointer',
-              fontSize: '20px',
-            }}
-          />
-        </div>
-      ),
-    }));
+        number: index + 1,
+        firstname: admin.firstname,
+        lastname: admin.lastname,
+        email: admin.email,
+        phone: admin.phone,
+        gender: admin.gender,
+        admin_type: admin.admin_types && admin.admin_types.length > 0
+          ? admin.admin_types.join(', ')
+          : '',
+        country: admin.country_name || '',
+        action: (
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <ChevronRightIcon
+              onClick={() => onShowPermissions(admin.admin_id)}
+              style={{
+                color: '#1976d2',
+                cursor: 'pointer',
+                fontSize: '20px',
+              }}
+            />
+          </div>
+        ),
+      }));
 
   return (
     <Box sx={{ position: 'relative', minHeight: '300px' }}>

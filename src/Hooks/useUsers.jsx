@@ -35,15 +35,15 @@ export const useFetchUsers = (page = 1) => {
       const data = response.data.result || [];
       const formattedUsers = Array.isArray(data)
         ? data.map((item) => ({
-            id: item.id || null,
-            firstname: item.firstname || 'N/A',
-            lastname: item.lastname || 'N/A',
-            email: item.email || 'N/A',
-            status: item.status || 'N/A',
-            phone: item.phone || 'N/A',
-            gender: item.gender || 'N/A',
-            created_at: item.created_at || null,
-          }))
+          id: item.id || null,
+          firstname: item.firstname || 'N/A',
+          lastname: item.lastname || 'N/A',
+          email: item.email || 'N/A',
+          status: item.status || 'N/A',
+          phone: item.phone || 'N/A',
+          gender: item.gender || 'N/A',
+          created_at: item.created_at || null,
+        }))
         : [];
 
       if (formattedUsers.length === 0) {
@@ -68,14 +68,14 @@ export const useFetchUsers = (page = 1) => {
 
   return { users, loading, error, fetchUsers };
 };
-export const useFetchUserById = (userId) => {
+export const useFetchUserById = (id) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const token = useSelector((state) => state.user.token);
 
   const fetchUserById = useCallback(async () => {
-    if (!userId) return; // don't run if no ID
+    if (!id) return; // don't run if no ID
 
     setLoading(true);
     setError(null);
@@ -89,7 +89,7 @@ export const useFetchUserById = (userId) => {
     }
 
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/user/${userId}`, {
+      const response = await axios.get(`${API_BASE_URL}/admin/user/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -106,7 +106,6 @@ export const useFetchUserById = (userId) => {
         toast(<CustomErrorToast message={msg} />);
         setUser(null);
       } else {
-        // handle if result is array or object
         const data = Array.isArray(result) ? result[0] : result;
 
         const formattedUser = {
@@ -133,7 +132,7 @@ export const useFetchUserById = (userId) => {
     } finally {
       setLoading(false);
     }
-  }, [token, userId]);
+  }, [token, id]);
 
   useEffect(() => {
     fetchUserById();
@@ -141,6 +140,7 @@ export const useFetchUserById = (userId) => {
 
   return { user, loading, error, fetchUserById };
 };
+
 export const useSearchUsers = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -149,7 +149,7 @@ export const useSearchUsers = () => {
 
   const searchUsers = useCallback(
     async (query) => {
-      if (!query) return; 
+      if (!query) return;
 
       setLoading(true);
       setError(null);

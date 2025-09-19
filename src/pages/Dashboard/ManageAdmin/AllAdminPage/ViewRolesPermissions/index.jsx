@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Paper, CircularProgress, Divider } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import SaveIcon from "@mui/icons-material/Save";
+import { Box, Typography, Paper, CircularProgress } from "@mui/material";
 import PasswordModal from "../../../Card/PasswordModal";
 import {
   useFetchAdminPermissions,
@@ -12,53 +10,62 @@ import HeaderBar from "../ViewRolesPermissions/HeaderBar";
 import PermissionGrid from "../ViewRolesPermissions/PermissionGrid";
 import ActionButtons from "../ViewRolesPermissions/ActionButtons";
 
-const ViewRolesPermissions = ({ Adminid, AdminUniqueId, firstName, lastName, onBack }) => {
+const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [accountPassword, setAccountPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const { permissions, setPermissions, loading, error: fetchError } = useFetchAdminPermissions(Adminid);
-  const { roles: allRoles, loading: rolesLoading, error: rolesError, refetch: refetchRoles } = useFetchAllRoles();
-  const { isUpdating, error: updateError, handlePermissionChange, handleAdminTypeToggle, updatePermissions } =
-    useUpdateAdminPermissions(AdminUniqueId, permissions, setPermissions);
+  const { permissions, setPermissions, loading, error: fetchError } =
+    useFetchAdminPermissions(adminId);
+
+  const {
+    roles: allRoles,
+    loading: rolesLoading,
+    error: rolesError,
+    refetch: refetchRoles,
+  } = useFetchAllRoles();
+
+  const {
+    isUpdating,
+    error: updateError,
+    handlePermissionChange,
+    handleAdminTypeToggle,
+    updatePermissions,
+  } = useUpdateAdminPermissions(adminId, permissions, setPermissions);
 
   const [formattedPermissions, setFormattedPermissions] = useState({});
 
   useEffect(() => {
     if (!allRoles) return;
+
     const formatted = {};
 
     if (permissions && Object.keys(permissions).length > 0) {
-      Object.keys(permissions).forEach((moduleName) => {
-        const modulePerms = permissions[moduleName] || {};
-        const roleInfo = allRoles.find((role) => role.id === modulePerms.admin_type_id);
-        const displayName = roleInfo?.admin_type || moduleName || "Unknown";
+      Object.values(permissions).forEach((perm) => {
+        const roleInfo = allRoles.find((role) => role.id === perm.admin_type_id);
 
-        formatted[displayName] = {
-          admin_id: modulePerms.admin_id || null,
-          admin_type_id: modulePerms.admin_type_id || null,
-          enabled:
-            Boolean(
-              modulePerms.checked ||
-              modulePerms.create ||
-              modulePerms.read ||
-              modulePerms.update ||
-              modulePerms.delete
-            ),
-          create: Boolean(modulePerms.create),
-          read: Boolean(modulePerms.read),
-          update: Boolean(modulePerms.update),
-          delete: Boolean(modulePerms.delete),
-          checked: Boolean(modulePerms.checked),
+        formatted[perm.admin_type_id] = {
+          admin_id: perm.admin_id || adminId,
+          admin_type_id: perm.admin_type_id,
+          displayName: roleInfo?.admin_type || `Module-${perm.admin_type_id}`,
+          enabled: Boolean(
+            perm.checked || perm.create || perm.read || perm.update || perm.delete
+          ),
+          create: Boolean(perm.create),
+          read: Boolean(perm.read),
+          update: Boolean(perm.update),
+          delete: Boolean(perm.delete),
+          checked: Boolean(perm.checked),
         };
       });
     }
 
     allRoles.forEach((role) => {
-      if (!formatted[role.admin_type]) {
-        formatted[role.admin_type] = {
-          admin_id: AdminUniqueId,
+      if (!formatted[role.id]) {
+        formatted[role.id] = {
+          admin_id: adminId,
           admin_type_id: role.id,
+          displayName: role.admin_type,
           enabled: false,
           create: false,
           read: false,
@@ -70,14 +77,16 @@ const ViewRolesPermissions = ({ Adminid, AdminUniqueId, firstName, lastName, onB
     });
 
     setFormattedPermissions(formatted);
-  }, [permissions, allRoles, AdminUniqueId]);
+  }, [permissions, allRoles, adminId]);
 
   const handlePasswordSubmit = async () => {
     if (!accountPassword.trim()) return;
+
     setPasswordLoading(true);
     const updateFunc = updatePermissions(formattedPermissions);
     const success = await updateFunc(accountPassword);
     setPasswordLoading(false);
+
     if (success) {
       setAccountPassword("");
       setModalOpen(false);
@@ -89,7 +98,15 @@ const ViewRolesPermissions = ({ Adminid, AdminUniqueId, firstName, lastName, onB
   const isLoading = loading || rolesLoading;
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", minHeight: "100vh", bgcolor: "#f9fafb", p: 2 }}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        minHeight: "100vh",
+        bgcolor: "#f9fafb",
+        p: 2,
+      }}
+    >
       <Box
         sx={{
           background: "white",
