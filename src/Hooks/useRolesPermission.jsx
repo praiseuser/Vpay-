@@ -303,14 +303,14 @@ export const useFetchAdminPermissions = (adminId) => {
 
       const uniquePermissionsMap = {};
       for (const perm of sortedData) {
-        if (!uniquePermissionsMap[perm.id]) {
-          uniquePermissionsMap[perm.id] = perm;
+        if (!uniquePermissionsMap[perm.admin_type_id]) {
+          uniquePermissionsMap[perm.admin_type_id] = perm;
         }
       }
 
       const permObj = {};
       Object.values(uniquePermissionsMap).forEach((perm) => {
-        const permId = String(perm.id);
+        const permId = String(perm.admin_type_id);
         permObj[permId] = {
           create: Boolean(perm.create),
           read: Boolean(perm.read),

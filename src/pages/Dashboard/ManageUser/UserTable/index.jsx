@@ -2,7 +2,7 @@ import { Box, Typography, Chip, IconButton, Tooltip } from "@mui/material";
 import CustomTable from "../../../../components/CustomTable";
 import { styled } from "@mui/material/styles";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import VisibilityIcon from "@mui/icons-material/Visibility"; // 👈 new icon
+import VisibilityIcon from "@mui/icons-material/Visibility"; // 👈 correct icon
 import BouncingLoader from "../../../../components/BouncingLoader";
 import { useNavigate } from "react-router-dom"; // 👈 navigation
 
@@ -44,24 +44,36 @@ const UserTable = ({ users, loading, error }) => {
 
   const formatRows = (data) => {
     if (!data || data.length === 0) {
+      console.warn("⚠️ No users passed into UserTable");
       return [];
     }
+
     return data.map((item, index) => {
       const handleViewClick = () => {
-       navigate("/dashboard/details-page");
-
+        console.log("👁 Navigating to details page for user id:", item.id);
+        navigate(`/dashboard/details-page/${item.id}`); // ✅ Now includes id
       };
 
       return {
-        id: <StyledTableCell className="table-text font-weight-600">{index + 1}</StyledTableCell>,
+        id: (
+          <StyledTableCell className="table-text font-weight-600">
+            {index + 1}
+          </StyledTableCell>
+        ),
         firstname: (
-          <StyledTableCell className="table-text font-weight-400">{item.firstname || "N/A"}</StyledTableCell>
+          <StyledTableCell className="table-text font-weight-400">
+            {item.firstname || "N/A"}
+          </StyledTableCell>
         ),
         lastname: (
-          <StyledTableCell className="table-text font-weight-400">{item.lastname || "N/A"}</StyledTableCell>
+          <StyledTableCell className="table-text font-weight-400">
+            {item.lastname || "N/A"}
+          </StyledTableCell>
         ),
         email: (
-          <StyledEmailPhoneCell className="table-text font-weight-500">{item.email || "N/A"}</StyledEmailPhoneCell>
+          <StyledEmailPhoneCell className="table-text font-weight-500">
+            {item.email || "N/A"}
+          </StyledEmailPhoneCell>
         ),
         status: (
           <StyledTableCell>
@@ -75,9 +87,15 @@ const UserTable = ({ users, loading, error }) => {
           </StyledTableCell>
         ),
         phone: (
-          <StyledEmailPhoneCell className="table-text font-weight-500">{item.phone || "N/A"}</StyledEmailPhoneCell>
+          <StyledEmailPhoneCell className="table-text font-weight-500">
+            {item.phone || "N/A"}
+          </StyledEmailPhoneCell>
         ),
-        gender: <StyledTableCell className="table-text font-weight-400">{item.gender || "N/A"}</StyledTableCell>,
+        gender: (
+          <StyledTableCell className="table-text font-weight-400">
+            {item.gender || "N/A"}
+          </StyledTableCell>
+        ),
         action: (
           <StyledTableCell>
             <div
@@ -88,21 +106,29 @@ const UserTable = ({ users, loading, error }) => {
                 alignItems: "center",
               }}
             >
-              {/* 👇 View details icon */}
               <Tooltip title="View Details">
                 <IconButton size="small" onClick={handleViewClick}>
                   <VisibilityIcon style={{ color: "#1976d2" }} />
                 </IconButton>
               </Tooltip>
-
-              {/* existing arrow icon */}
-              <ArrowForwardIosIcon style={{ width: "15px", height: "15px", color: "#73757C" }} />
+              <ArrowForwardIosIcon
+                style={{ width: "15px", height: "15px", color: "#73757C" }}
+              />
             </div>
           </StyledTableCell>
         ),
       };
     });
   };
+
+  console.log(
+    "📊 Rendering UserTable. Users length:",
+    users?.length || 0,
+    "Loading:",
+    loading,
+    "Error:",
+    error
+  );
 
   if (error)
     return (
@@ -141,5 +167,7 @@ const UserTable = ({ users, loading, error }) => {
     </Box>
   );
 };
+
+
 
 export default UserTable;

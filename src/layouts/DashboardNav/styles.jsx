@@ -3,7 +3,7 @@ export const styles = {
     position: 'fixed',
     top: 0,
     height: { xs: 48, md: 64 },
-    backgroundColor: '#fff',
+    backgroundColor: '#E1EFF8',
     borderBottom: '1px solid #ddd',
     display: 'flex',
     flexDirection: { xs: 'column', md: 'row' },
@@ -14,6 +14,7 @@ export const styles = {
     transition: 'left 0.3s ease, width 0.3s ease, height 0.3s ease',
     width: '100%',
     boxSizing: 'border-box',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.11)',
   },
 
   navLeft: {

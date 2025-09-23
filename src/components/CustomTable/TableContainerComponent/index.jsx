@@ -91,12 +91,6 @@ const TableContainerComponent = ({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} align="center">
-                <Typography
-                  variant="body2"
-                  sx={{ py: 2, fontFamily: 'Raleway, sans-serif', color: '#888', fontSize: 13 }}
-                >
-                  No data found.
-                </Typography>
               </TableCell>
             </TableRow>
           )}

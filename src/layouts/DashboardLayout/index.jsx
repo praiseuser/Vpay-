@@ -42,36 +42,38 @@ const DashboardLayout = ({ children }) => {
   };
 
   return (
-    <Box sx={styles.wrap}>
-      <DashboardNav
-        handleDrawerToggle={handleDrawerToggle}
-        currentRoute={currentRoute}
-        titleStyle={titleStyle}
-        mobileOpen={mobileOpen}
-        collapsed={collapsed}
-      />
-      <DashboardSideNav
-        mobileOpen={mobileOpen}
-        onClose={handleDrawerClose}
-        onTransitionEnd={() => { }}
-        collapsed={collapsed}
-        handleToggleCollapse={handleToggleCollapse}
-      />
-      <Box
-        component="main"
-        sx={{
-          ...styles.content,
-          pl: collapsed ? `calc(80px + 16px)` : `${dashboardLayoutPad + dashboardDrawerWidth}px`,
-          pr: '16px',
-          pt: `${dashboardNavHeight + dashboardLayoutPad}px`,
-          pb: '16px',
-        }}
-      >
-        {children}
-      </Box>
-
+  <Box sx={{ ...styles.wrap, backgroundColor: "#E1EFF8", minHeight: "100vh" }}>
+    <DashboardNav
+      handleDrawerToggle={handleDrawerToggle}
+      currentRoute={currentRoute}
+      titleStyle={titleStyle}
+      mobileOpen={mobileOpen}
+      collapsed={collapsed}
+    />
+    <DashboardSideNav
+      mobileOpen={mobileOpen}
+      onClose={handleDrawerClose}
+      onTransitionEnd={() => {}}
+      collapsed={collapsed}
+      handleToggleCollapse={handleToggleCollapse}
+    />
+    <Box
+      component="main"
+      sx={{
+        ...styles.content,
+        pl: collapsed ? `calc(80px + 16px)` : `${dashboardLayoutPad + dashboardDrawerWidth}px`,
+        pr: "16px",
+        pt: `${dashboardNavHeight + dashboardLayoutPad}px`,
+        pb: "16px",
+        backgroundColor: "#E1EFF8", 
+        minHeight: "100vh",
+      }}
+    >
+      {children}
     </Box>
-  );
+  </Box>
+);
+
 };
 
 export default DashboardLayout;

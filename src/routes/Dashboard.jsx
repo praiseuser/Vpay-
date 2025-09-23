@@ -23,9 +23,6 @@ import AccountPassword from "../pages/Dashboard/AccountPassword";
 import ProtectedRoute from "../ProtectedRoute";
 import DetailsPage from "../pages/Dashboard/DetailsPage";
 
-
-
-
 const DashboardRoutes = () => {
   return (
     <ProtectedRoute>
@@ -49,7 +46,7 @@ const DashboardRoutes = () => {
           <Route path="transaction" element={<Transaction />} />
           <Route path="support" element={<Support />} />
           <Route path="account-password" element={<AccountPassword />} />
-          <Route path="details-Page" element={<DetailsPage />} />
+          <Route path="details-page/:id" element={<DetailsPage />} />
         </Routes>
       </DashboardLayout>
     </ProtectedRoute>
