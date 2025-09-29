@@ -9,18 +9,23 @@ const PermissionGrid = ({
 }) => {
   return (
     <Grid container spacing={3}>
-      {Object.entries(formattedPermissions).map(([adminTypeId, data], index) => (
-        <Grid item xs={12} md={6} lg={4} key={adminTypeId}>
-          <PermissionCard
-            adminTypeId={adminTypeId}
-            data={data}
-            setFormattedPermissions={setFormattedPermissions}
-            handlePermissionChange={handlePermissionChange}
-            handleAdminTypeToggle={handleAdminTypeToggle}
-            index={index}
-          />
-        </Grid>
-      ))}
+      {Object.keys(formattedPermissions).map((adminTypeId, index) => {
+        const data = formattedPermissions[adminTypeId];
+
+        return (
+          <Grid item xs={12} md={6} lg={4} key={adminTypeId}>
+            <PermissionCard
+              adminTypeId={adminTypeId}
+              module={data}
+              permissions={formattedPermissions}
+              setFormattedPermissions={setFormattedPermissions}
+              handlePermissionChange={handlePermissionChange}
+              handleAdminTypeToggle={handleAdminTypeToggle}
+              index={index}
+            />
+          </Grid>
+        );
+      })}
     </Grid>
   );
 };

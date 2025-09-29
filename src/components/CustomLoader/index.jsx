@@ -1,9 +1,9 @@
 import { Box } from '@mui/material';
 import { keyframes } from '@emotion/react';
 
-const bounceDots = keyframes`
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 `;
 
 const CustomLoader = () => {
@@ -15,7 +15,6 @@ const CustomLoader = () => {
         left: 0,
         width: '100vw',
         height: '100vh',
-        backgroundColor: 'transparent', 
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -25,25 +24,36 @@ const CustomLoader = () => {
     >
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          mt: 3,
+          position: 'relative',
+          width: 100,
+          height: 100,
         }}
       >
-        {[0, 1, 2, 3].map((_, i) => (
-          <Box
-            key={i}
-            sx={{
-              width: 10,
-              height: 10,
-              margin: '0 6px',
-              borderRadius: '50%',
-              backgroundColor: '#02042D',
-              animation: `${bounceDots} 1.4s infinite ease-in-out`,
-              animationDelay: `${i * 0.2}s`,
-            }}
-          />
-        ))}
+        <Box
+          sx={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            border: '5px solid',
+            borderColor: '#218DC9 transparent #218DC9 transparent',
+            borderRadius: '50%',
+            animation: `${spin} 1.5s linear infinite`,
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            width: '80%',
+            height: '80%',
+            top: '10%',
+            left: '10%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <img src="/image 5.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        </Box>
       </Box>
     </Box>
   );

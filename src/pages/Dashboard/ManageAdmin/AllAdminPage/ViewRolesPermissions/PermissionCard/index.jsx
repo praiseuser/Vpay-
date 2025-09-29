@@ -1,24 +1,27 @@
 import { Paper, Checkbox, Typography, Box, Chip } from "@mui/material";
 import CustomSwitch from "../../../../../../components/CustomSwitch";
 
-const permissionsList = ["Create", "Read", "Update", "Delete"];
+const permissionsList = ["create", "read", "update", "delete"];
 
 const PermissionCard = ({
   adminTypeId,
-  data,
+  module = {}, // renamed from `data` to `module`
   setFormattedPermissions,
   handlePermissionChange,
   handleAdminTypeToggle,
   index,
 }) => {
+  const checked = module.checked || false;
+
+  // Toggle entire role
   const handleToggle = () => {
-    const isEnabled = !data.enabled;
+    const isEnabled = !checked;
     setFormattedPermissions((prev) => ({
       ...prev,
       [adminTypeId]: {
         ...prev[adminTypeId],
-        enabled: isEnabled,
         checked: isEnabled,
+        displayName: prev[adminTypeId]?.displayName || module.displayName || `Role ${adminTypeId}`,
         ...(isEnabled
           ? {}
           : { create: false, read: false, update: false, delete: false }),
@@ -27,13 +30,15 @@ const PermissionCard = ({
     handleAdminTypeToggle(adminTypeId, isEnabled);
   };
 
+
+  // Toggle individual permission
   const handleSwitchChange = (perm) => {
-    const newValue = !data[perm.toLowerCase()];
+    const newValue = !module[perm];
     setFormattedPermissions((prev) => ({
       ...prev,
-      [adminTypeId]: { ...prev[adminTypeId], [perm.toLowerCase()]: newValue },
+      [adminTypeId]: { ...prev[adminTypeId], [perm]: newValue },
     }));
-    handlePermissionChange(adminTypeId, perm.toLowerCase(), newValue);
+    handlePermissionChange(adminTypeId, perm, newValue);
   };
 
   return (
@@ -54,26 +59,26 @@ const PermissionCard = ({
       }}
     >
       <Chip
-        label={data.enabled ? "Active" : "Inactive"}
+        label={checked ? "Active" : "Inactive"}
         size="small"
         sx={{
           position: "absolute",
           top: 12,
           right: 12,
-          bgcolor: data.enabled ? "#e6fffa" : "#edf2f7",
-          color: data.enabled ? "#008080" : "#718096",
+          bgcolor: checked ? "#e6fffa" : "#edf2f7",
+          color: checked ? "#008080" : "#718096",
           fontWeight: 600,
         }}
       />
 
       <Box display="flex" alignItems="center" mb={1}>
-        <Checkbox checked={data.enabled || false} onChange={handleToggle} sx={{ mr: 1 }} />
+        <Checkbox checked={checked} onChange={handleToggle} sx={{ mr: 1 }} />
         <Typography
           variant="subtitle1"
           fontWeight="600"
           sx={{ fontFamily: "Inter, sans-serif", color: "#2d3748" }}
         >
-          {data.displayName}
+          {module.displayName || `Role ${adminTypeId}`}
         </Typography>
       </Box>
 
@@ -89,13 +94,14 @@ const PermissionCard = ({
                 fontSize: "0.75rem",
                 letterSpacing: "0.3px",
                 color: "#4a5568",
+                textTransform: "capitalize",
               }}
             >
               {perm}
             </Typography>
             <CustomSwitch
-              checked={data[perm.toLowerCase()] || false}
-              disabled={!data.enabled}
+              checked={module[perm] || false}
+              disabled={!checked}
               onChange={() => handleSwitchChange(perm)}
             />
           </Box>

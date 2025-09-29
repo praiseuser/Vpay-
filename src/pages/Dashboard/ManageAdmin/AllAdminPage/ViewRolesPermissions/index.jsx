@@ -40,40 +40,18 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
 
     const formatted = {};
 
-    if (permissions && Object.keys(permissions).length > 0) {
-      Object.values(permissions).forEach((perm) => {
-        const roleInfo = allRoles.find((role) => role.id === perm.admin_type_id);
-
-        formatted[perm.admin_type_id] = {
-          admin_id: perm.admin_id || adminId,
-          admin_type_id: perm.admin_type_id,
-          displayName: roleInfo?.admin_type || `Module-${perm.admin_type_id}`,
-          enabled: Boolean(
-            perm.checked || perm.create || perm.read || perm.update || perm.delete
-          ),
-          create: Boolean(perm.create),
-          read: Boolean(perm.read),
-          update: Boolean(perm.update),
-          delete: Boolean(perm.delete),
-          checked: Boolean(perm.checked),
-        };
-      });
-    }
-
     allRoles.forEach((role) => {
-      if (!formatted[role.id]) {
-        formatted[role.id] = {
-          admin_id: adminId,
-          admin_type_id: role.id,
-          displayName: role.admin_type,
-          enabled: false,
-          create: false,
-          read: false,
-          update: false,
-          delete: false,
-          checked: false,
-        };
-      }
+      const perm = permissions[role.id] || {};
+      formatted[role.id] = {
+        admin_id: adminId,
+        admin_type_id: role.id,
+        displayName: role.admin_type || `Module-${role.id}`,
+        create: Boolean(perm.create),
+        read: Boolean(perm.read),
+        update: Boolean(perm.update),
+        delete: Boolean(perm.delete),
+        checked: Boolean(perm.checked || perm.create || perm.read || perm.update || perm.delete),
+      };
     });
 
     setFormattedPermissions(formatted);
@@ -121,7 +99,12 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
 
         <Paper elevation={0} sx={{ p: 3, borderRadius: 2, bgcolor: "#fdfdfd" }}>
           {isLoading ? (
-            <Box height="40vh" display="flex" justifyContent="center" alignItems="center">
+            <Box
+              height="40vh"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
               <CircularProgress />
             </Box>
           ) : displayError ? (

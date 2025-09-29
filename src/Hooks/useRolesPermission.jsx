@@ -265,7 +265,29 @@ export const useFetchAdminPermissions = (adminId) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchPermissions = async () => {
+  const initializePermission = (perm, prevChecked = false) => ({
+    create: Boolean(perm?.create),
+    read: Boolean(perm?.read),
+    update: Boolean(perm?.update),
+    delete: Boolean(perm?.delete),
+    status: Boolean(perm?.status),
+    admin_type_id: Number(perm?.admin_type_id || perm?.id || 0),
+    id: Number(perm?.id || 0),
+    checked: prevChecked,
+    displayName: perm?.displayName || perm?.admin_type || `Role ${perm?.id || "?"}`, // ✅ added
+  });
+
+  const prefillPermissions = (permArray, prevPermissions = {}) => {
+    const obj = {};
+    permArray.forEach((perm) => {
+      const id = String(perm.admin_type_id);
+      const prevChecked = prevPermissions[id]?.checked || false;
+      obj[id] = initializePermission(perm, prevChecked);
+    });
+    return obj;
+  };
+
+  const fetchPermissions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -277,13 +299,9 @@ export const useFetchAdminPermissions = (adminId) => {
         return;
       }
 
-      console.log("Fetching permissions for adminId:", adminId);
-
       const res = await axios.get(
         `${API_BASE_URL}/admin/role-permissions/${adminId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const dataArray = Array.isArray(res.data.result) ? res.data.result : [];
@@ -291,7 +309,6 @@ export const useFetchAdminPermissions = (adminId) => {
       const sortedData = [...dataArray].sort((a, b) => {
         const aDate = new Date(a.updated_at).getTime();
         const bDate = new Date(b.updated_at).getTime();
-
         if (bDate !== aDate) return bDate - aDate;
 
         const score = (perm) =>
@@ -308,23 +325,10 @@ export const useFetchAdminPermissions = (adminId) => {
         }
       }
 
-      const permObj = {};
-      Object.values(uniquePermissionsMap).forEach((perm) => {
-        const permId = String(perm.admin_type_id);
-        permObj[permId] = {
-          create: Boolean(perm.create),
-          read: Boolean(perm.read),
-          update: Boolean(perm.update),
-          delete: Boolean(perm.delete),
-          status: Boolean(perm.status),
-          admin_type_id: Number(perm.admin_type_id),
-          id: Number(perm.id),
-          checked: false,
-        };
-      });
-
-      console.log("Parsed permissions for adminId:", adminId, permObj);
-      setPermissions(permObj);
+      // ✅ Use functional update to preserve previous `checked` safely
+      setPermissions((prev) =>
+        prefillPermissions(Object.values(uniquePermissionsMap), prev)
+      );
     } catch (err) {
       setError(err.message || "Failed to fetch permissions");
       console.error(
@@ -338,11 +342,11 @@ export const useFetchAdminPermissions = (adminId) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [adminId, token]); // ✅ removed `permissions` from deps
 
   useEffect(() => {
-    fetchPermissions();
-  }, [adminId, token]);
+    if (adminId) fetchPermissions();
+  }, [adminId, token, fetchPermissions]);
 
   return {
     permissions,
@@ -358,26 +362,32 @@ export const useUpdateAdminPermissions = (adminId, permissions, setPermissions) 
 
   const token = useSelector((state) => state.user.token);
 
-  const handlePermissionChange = (moduleName, perm, value) => {
+  // ✅ Update single permission (CRUD)
+  const handlePermissionChange = (adminTypeId, perm, value) => {
     setPermissions((prev) => ({
       ...prev,
-      [moduleName]: {
-        ...prev[moduleName],
+      [adminTypeId]: {
+        ...prev[adminTypeId],
         [perm]: value,
       },
     }));
   };
 
-  const handleAdminTypeToggle = (moduleName, isEnabled) => {
+  // ✅ Toggle entire role (checked = active/inactive)
+  const handleAdminTypeToggle = (adminTypeId, isEnabled) => {
     setPermissions((prev) => ({
       ...prev,
-      [moduleName]: {
-        ...prev[moduleName],
+      [adminTypeId]: {
+        ...prev[adminTypeId],
         checked: isEnabled,
+        ...(isEnabled
+          ? {}
+          : { create: false, read: false, update: false, delete: false }),
       },
     }));
   };
 
+  // ✅ Send permissions to backend
   const updatePermissions = (formattedPermissions) => {
     return async (accountPassword) => {
       setIsUpdating(true);
@@ -397,7 +407,9 @@ export const useUpdateAdminPermissions = (adminId, permissions, setPermissions) 
           }
         });
 
-        console.log("Admin ID (param now):", adminId);
+
+
+        console.log("Admin ID:", adminId);
         console.log("Final Permissions Payload:", permissionsPayload);
 
         const response = await axios.post(
@@ -441,6 +453,8 @@ export const useUpdateAdminPermissions = (adminId, permissions, setPermissions) 
     updatePermissions,
   };
 };
+
+
 export const usePermissions = () => {
   const token = useSelector((state) => state.user.token);
 

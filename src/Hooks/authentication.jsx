@@ -21,6 +21,8 @@ const useAuthentication = () => {
     setError(null);
 
     try {
+      console.log("Sending login request with data:", userData);
+      console.log("API Endpoint:", `${API_BASE_URL}/auth/user/login`);
       const response = await axios.post(
         `${API_BASE_URL}/auth/user/login`,
         userData,
@@ -58,7 +60,6 @@ const useAuthentication = () => {
 
   return { login, loading, error };
 };
-
 const useVerifyLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -101,7 +102,6 @@ const useVerifyLogin = () => {
 
   return { verifyLogin, loading, error };
 };
-
 const useLogout = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
