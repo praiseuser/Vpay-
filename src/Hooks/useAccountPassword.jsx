@@ -17,8 +17,7 @@ export const usePasswordManagement = () => {
 
   const { token, user } = useSelector((state) => state.user) || {};
   const userEmail = user?.email;
-
-  /** Request OTP */
+  
   const requestOtp = useCallback(async () => {
     if (!userEmail) {
       toast(<CustomErrorToast message="User email not found" />);
@@ -47,7 +46,6 @@ export const usePasswordManagement = () => {
     }
   }, [token, otpMedium, userEmail]);
 
-  /** Create transaction PIN */
   const createPassword = useCallback(async () => {
     if (!userEmail) {
       toast(<CustomErrorToast message="Email is required to create PIN" />);
@@ -63,7 +61,7 @@ export const usePasswordManagement = () => {
         `${API_BASE_URL}/user/transaction-pin/create`,
         {
           transaction_pin: password,
-          email: userEmail, // ✅ required by backend
+          email: userEmail,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -82,7 +80,6 @@ export const usePasswordManagement = () => {
     }
   }, [password, token, userEmail]);
 
-  /** Reset form */
   const resetForm = useCallback(() => {
     setPassword('');
     setOtp('');

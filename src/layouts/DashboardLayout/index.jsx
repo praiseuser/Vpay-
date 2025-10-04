@@ -25,11 +25,11 @@ const DashboardLayout = ({ children }) => {
 
     warningTimerRef.current = setTimeout(() => {
       toast(<CustomErrorToast message="You will be logged out in 1 minute due to inactivity." />);
-    }, 4 * 60 * 1000);
+    }, 9 * 60 * 1000);
 
     timerRef.current = setTimeout(() => {
       logout();
-    }, 5 * 60 * 1000);
+    }, 10 * 60 * 1000);
   };
 
   useEffect(() => {
@@ -85,6 +85,7 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <Box sx={{ ...styles.wrap, backgroundColor: '#E1EFF8', minHeight: '100vh' }}>
+      
       <DashboardNav
         handleDrawerToggle={handleDrawerToggle}
         currentRoute={currentRoute}

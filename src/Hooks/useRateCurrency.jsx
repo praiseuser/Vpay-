@@ -126,7 +126,7 @@ const useCreateRate = () => {
     fetchCurrencies();
   }, [token]);
 
-  const createRate = async (selectedCurrencyId, rate, status, accountPassword) => {
+  const createRate = async (selectedCurrencyId, rate, status, activityPin) => {
     if (!token || !selectedCurrencyId || !rate) {
       const errorMessage = 'Token, currency, or rate is missing';
       setError(errorMessage);
@@ -134,7 +134,7 @@ const useCreateRate = () => {
       return { success: false };
     }
 
-    if (!accountPassword || typeof accountPassword !== 'string' || accountPassword.trim() === '') {
+    if (!activityPin || typeof activityPin !== 'string' || activityPin.trim() === '') {
       setError('Account password is required');
       customErrorToast('Account password is required');
       return { success: false };
@@ -159,7 +159,7 @@ const useCreateRate = () => {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-            'account-password': accountPassword,
+            'activity_pin': activityPin,
           },
         }
       );
@@ -198,97 +198,83 @@ const useDeleteRate = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [passwordVerified, setPasswordVerified] = useState(false);
-  const [accountPassword, setAccountPassword] = useState('');
-  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [activityPin, setActivityPin] = useState("");
+  const [pinLoading, setPinLoading] = useState(false);
   const [currentRateId, setCurrentRateId] = useState(null);
 
   const userState = useSelector((state) => state.user);
-  const token = userState?.token || localStorage.getItem('token');
+  const token = userState?.token || localStorage.getItem("token");
 
   const resetState = () => {
     setShowPasswordModal(false);
-    setPasswordVerified(false);
-    setAccountPassword('');
-    setPasswordLoading(false);
+    setActivityPin("");
+    setPinLoading(false);
     setCurrentRateId(null);
     setError(null);
     setSuccessMessage(null);
   };
 
-  const verifyPassword = async (password) => {
-    setPasswordLoading(true);
-    try {
-      if (password === 'testpassword') {
-        setPasswordVerified(true);
-        setShowPasswordModal(false);
-        return true;
-      } else {
-        setError('Incorrect password');
-        return false;
-      }
-    } catch (err) {
-      setError('Failed to verify password');
-      return false;
-    } finally {
-      setPasswordLoading(false);
-    }
-  };
-
   const deleteRate = useCallback(
-    async (id) => {
-      setLoadingStates((prev) => ({ ...prev, [id]: true }));
+    async (id, pin) => {
       setError(null);
       setSuccessMessage(null);
 
+      const rateId = id || currentRateId;
+
       if (!token) {
-        setError('Authentication token not found');
-        customErrorToast('Please log in to delete a rate');
-        setLoadingStates((prev) => ({ ...prev, [id]: false }));
+        setError("Authentication token not found");
+        customErrorToast("Please log in to delete a rate");
         return;
       }
 
-      if (!id) {
-        setError('No rate ID provided');
-        customErrorToast('No rate ID provided');
-        setLoadingStates((prev) => ({ ...prev, [id]: false }));
+      if (!rateId) {
+        setError("No rate ID provided");
+        customErrorToast("No rate ID provided");
         return;
       }
 
-      if (!passwordVerified) {
-        setCurrentRateId(id);
+      if (!pin) {
+        setCurrentRateId(rateId);
         setShowPasswordModal(true);
         return;
       }
 
-      try {
-        const response = await axios.get(`${API_BASE_URL}/admin/rate/delete/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'account-password': accountPassword,
-          },
-        });
+      setLoadingStates((prev) => ({ ...prev, [rateId]: true }));
+      setPinLoading(true);
 
-        setSuccessMessage('Rate deleted successfully!');
-        customSuccessToast('Rate deleted successfully!');
-        setLoadingStates((prev) => ({ ...prev, [id]: false }));
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/admin/rate/delete/${rateId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+              activity_pin: activityPin,
+            },
+          }
+        );
+
+        setSuccessMessage("Rate deleted successfully!");
+        customSuccessToast("Rate deleted successfully!");
         resetState();
         return response.data;
       } catch (err) {
-        let errorMessage = 'Something went wrong while deleting the rate';
+        let errorMessage = "Something went wrong while deleting the rate";
         if (err.response) {
-          errorMessage = err.response?.data?.message || err.message || errorMessage;
+          errorMessage =
+            err.response?.data?.message || err.message || errorMessage;
         } else {
           errorMessage = err.message || errorMessage;
         }
         setError(errorMessage);
         customErrorToast(errorMessage);
-        setLoadingStates((prev) => ({ ...prev, [id]: false }));
         return null;
+      } finally {
+        setLoadingStates((prev) => ({ ...prev, [rateId]: false }));
+        setPinLoading(false);
       }
     },
-    [token, passwordVerified, accountPassword]
+    [token, currentRateId]
   );
 
   const isRateLoading = (rateId) => !!loadingStates[rateId];
@@ -299,12 +285,11 @@ const useDeleteRate = () => {
     error,
     successMessage,
     showPasswordModal,
-    passwordVerified,
-    accountPassword,
-    setAccountPassword,
-    passwordLoading,
+    activityPin,
+    setActivityPin,
+    pinLoading,
     resetState,
-    verifyPassword,
+    currentRateId,
   };
 };
 const useViewRate = () => {

@@ -389,7 +389,7 @@ export const useUpdateAdminPermissions = (adminId, permissions, setPermissions) 
 
   // ✅ Send permissions to backend
   const updatePermissions = (formattedPermissions) => {
-    return async (accountPassword) => {
+    return async (activityPin) => {
       setIsUpdating(true);
       setError(null);
 
@@ -419,7 +419,7 @@ export const useUpdateAdminPermissions = (adminId, permissions, setPermissions) 
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
-              "account-password": accountPassword,
+              "activity_pin": activityPin,
             },
           }
         );

@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { storeUser, logoutUser } from "../store/Slices/userSlice";
 
 export const UserContext = createContext();
@@ -11,7 +10,7 @@ export const useAuth = () => {
 
 export default function UserContextProvider({ children }) {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
+  const user = useSelector((state) => state.user.user); // user object
   const token = useSelector((state) => state.user.token);
 
   const isAuthenticated = !!user;
@@ -33,14 +32,13 @@ export default function UserContextProvider({ children }) {
 
   const value = {
     isAuthenticated,
+    user,       // ✅ include user here
     login,
     logout,
     config,
   };
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  console.log("UserContext value:", value); // debug
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

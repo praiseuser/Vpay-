@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Box, Card, Typography } from "@mui/material";
-import ChartSection from '../DepositCard/ChartSection';
-import MonthNavigation from '../DepositCard/MonthNavigation';
+import ChartSection from "../DepositCard/ChartSection";
+import MonthNavigation from "../DepositCard/MonthNavigation";
 import { styles } from "./DepositCardStyles";
-
-const COLORS = ['#26A69A', '#4DD0E1', '#80DEEA'];
 
 const DepositCard = ({ pieData, cardShadow }) => {
   const [showAll, setShowAll] = useState(true);
@@ -28,25 +26,25 @@ const DepositCard = ({ pieData, cardShadow }) => {
   };
 
   return (
-      <Card sx={{ ...styles.card, boxShadow: cardShadow }}>
-        <Box sx={styles.header}>
-          <Typography sx={styles.title}>Deposit</Typography>
-          <Typography sx={styles.toggle} onClick={handleToggle}>
-            {showAll ? "View Less" : "View All"}
-          </Typography>
-        </Box>
-        {showAll && (
-          <>
-            <ChartSection pieData={pieData} styles={styles} />
-            <MonthNavigation
-              currentMonth={currentMonth}
-              handlePrevMonth={handlePrevMonth}
-              handleNextMonth={handleNextMonth}
-              styles={styles}
-            />
-          </>
-        )}
-      </Card>
+    <Card sx={{ ...styles.card, boxShadow: cardShadow }}>
+      <Box sx={styles.header}>
+        <Typography sx={styles.title}>Deposit</Typography>
+        <Typography sx={styles.toggle} onClick={handleToggle}>
+          {showAll ? "View Less" : "View All"}
+        </Typography>
+      </Box>
+      {showAll && (
+        <>
+          <ChartSection pieData={pieData} styles={styles} />
+          <MonthNavigation
+            currentMonth={currentMonth}
+            handlePrevMonth={handlePrevMonth}
+            handleNextMonth={handleNextMonth}
+            styles={styles}
+          />
+        </>
+      )}
+    </Card>
   );
 };
 

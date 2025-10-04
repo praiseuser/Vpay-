@@ -1,16 +1,39 @@
-import { useState } from 'react';
-import { Box } from '@mui/material';
-import { useDeleteRate, useViewRate, useFetchRateCurrencies } from '../../../../Hooks/useRateCurrency';
-import EditRateModal from '../FiatRate/EditRateModal';
-import RateTable from '../FiatRate/RateTable';
-import ErrorMessage from '../FiatRate/ErrorMessage';
-import ViewRateModal from '../FiatRate/ViewRateModal';
-import PasswordModal from '../../Card/PasswordModal';
+import { useState } from "react";
+import { Box } from "@mui/material";
+import {
+  useDeleteRate,
+  useViewRate,
+  useFetchRateCurrencies,
+} from "../../../../Hooks/useRateCurrency";
+import EditRateModal from "../FiatRate/EditRateModal";
+import RateTable from "../FiatRate/RateTable";
+import ErrorMessage from "../FiatRate/ErrorMessage";
+import ViewRateModal from "../FiatRate/ViewRateModal";
+import PasswordModal from "../../Card/PasswordModal";
 
 const FiatRate = ({ onAddButtonClick }) => {
   const { rateCurrencies, loading, error } = useFetchRateCurrencies();
-  const { deleteRate, isRateLoading, error: deleteError, successMessage, showPasswordModal, passwordVerified, accountPassword, setAccountPassword, passwordLoading, resetState } = useDeleteRate();
-  const { rate, loading: viewLoading, error: viewError, fetchRate } = useViewRate();
+
+  const {
+    deleteRate,
+    isRateLoading,
+    error: deleteError,
+    successMessage,
+    showPasswordModal,
+    activityPin,
+    setActivityPin,
+    pinLoading,
+    resetState,
+    currentRateId,
+  } = useDeleteRate();
+
+  const {
+    rate,
+    loading: viewLoading,
+    error: viewError,
+    fetchRate,
+  } = useViewRate();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedRate, setSelectedRate] = useState(null);
@@ -18,7 +41,7 @@ const FiatRate = ({ onAddButtonClick }) => {
 
   const handleDelete = async (id) => {
     if (!id) {
-      console.error('FiatRate - handleDelete: No currency_id provided');
+      console.error("FiatRate - handleDelete: No currency_id provided");
       return;
     }
     await deleteRate(id);
@@ -36,17 +59,15 @@ const FiatRate = ({ onAddButtonClick }) => {
 
   const handleViewClick = async (id) => {
     if (!id) {
-      console.error('FiatRate - handleViewClick: No currency_id provided');
+      console.error("FiatRate - handleViewClick: No currency_id provided");
       return;
     }
     setActiveRateId(id);
     try {
-      console.log('View button clicked for rate ID:', id);
       await fetchRate(id);
       setViewModalOpen(true);
-      console.log('View modal opened for rate ID:', id);
     } catch (err) {
-      console.error('Failed to fetch rate details for ID:', id, err);
+      console.error("Failed to fetch rate details for ID:", id, err);
     } finally {
       setActiveRateId(null);
     }
@@ -57,10 +78,10 @@ const FiatRate = ({ onAddButtonClick }) => {
   };
 
   const handlePasswordSubmit = async () => {
-    if (!accountPassword.trim()) {
+    if (!activityPin.trim()) {
       return;
     }
-    await deleteRate(null); // Trigger delete with verified password
+    await deleteRate(currentRateId, activityPin);
   };
 
   const handlePasswordModalClose = () => {
@@ -68,20 +89,23 @@ const FiatRate = ({ onAddButtonClick }) => {
   };
 
   return (
-    <Box sx={{ position: 'relative' }}>
-      <PasswordModal 
-        open={showPasswordModal} 
+    <Box sx={{ position: "relative" }}>
+      <PasswordModal
+        open={showPasswordModal}
         onClose={handlePasswordModalClose}
         onSubmit={handlePasswordSubmit}
-        password={accountPassword}
-        setPassword={setAccountPassword}
-        loading={passwordLoading}
+        password={activityPin}
+        setPassword={setActivityPin}
+        loading={pinLoading}
       />
-      <Box sx={{ 
-        opacity: showPasswordModal ? 0.3 : 1,
-        pointerEvents: showPasswordModal ? 'none' : 'auto',
-        transition: 'opacity 0.3s ease'
-      }}>
+
+      <Box
+        sx={{
+          opacity: showPasswordModal ? 0.3 : 1,
+          pointerEvents: showPasswordModal ? "none" : "auto",
+          transition: "opacity 0.3s ease",
+        }}
+      >
         <RateTable
           rateCurrencies={rateCurrencies}
           isRateLoading={isRateLoading}
@@ -92,12 +116,15 @@ const FiatRate = ({ onAddButtonClick }) => {
           onEdit={handleEditClick}
           onView={handleViewClick}
         />
+
         <ErrorMessage error={error || deleteError || viewError} />
+
         <EditRateModal
           open={modalOpen}
           onClose={handleModalClose}
           rateData={selectedRate}
         />
+
         <ViewRateModal
           open={viewModalOpen}
           onClose={handleViewModalClose}

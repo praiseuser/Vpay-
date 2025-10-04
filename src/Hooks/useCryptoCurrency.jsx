@@ -65,7 +65,7 @@ const useCreateCryptoCurrency = () => {
   const userState = useSelector((state) => state.user);
   const token = userState.token;
 
-  const createCryptoCurrency = async (cryptoData, accountPassword) => {
+  const createCryptoCurrency = async (cryptoData, activityPin) => {
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -79,7 +79,7 @@ const useCreateCryptoCurrency = () => {
       return false;
     }
 
-    if (!accountPassword || typeof accountPassword !== 'string' || accountPassword.trim() === '') {
+    if (!activityPin || typeof activityPin !== 'string' || activityPin.trim() === '') {
       setError('Account password is required');
       customErrorToast('Account password is required');
       setLoading(false);
@@ -91,7 +91,7 @@ const useCreateCryptoCurrency = () => {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'account-password': accountPassword,
+          'activity_pin': activityPin,
         },
       });
 
