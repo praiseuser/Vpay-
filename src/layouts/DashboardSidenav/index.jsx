@@ -1,186 +1,272 @@
-import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+// ✅ DashboardSideNav.jsx — Sidebar for Admin Dashboard
+// ------------------------------------------------------
+
+// Importing required hooks and components from React & React Router
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+
+// Importing Material UI components for UI design
 import {
-  Box,
-  Drawer,
-  IconButton,
-  Tooltip,
-  CircularProgress,
-  Avatar,
-  Typography,
-} from '@mui/material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import RateReviewIcon from '@mui/icons-material/RateReview';
-import PublicIcon from '@mui/icons-material/Public';
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
-import BusinessIcon from '@mui/icons-material/Business';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import SupportIcon from '@mui/icons-material/Support';
-import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from '@mui/icons-material/Settings';
-import LogoutIcon from '@mui/icons-material/Logout';
-import ListIcon from '@mui/icons-material/List';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { dashboardDrawerWidth } from '../../constants/dimensions';
-import { useLogout } from '../../Hooks/authentication';
-import { styles } from './styles';
-import { useAuth } from '../../context/AuthContext';
+  Drawer,      // Sidebar container
+  Box,         // Wrapper for layout structure
+  Avatar,      // Circular user icon
+  Typography,  // Text display
+  Tooltip,     // Hover tooltip
+  IconButton,  // Clickable icon
+} from "@mui/material";
 
-// Sidebar items with roles (1 = Super Admin, 2 = Admin)
-const sidebarConfig = [
-  { label: 'Dashboard', icon: <DashboardIcon sx={{ fontSize: 18 }} />, link: '/dashboard', roles: [1, 2] },
-  { label: 'Manage User', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/dashboard/user', roles: [1, 2] },
-  { label: 'Manage Admin', icon: <PeopleIcon sx={{ fontSize: 18 }} />, link: '/dashboard/admin', roles: [1] },
-  { label: 'Manage Fees', icon: <AttachMoneyIcon sx={{ fontSize: 18 }} />, link: '/dashboard/fees', roles: [1, 2] },
-  { label: 'Manage Rate', icon: <RateReviewIcon sx={{ fontSize: 18 }} />, link: '/dashboard/rate', roles: [1, 2] },
-  { label: 'Manage Countries', icon: <PublicIcon sx={{ fontSize: 18 }} />, link: '/dashboard/countries', roles: [1, 2] },
-  { label: 'Manage Currency', icon: <CurrencyExchangeIcon sx={{ fontSize: 18 }} />, link: '/dashboard/currency', roles: [1, 2] },
-  { label: 'Manage Providers', icon: <BusinessIcon sx={{ fontSize: 18 }} />, isDropdown: true, roles: [1, 2] },
-  { label: 'Card', icon: <CreditCardIcon sx={{ fontSize: 18 }} />, link: '/dashboard/card', roles: [1, 2] },
-  { label: 'Transaction', icon: <ReceiptIcon sx={{ fontSize: 18 }} />, link: '/dashboard/transaction', roles: [1, 2] },
-  { label: 'Support', icon: <SupportIcon sx={{ fontSize: 18 }} />, link: '/dashboard/support', roles: [1, 2] },
-  { label: 'Profile', icon: <PersonIcon sx={{ fontSize: 18 }} />, link: '/dashboard/profile', roles: [1, 2] },
-  { label: 'Settings', icon: <SettingsIcon sx={{ fontSize: 18 }} />, link: '/dashboard/settings', roles: [1, 2] },
-  { label: 'Account Password', icon: <SettingsIcon sx={{ fontSize: 18 }} />, link: '/dashboard/account-password', roles: [1, 2] },
-  { label: 'Payout Method', icon: <ReceiptIcon sx={{ fontSize: 18 }} />, link: '/dashboard/payout-method', roles: [1, 2] },
-  { label: 'Logout', icon: <LogoutIcon sx={{ fontSize: 18 }} />, link: '/logout', onClick: null, roles: [1, 2] },
-];
+// Importing MUI icons used in the sidebar
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PeopleIcon from "@mui/icons-material/People";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import RateReviewIcon from "@mui/icons-material/RateReview";
+import PublicIcon from "@mui/icons-material/Public";
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+import ReceiptIcon from "@mui/icons-material/Receipt";
+import SupportIcon from "@mui/icons-material/Support";
+import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
 
-const providerSubMenu = [
-  { label: 'Network Provider', icon: <ListIcon sx={{ fontSize: 18 }} />, link: '/dashboard/network-provider' },
-];
+// Importing local styles and constants
+import { styles } from "./styles";
+import { dashboardDrawerWidth } from "../../constants/dimensions";
+import { useAuth } from "../../context/AuthContext"; // Authentication context
 
-const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
+//------------------------------------------------------//
+// 🔹 getNav function — builds the sidebar navigation items dynamically
+//------------------------------------------------------//
+
+const getNav = (role, subRoles) => {
+  // Check if the current user is a Super Admin
+  const isSuperAdmin = role === 1;
+
+  // Define the navigation structure
+  const navs = {
+    admin: [
+      // Everyone (Admin + Super Admin) sees the Dashboard
+      {
+        label: "Dashboard",
+        path: "/dashboard",
+        icon: <DashboardIcon />,
+      },
+
+      // 🔸 Each of the following items appear only if:
+      // - Super Admin (isSuperAdmin = true) OR
+      // - The admin's subRoles array from backend includes that specific ID
+
+      (isSuperAdmin || subRoles.includes(1)) && {
+        label: "Transaction",
+        path: "/dashboard/transaction",
+        icon: <ReceiptIcon />,
+      },
+      (isSuperAdmin || subRoles.includes(2)) && {
+        label: "Support",
+        path: "/dashboard/support",
+        icon: <SupportIcon />,
+      },
+      (isSuperAdmin || subRoles.includes(3)) && {
+        label: "Manage Fees",
+        path: "/dashboard/fees",
+        icon: <AttachMoneyIcon />,
+      },
+      (isSuperAdmin || subRoles.includes(4)) && {
+        label: "Manage Rate",
+        path: "/dashboard/rate",
+        icon: <RateReviewIcon />,
+      },
+      (isSuperAdmin || subRoles.includes(5)) && {
+        label: "Manage Currency",
+        path: "/dashboard/currency",
+        icon: <CurrencyExchangeIcon />,
+      },
+      (isSuperAdmin || subRoles.includes(6)) && {
+        label: "Manage Countries",
+        path: "/dashboard/countries",
+        icon: <PublicIcon />,
+      },
+
+      // ✅ Only Super Admin can manage other admins
+      isSuperAdmin && {
+        label: "Manage Admin",
+        path: "/dashboard/admin",
+        icon: <PeopleIcon />,
+      },
+
+      // Everyone sees settings and logout
+      {
+        label: "Settings",
+        path: "/dashboard/settings",
+        icon: <SettingsIcon />,
+      },
+      {
+        label: "Logout",
+        path: "/logout",
+        icon: <LogoutIcon />,
+      },
+    ].filter(Boolean), // Removes any 'false' entries from the list
+  };
+
+  // Return the navigation items for admin users
+  return navs["admin"];
+};
+
+//------------------------------------------------------//
+// 🔹 Main Sidebar Component — DashboardSideNav
+//------------------------------------------------------//
+
+export default function DashboardSideNav({ collapsed, handleToggleCollapse }) {
+  // Local state for collapsing/expanding the sidebar
   const [localCollapsed, setLocalCollapsed] = useState(collapsed);
-  const [openProviders, setOpenProviders] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { logout, user } = useAuth(); // get user from context
 
+  // Navigation and location hooks
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Auth context: get the logged-in user and logout function
+  const { logout, user } = useAuth();
+
+  // Toggle function for sidebar collapse
   const handleToggle = () => {
     setLocalCollapsed(!localCollapsed);
     handleToggleCollapse();
   };
 
-  const userRole = Number(user?.role);
+  // Extract user role and sub_roles from backend user object
+  const userRole = Number(user?.role); // role = 1 (Super Admin), 2 (Admin)
+  const subRoles = user?.sub_role || []; // sub_role array from backend
 
-  // Filter nav items based on role
-  const navItems = sidebarConfig.filter(item => item.roles.includes(userRole));
+  // Build navigation menu based on role & permissions
+  const navItems = getNav(userRole, subRoles);
 
+  // Display avatar letter and role name
+  const avatarText = userRole === 1 ? "S" : "A";
+  const displayName = userRole === 1 ? "Super Admin" : "Admin";
+
+  // Function to check if the current page matches nav item
   const isActive = (path) => location.pathname === path;
 
-  const handleItemClick = (item) => {
-    if (item.isDropdown) {
-      setOpenProviders(!openProviders);
-    } else if (item.link === '/logout') {
-      logout();
+  // Handle clicks on sidebar items
+  const handleClick = (path) => {
+    if (path === "/logout") {
+      logout(); // Log out the user
     } else {
-      navigate(item.link);
-      if (!localCollapsed) {
-        setLocalCollapsed(true);
-        handleToggleCollapse();
-      }
+      navigate(path); // Navigate to the selected page
     }
   };
 
-  // Avatar text logic
-  const avatarText = userRole === 1 ? 'S' : 'A';
-  const displayName = userRole === 1 ? 'Super Admin' : 'Admin';
+  //------------------------------------------------------//
+  // 🔹 Sidebar UI Layout
+  //------------------------------------------------------//
 
   return (
     <Drawer
       variant="permanent"
       sx={{
-        '& .MuiDrawer-paper': {
+        "& .MuiDrawer-paper": {
           ...styles.sidebar,
-          width: localCollapsed ? 80 : dashboardDrawerWidth,
-          transition: 'width 0.3s ease-in-out',
+          width: localCollapsed ? 80 : dashboardDrawerWidth, // Collapse effect
+          transition: "width 0.3s ease-in-out", // Smooth transition
         },
       }}
     >
-      {/* Logo + Collapse */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
-        {!localCollapsed && <Box sx={{ ml: 1 }}><img src="/Vpaylogo.png" alt="Logo" style={{ width: 80, height: 30 }} /></Box>}
-        <IconButton onClick={handleToggle} sx={styles.toggleButton}><ChevronLeftIcon /></IconButton>
+      {/* 🔸 Top section with logo and collapse button */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          p: 2,
+        }}
+      >
+        {/* Show logo only when sidebar is expanded */}
+        {!localCollapsed && (
+          <Box sx={{ ml: 1 }}>
+            <img
+              src="/Vpaylogo.png"
+              alt="Logo"
+              style={{ width: 80, height: 30 }}
+            />
+          </Box>
+        )}
+
+        {/* Collapse toggle button */}
+        <IconButton onClick={handleToggle} sx={styles.toggleButton}>
+          <ChevronLeftIcon />
+        </IconButton>
       </Box>
 
-      {/* Avatar + Role Name */}
+      {/* 🔸 Avatar and Role Display Section */}
       {!localCollapsed && (
-        <Box sx={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2, px: 1, py: 2,
-          backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 2, mx: 2, position: 'relative',
-        }}>
-          <Avatar sx={{
-            width: 60, height: 60, mb: 1, border: '2px solid #00FFCC',
-            bgcolor: '#02042D', color: '#00FFCC', fontWeight: 600, fontSize: 24
-          }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            mb: 2,
+            px: 1,
+            py: 2,
+            backgroundColor: "rgba(255,255,255,0.03)",
+            borderRadius: 2,
+            mx: 2,
+          }}
+        >
+          {/* User Avatar Circle */}
+          <Avatar
+            sx={{
+              width: 60,
+              height: 60,
+              mb: 1,
+              border: "2px solid #00FFCC",
+              bgcolor: "#02042D",
+              color: "#00FFCC",
+              fontWeight: 600,
+              fontSize: 24,
+            }}
+          >
             {avatarText}
           </Avatar>
-          <Typography variant="subtitle1" color="#fff" sx={{ fontWeight: 600, mt: 1, textAlign: 'center' }}>
+
+          {/* Display Role (Super Admin / Admin) */}
+          <Typography
+            variant="subtitle1"
+            color="#fff"
+            sx={{ fontWeight: 600, mt: 1, textAlign: "center" }}
+          >
             {displayName}
           </Typography>
-          <Box sx={{ width: '80%', height: 1, backgroundColor: 'rgba(255,255,255,0.2)', mt: 1 }} />
         </Box>
       )}
 
-      {/* Nav items */}
+      {/* 🔸 Navigation Links Section */}
       <Box sx={styles.navContainer}>
         {navItems.map((item) => (
-          <Tooltip title={localCollapsed ? item.label : ''} placement="right" key={item.label}>
+          <Tooltip
+            title={localCollapsed ? item.label : ""} // Tooltip when collapsed
+            placement="right"
+            key={item.label}
+          >
             <Box
+              onClick={() => handleClick(item.path)}
               sx={{
                 ...styles.navItem,
-                minHeight: 40,
-                height: 40,
-                justifyContent: localCollapsed ? 'center' : 'flex-start',
-                background: isActive(item.link) ? 'rgba(0,255,204,0.1)' : 'transparent',
-                color: isActive(item.link) ? '#00FFCC' : '#B0B3B8',
-                boxShadow: isActive(item.link) ? '0 0 8px #00FFCC' : 'none',
-                cursor: 'pointer',
-                position: 'relative',
-                '&:hover': { background: 'rgba(0,255,204,0.1)', color: '#fff' },
+                justifyContent: localCollapsed ? "center" : "flex-start",
+                background: isActive(item.path)
+                  ? "rgba(0,255,204,0.1)"
+                  : "transparent",
+                color: isActive(item.path) ? "#00FFCC" : "#B0B3B8",
+                "&:hover": {
+                  background: "rgba(0,255,204,0.1)",
+                  color: "#fff",
+                },
               }}
-              onClick={() => handleItemClick(item)}
             >
-              {isActive(item.link) && <Box sx={{ position: 'absolute', left: 0, top: 0, height: '100%', width: 4, backgroundColor: '#00FFCC', borderRadius: '0 4px 4px 0' }} />}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: localCollapsed ? 0 : 2, width: '100%', pl: localCollapsed ? 0 : 2 }}>
-                {item.icon}
-                {!localCollapsed && <span style={styles.navText}>{item.label}</span>}
-                {item.isDropdown && !localCollapsed && (openProviders ? <ExpandLessIcon sx={{ fontSize: 18, ml: 'auto' }} /> : <ExpandMoreIcon sx={{ fontSize: 18, ml: 'auto' }} />)}
-              </Box>
+              {/* Icon for the nav item */}
+              {item.icon}
 
-              {/* Dropdown submenu */}
-              {item.isDropdown && openProviders && !localCollapsed && (
-                <Box sx={{ pl: 4, display: 'flex', flexDirection: 'column' }}>
-                  {providerSubMenu.map((subItem) => (
-                    <Box
-                      key={subItem.label}
-                      sx={{
-                        ...styles.navItem,
-                        minHeight: 32,
-                        background: isActive(subItem.link) ? 'rgba(0,255,204,0.1)' : 'transparent',
-                        color: isActive(subItem.link) ? '#00FFCC' : '#B0B3B8',
-                        cursor: 'pointer',
-                        fontSize: '0.85rem',
-                        padding: '6px 12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        position: 'relative',
-                        '&:hover': { background: 'rgba(0,255,204,0.1)', color: '#fff' },
-                      }}
-                      onClick={() => navigate(subItem.link)}
-                    >
-                      {isActive(subItem.link) && <Box sx={{ position: 'absolute', left: 0, top: 0, height: '100%', width: 4, backgroundColor: '#00FFCC', borderRadius: '0 4px 4px 0' }} />}
-                      {subItem.icon}
-                      <span style={{ marginLeft: 8 }}>{subItem.label}</span>
-                    </Box>
-                  ))}
-                </Box>
+              {/* Label text (hidden when collapsed) */}
+              {!localCollapsed && (
+                <span style={styles.navText}>{item.label}</span>
               )}
             </Box>
           </Tooltip>
@@ -188,6 +274,4 @@ const DashboardSideNav = ({ collapsed, handleToggleCollapse }) => {
       </Box>
     </Drawer>
   );
-};
-
-export default DashboardSideNav;
+}

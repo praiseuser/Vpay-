@@ -1,6 +1,6 @@
 export const styles = {
   sidebar: {
-    width: (collapsed) => collapsed ? 80 : 240,
+    width: (collapsed) => collapsed ? 80 : 260,
     flexShrink: 0,
     background: '#02042D',
     minHeight: '100vh',
@@ -53,10 +53,13 @@ export const styles = {
       hover: 'rgba(0, 255, 204, 0.2)',
     },
   },
-  navText: {
+ navText: {
     fontSize: 13,
     fontFamily: 'Inter, sans-serif',
     fontWeight: 600,
     color: 'inherit',
+    whiteSpace: 'nowrap',  // prevent line break
+    overflow: 'hidden',    // hide overflow
+    textOverflow: 'ellipsis', // add ellipsis if too long
   },
 };
