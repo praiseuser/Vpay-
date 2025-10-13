@@ -1,6 +1,7 @@
 import { Box, CircularProgress, Chip } from '@mui/material';
 import { rowStyle } from '../fiatStyles';
 import CustomButton from '../../../../../components/CustomButton';
+import CustomLoader from '../../../../../components/CustomLoader';
 
 const formatRows = (data, handleEditClick, loading) => {
   if (loading && data.length === 0) {
@@ -18,11 +19,11 @@ const formatRows = (data, handleEditClick, loading) => {
               padding: 0,
             }}
           >
-            <CircularProgress size={24} />
+            <CustomLoader />
           </Box>
         ),
         fiat_currency_code: '',
-        country_code: '', // Added for loading state
+        country_code: '', 
         status: '',
         action: '',
       },
@@ -36,20 +37,20 @@ const formatRows = (data, handleEditClick, loading) => {
   return data.map((item, index) => ({
     sn: <span style={{ ...rowStyle }}>{index + 1}</span>,
     fiat_currency_name: (
-      <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>
+      <span style={{ ...rowStyle, fontSize: '13px',  }}>
         {item.fiat_currency_name}
       </span>
     ),
     fiat_currency_code: (
-      <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>
+      <span style={{ ...rowStyle, fontSize: '13px', }}>
         {item.fiat_currency_code}
       </span>
     ),
     country_code: (
-      <span style={{ ...rowStyle, fontWeight: 700, color: '#73757C' }}>
+      <span style={{ ...rowStyle, fontSize: '13px', }}>
         {item.country_code}
       </span>
-    ), // Added country_code
+    ), 
     status: (
       <Chip
         label={item.status === '1' || item.status === 1 ? 'Enabled' : 'Disabled'}

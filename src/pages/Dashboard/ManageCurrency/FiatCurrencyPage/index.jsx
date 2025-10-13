@@ -1,53 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { useMediaQuery, Box } from '@mui/material';
+import { Box, Stack, Typography, FormControl, OutlinedInput, Button, Select } from '@mui/material';
 import FiatTable from '../FiatCurrencyPage/FiatTable';
-import AddFiatPage from '../../AddFiatPage';
-import EditFiatStatusModal from './EditFiatStatusModal';
-import { useFetchFiatCurrencies } from '../../../../Hooks/useFiatCurrency';
+import PasswordModal from '../../Card/PasswordModal';
+import { useFetchFiatCurrencies, useUpdateFiat } from '../../../../Hooks/useFiatCurrency';
 import { pageContainerStyle } from '../FiatCurrencyPage/fiatStyles';
 
 const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
-  const [showAddFiatForm, setShowAddFiatForm] = useState(false);
-  const [editFiatData, setEditFiatData] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedFiat, setSelectedFiat] = useState(null);
-  const [fiatData, setFiatData] = useState([]);
+  const [editingFiat, setEditingFiat] = useState(null);
+  const [formData, setFormData] = useState({
+    fiat_currency_name: '',
+    fiat_currency_code: '',
+    country_code: '',
+    status: '1',
+  });
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [verifyPassword, setVerifyPassword] = useState('');
+  const [loadingButton, setLoadingButton] = useState(false);
 
-  const { fiatCurrencies, loading, error } = useFetchFiatCurrencies();
+  const { fiatCurrencies, loading, fetchFiat } = useFetchFiatCurrencies();
+  const updateFiat = useUpdateFiat();
 
-  useEffect(() => {
-    console.log("Fetched fiatCurrencies:", fiatCurrencies);
-    setFiatData(fiatCurrencies || []);
-  }, [fiatCurrencies]);
-
-  const handleAddFiatClick = () => {
-    setEditFiatData(null);
-    setShowAddFiatForm(true);
+  const handleEditClick = (fiat) => {
+    setEditingFiat(fiat);
+    setFormData({
+      fiat_currency_name: fiat.fiat_currency_name,
+      fiat_currency_code: fiat.fiat_currency_code,
+      country_code: fiat.country_code,
+      status: fiat.status.toString(),
+    });
   };
 
-  const handleEditClick = (fiatItem) => {
-    console.log("Selected fiat for editing:", fiatItem);
-    setSelectedFiat(fiatItem);
-    setShowEditModal(true);
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleBackToList = () => {
-    setShowAddFiatForm(false);
-    setEditFiatData(null);
+  const handleSubmit = () => {
+    setShowPasswordModal(true); // show password modal on form submit
   };
 
-  const handleEditModalClose = () => {
-    setShowEditModal(false);
-    setSelectedFiat(null);
+  const handlePasswordSubmit = async () => {
+    if (!editingFiat) return;
+    setLoadingButton(true);
+    try {
+      await updateFiat(editingFiat.id, formData, verifyPassword);
+      setShowPasswordModal(false);
+      setVerifyPassword('');
+      setEditingFiat(null);
+      await fetchFiat(); // refresh the data
+    } catch (error) {
+      console.error('Failed to update fiat currency:', error);
+    } finally {
+      setLoadingButton(false);
+    }
   };
 
-  const handleSaveStatus = (updatedFiat) => {
-    setFiatData((prevData) =>
-      prevData.map((item) =>
-        item.Fiat_Currency === updatedFiat.Fiat_Currency ? updatedFiat : item
-      )
-    );
-    console.log("Updated fiat currency:", updatedFiat);
+  const handleCancelEdit = () => {
+    setEditingFiat(null);
+    setFormData({
+      fiat_currency_name: '',
+      fiat_currency_code: '',
+      country_code: '',
+      status: '1',
+    });
   };
 
   return (
@@ -55,29 +69,88 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
       className={`p-${isMobile ? '2' : '6'} w-full`}
       style={isMobile ? { ...pageContainerStyle, height: '100vh' } : pageContainerStyle}
     >
-      {showAddFiatForm ? (
-        <AddFiatPage
-          onCancel={handleBackToList}
-          fiatData={editFiatData}
-          isEditMode={!!editFiatData}
-        />
+      {editingFiat ? (
+        <Box
+          sx={{
+            backgroundColor: 'white',
+            p: 3,
+            borderRadius: 2,
+            maxWidth: 600,
+            mx: 'auto',
+          }}
+        >
+          <Typography variant="h5" mb={2}>
+            Edit Fiat Currency
+          </Typography>
+          <Stack spacing={2}>
+            <FormControl fullWidth>
+              <Typography variant="caption">Currency Name</Typography>
+              <OutlinedInput
+                value={formData.fiat_currency_name}
+                onChange={(e) => handleInputChange('fiat_currency_name', e.target.value)}
+                placeholder="Enter currency name"
+              />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <Typography variant="caption">Currency Code</Typography>
+              <OutlinedInput
+                value={formData.fiat_currency_code}
+                onChange={(e) => handleInputChange('fiat_currency_code', e.target.value)}
+                placeholder="Enter currency code"
+              />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <Typography variant="caption">Country Code</Typography>
+              <OutlinedInput
+                value={formData.country_code}
+                onChange={(e) => handleInputChange('country_code', e.target.value)}
+                placeholder="Enter country code"
+              />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <Typography variant="caption">Status</Typography>
+              <Select
+                native
+                value={formData.status}
+                onChange={(e) => handleInputChange('status', e.target.value)}
+              >
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+              </Select>
+            </FormControl>
+
+            <Stack direction="row" spacing={2}>
+              <Button variant="outlined" onClick={handleCancelEdit}>
+                Cancel
+              </Button>
+              <Button variant="contained" onClick={handleSubmit}>
+                Submit
+              </Button>
+            </Stack>
+          </Stack>
+        </Box>
       ) : (
-        <>
-          <FiatTable
-            fiatData={fiatData}
-            handleEditClick={handleEditClick}
-            onAddButtonClick={handleAddFiatClick}
-            loading={loading}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
-          <EditFiatStatusModal
-            open={showEditModal}
-            onClose={handleEditModalClose}
-            fiatData={selectedFiat}
-            onSave={handleSaveStatus}
-          />
-        </>
+        <FiatTable
+          fiatData={fiatCurrencies}
+          handleEditClick={handleEditClick}
+          loading={loading}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+      )}
+
+      {showPasswordModal && (
+        <PasswordModal
+          open={showPasswordModal}
+          onClose={() => setShowPasswordModal(false)}
+          password={verifyPassword}
+          setPassword={setVerifyPassword}
+          onSubmit={handlePasswordSubmit}
+          loading={loadingButton}
+        />
       )}
     </Box>
   );

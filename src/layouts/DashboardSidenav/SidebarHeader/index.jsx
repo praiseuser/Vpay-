@@ -1,17 +1,29 @@
-import { Box, IconButton } from '@mui/material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { Box, IconButton } from "@mui/material";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import { styles } from "../styles";
 
-const SidebarHeader = ({ collapsed, handleToggle }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', padding: 1 }}>
-    {!collapsed && (
-      <Box sx={{ ml: 2 }}>
-        <img src="/image 5.png" alt="Logo" style={{ width: 40, height: 40 }} />
-      </Box>
-    )}
-    <IconButton onClick={handleToggle} sx={{ marginLeft: 'auto' }}>
-      <ChevronLeftIcon />
-    </IconButton>
-  </Box>
-);
-
-export default SidebarHeader;
+export default function SidebarHeader({ collapsed, onToggle }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        p: 2,
+      }}
+    >
+      {!collapsed && (
+        <Box sx={{ ml: 1 }}>
+          <img
+            src="/Vpaylogo.png"
+            alt="Logo"
+            style={{ width: 80, height: 30 }}
+          />
+        </Box>
+      )}
+      <IconButton onClick={onToggle} sx={styles.toggleButton}>
+        <ChevronLeftIcon />
+      </IconButton>
+    </Box>
+  );
+}

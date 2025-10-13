@@ -1,111 +1,181 @@
-import React, { useState } from 'react';
-import { Box } from '@mui/material';
-import styles from './AddCryptoPageStyles';
-import CryptoFormHeader from '../AddCryptoPage/CryptoFormHeader';
-import CryptoFormFields from '../AddCryptoPage/CryptoFormFields';
-import CryptoFormActions from '../AddCryptoPage/CryptoFormActions';
-import { useCreateCryptoCurrency } from '../../../Hooks/useCryptoCurrency';
+import React, { useState } from "react";
+import {
+  Box,
+  FormControl,
+  OutlinedInput,
+  Stack,
+  Typography,
+  Select,
+  Button,
+} from "@mui/material";
+import PasswordModal from "../Card/PasswordModal";
+import { useCreateCryptoCurrency } from "../../../Hooks/useCryptoCurrency";
+import CustomErrorToast from "../../../components/CustomErrorToast";
+import CustomSuccessToast from "../../../components/CustomSuccessToast";
 
-const AddCryptoPage = ({ onCancel, onSubmit }) => {
-  const [formData, setFormData] = useState({
-    selectedCrypto: '',
-    cryptoSymbol: '',
-    cryptoImage: null,
-    chain: '',
-    selectedNetwork: '',
-    status: 'Active',
-  });
-  const [errors, setErrors] = useState({});
-  const [accountPassword, setAccountPassword] = useState('');
-  const [passwordLoading, setPasswordLoading] = useState(false);
+const AddCryptoPage = () => {
+  const [cryptoName, setCryptoName] = useState("");
+  const [cryptoSymbol, setCryptoSymbol] = useState("");
+  const [chain, setChain] = useState("");
+  const [network, setNetwork] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [activityPin, setActivityPin] = useState("");
 
-  const { 
-    createCryptoCurrency, 
-    loading, 
-    error, 
-    success,
-    showPasswordModal,
-    setShowPasswordModal, 
-    passwordVerified,
-    resetState 
-  } = useCreateCryptoCurrency();
+  const createCryptoCurrency = useCreateCryptoCurrency();
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    const newValue = files ? files[0] : value; // Handle file input for cryptoImage
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.selectedCrypto) newErrors.selectedCrypto = 'Cryptocurrency is required';
-    if (!formData.cryptoSymbol) newErrors.cryptoSymbol = 'Crypto Symbol is required';
-    if (!formData.chain) newErrors.chain = 'Chain is required';
-    if (!formData.selectedNetwork) newErrors.selectedNetwork = 'Network is required';
-    if (!formData.status) newErrors.status = 'Status is required';
-    // cryptoImage is optional for now, but can be made required if needed
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleSubmit = () => {
+    if (!cryptoName || !cryptoSymbol || !chain || !network) {
+      CustomErrorToast("Please fill in all required fields.");
+      return;
+    }
+    setShowPasswordModal(true);
   };
 
   const handlePasswordSubmit = async () => {
-    if (!accountPassword.trim()) {
-      return;
-    }
-    
-    setPasswordLoading(true);
-    const success = await createCryptoCurrency(formData, accountPassword); // Pass formData and password
-    setPasswordLoading(false);
-    
-    if (success) {
-      setAccountPassword('');
-      onSubmit(formData);
-      onCancel();
-    }
-  };
+    setLoading(true);
+    try {
+      const formData = {
+        crypto_name: cryptoName,
+        crypto_symbol: cryptoSymbol,
+        chain,
+        network,
+        status: "1",
+      };
 
-  const handlePasswordModalClose = () => {
-    resetState(); // Reset state on close
-    onCancel(); // Close the form if password is canceled
-  };
+      const response = await createCryptoCurrency(formData, activityPin);
+      if (response) {
+        CustomSuccessToast("Crypto added successfully!");
+        setShowPasswordModal(false);
 
-  const handleSubmit = () => {
-    if (validateForm() && passwordVerified) {
-      createCryptoCurrency(formData, accountPassword); // Proceed with creation if verified
-      if (success) {
-        onSubmit(formData);
-        onCancel();
+        setCryptoName("");
+        setCryptoSymbol("");
+        setChain("");
+        setNetwork("");
+        setActivityPin("");
       }
-    } else if (validateForm() && !passwordVerified) {
-      setShowPasswordModal(true); // Show modal only after valid form submission
+    } catch (error) {
+      console.error("Error adding crypto:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box sx={styles.container}>
-      <Box sx={styles.formContainer}>
-        <Box sx={styles.inputFields}>
-          <CryptoFormFields
-            formData={formData}
-            errors={errors}
-            handleChange={handleChange}
+    <Box
+      sx={{
+        backgroundColor: "white",
+        pb: "2rem",
+        maxWidth: 1000,
+        mx: "auto",
+        borderRadius: "10px",
+      }}
+    >
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        borderBottom="2px solid #D9D9D9"
+      >
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            px: "2rem",
+            py: "2rem",
+            color: "#4A85F6",
+          }}
+        >
+          Add Crypto
+        </Typography>
+      </Stack>
+
+      <Stack direction="row" flexWrap="wrap" gap={3} p={2}>
+        <FormControl sx={{ minWidth: 250 }}>
+          <Typography variant="caption">Crypto Name</Typography>
+          <OutlinedInput
+            value={cryptoName}
+            onChange={(e) => setCryptoName(e.target.value)}
+            placeholder="Enter crypto name"
+            sx={{
+              backgroundColor: "#D9D9D9",
+              borderRadius: "10px",
+              height: "40px",
+            }}
           />
-          <CryptoFormActions
-            onCancel={onCancel}
-            onSubmit={handleSubmit}
-            loading={loading}
-            error={error}
-            showPasswordModal={showPasswordModal}
-            setShowPasswordModal={setShowPasswordModal}
-            handlePasswordSubmit={handlePasswordSubmit}
-            handlePasswordModalClose={handlePasswordModalClose}
-            accountPassword={accountPassword}
-            setAccountPassword={setAccountPassword}
-            passwordLoading={passwordLoading}
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 250 }}>
+          <Typography variant="caption">Crypto Symbol</Typography>
+          <OutlinedInput
+            value={cryptoSymbol}
+            onChange={(e) => setCryptoSymbol(e.target.value)}
+            placeholder="Enter crypto symbol"
+            sx={{
+              backgroundColor: "#D9D9D9",
+              borderRadius: "10px",
+              height: "40px",
+            }}
           />
-        </Box>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 250 }}>
+          <Typography variant="caption">Chain</Typography>
+          <OutlinedInput
+            value={chain}
+            onChange={(e) => setChain(e.target.value)}
+            placeholder="Enter chain (e.g., Ethereum)"
+            sx={{
+              backgroundColor: "#D9D9D9",
+              borderRadius: "10px",
+              height: "40px",
+            }}
+          />
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 250 }}>
+          <Typography variant="caption">Network</Typography>
+          <Select
+            native
+            value={network}
+            onChange={(e) => setNetwork(e.target.value)}
+            input={<OutlinedInput />}
+            sx={{
+              backgroundColor: "#D9D9D9",
+              borderRadius: "10px",
+              height: "40px",
+            }}
+          >
+            <option aria-label="None" value="" />
+            <option value="mainnet">Mainnet</option>
+            <option value="testnet">Testnet</option>
+          </Select>
+        </FormControl>
+      </Stack>
+
+      <Box display="flex" gap={3} mt={3} pl={2}>
+        <Button variant="outlined" onClick={() => window.history.back()}>
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          sx={{ backgroundColor: "#4A85F6", color: "white" }}
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? "Adding..." : "Add Crypto +"}
+        </Button>
       </Box>
+
+      {showPasswordModal && (
+        <PasswordModal
+          open={showPasswordModal}
+          onClose={() => setShowPasswordModal(false)}
+          onSubmit={handlePasswordSubmit}
+          password={activityPin}
+          setPassword={setActivityPin}
+          loading={loading}
+        />
+      )}
     </Box>
   );
 };

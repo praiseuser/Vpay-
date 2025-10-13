@@ -6,65 +6,67 @@ import CustomErrorToast from '../components/CustomErrorToast';
 import CustomSuccessToast from '../components/CustomSuccessToast';
 
 const useFetchCountryCurrencies = () => {
-    const [countryCurrencies, setCountryCurrencies] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const hasFetched = useRef(false);
+  const [countryCurrencies, setCountryCurrencies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const hasFetched = useRef(false);
 
-    const userState = useSelector((state) => state.user);
-    const token = userState.token;
+  const userState = useSelector((state) => state.user);
+  const token = userState.token;
 
-    useEffect(() => {
-        const fetchCountryCurrencies = async () => {
-            setLoading(true);
-            setError(null);
+  useEffect(() => {
+    const fetchCountryCurrencies = async () => {
+      setLoading(true);
+      setError(null);
 
-            try {
-                const response = await axios.get(`${API_BASE_URL}/admin/countries`, {
-                    headers: {
-                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                    },
-                });
+      try {
+        const response = await axios.get(`${API_BASE_URL}/admin/countries`, {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
 
-                const data = response.data.result || response.data || [];
-                const formattedCurrencies = Array.isArray(data)
-                    ? data.map((item) => ({
-                        id: item.id || 'Unknown',
-                        Currency_Id: item.currency_id || item.currency || 'Unknown',
-                        Country_name: item.country_name || item.name || 'Unknown',
-                        Country_code: item.country_code || item.code || 'N/A',
-                        Country_dial_code: item.country_dial_code || item.dial_code || item.phone_code || 'N/A',
-                        Country_Flag: item.country_flag || item.flag || 'N/A',
-                        status: item.status || 'N/A',
-                    }))
-                    : [];
+        console.log("Response From Server:", response.data);
 
-                if (formattedCurrencies.length === 0) {
-                    setError('No country data available from the API');
-                    CustomErrorToast('No country data available');
-                } else {
-                    setCountryCurrencies(formattedCurrencies);
-                }
-            } catch (err) {
-                const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch country currencies';
-                setError(errorMessage);
-                CustomErrorToast(errorMessage);
-            } finally {
-                setLoading(false);
-            }
-        };
+        const data = response.data.result || response.data || [];
+        const formattedCurrencies = Array.isArray(data)
+          ? data.map((item) => ({
+            id: item.id || 'Unknown',
+            Country_name: item.country_name || item.name || 'Unknown',
+            Country_code: item.country_code || item.code || 'N/A',
+            Country_dial_code: item.country_dial_code || item.dial_code || item.phone_code || 'N/A',
+            Currency_code: item.fiat_currency_code || item.currency || 'Unknown',
+            Country_Flag: item.country_flag || item.flag || 'N/A',
+            status: item.status || 'N/A',
+          }))
+          : [];
 
-        if (token && !hasFetched.current) {
-            fetchCountryCurrencies();
-            hasFetched.current = true;
-        } else if (!token) {
-            setError('Authentication token is missing');
-            CustomErrorToast('Authentication token is missing');
-            setLoading(false);
+        if (formattedCurrencies.length === 0) {
+          setError('No country data available from the API');
+          CustomErrorToast('No country data available');
+        } else {
+          setCountryCurrencies(formattedCurrencies);
         }
-    }, [token]);
+      } catch (err) {
+        const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch country currencies';
+        setError(errorMessage);
+        CustomErrorToast(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return { countryCurrencies, loading, error };
+    if (token && !hasFetched.current) {
+      fetchCountryCurrencies();
+      hasFetched.current = true;
+    } else if (!token) {
+      setError('Authentication token is missing');
+      CustomErrorToast('Authentication token is missing');
+      setLoading(false);
+    }
+  }, [token]);
+
+  return { countryCurrencies, loading, error };
 };
 const useAddCountry = () => {
   const [loading, setLoading] = useState(false);
@@ -187,163 +189,163 @@ const useAddCountry = () => {
   const resetState = () => {
     setSuccess(false);
     setPasswordVerified(false);
-    setShowPasswordModal(false); 
+    setShowPasswordModal(false);
     setError(null);
   };
 
   return { addCountry, fiatCurrencies, loading, error, success, resetState, passwordVerified, showPasswordModal, setShowPasswordModal, setPasswordVerified };
 };
 const useDeleteCountry = () => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const [passwordVerified, setPasswordVerified] = useState(false);
-    const [showPasswordModal, setShowPasswordModal] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [passwordVerified, setPasswordVerified] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(true);
 
-    const token = useSelector((state) => state.user.token);
+  const token = useSelector((state) => state.user.token);
 
-    const deleteCountry = async (countryId, accountPassword) => {
-        setLoading(true);
-        setError(null);
-        setSuccess(false);
+  const deleteCountry = async (countryId, accountPassword) => {
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
 
-        if (!token || typeof token !== 'string' || token.trim() === '') {
-            setError('Invalid or missing authentication token');
-            CustomErrorToast('Invalid or missing authentication token');
-            setLoading(false);
-            return false;
+    if (!token || typeof token !== 'string' || token.trim() === '') {
+      setError('Invalid or missing authentication token');
+      CustomErrorToast('Invalid or missing authentication token');
+      setLoading(false);
+      return false;
+    }
+
+    if (!accountPassword || typeof accountPassword !== 'string' || accountPassword.trim() === '') {
+      setError('Account password is required');
+      CustomErrorToast('Account password is required');
+      setLoading(false);
+      return false;
+    }
+
+    try {
+      const response = await axios.delete(
+        `${API_BASE_URL}/admin/countries/${countryId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'account-password': accountPassword,
+          },
         }
+      );
 
-        if (!accountPassword || typeof accountPassword !== 'string' || accountPassword.trim() === '') {
-            setError('Account password is required');
-            CustomErrorToast('Account password is required');
-            setLoading(false);
-            return false;
-        }
+      if (response.data.success) {
+        setSuccess(true);
+        setPasswordVerified(true);
+        setShowPasswordModal(false);
+        CustomSuccessToast('Country deleted successfully!');
+        return true;
+      } else {
+        const message = response.data.message || 'Failed to delete country';
+        setError(message);
+        CustomErrorToast(message);
+        return false;
+      }
+    } catch (err) {
+      const message = err.response?.data?.message || err.message || 'Failed to delete country';
+      setError(message);
+      CustomErrorToast(message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        try {
-            const response = await axios.delete(
-                `${API_BASE_URL}/admin/countries/${countryId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'account-password': accountPassword,
-                    },
-                }
-            );
+  const resetState = () => {
+    setSuccess(false);
+    setPasswordVerified(false);
+    setShowPasswordModal(true);
+    setError(null);
+  };
 
-            if (response.data.success) {
-                setSuccess(true);
-                setPasswordVerified(true);
-                setShowPasswordModal(false);
-                CustomSuccessToast('Country deleted successfully!');
-                return true;
-            } else {
-                const message = response.data.message || 'Failed to delete country';
-                setError(message);
-                CustomErrorToast(message);
-                return false;
-            }
-        } catch (err) {
-            const message = err.response?.data?.message || err.message || 'Failed to delete country';
-            setError(message);
-            CustomErrorToast(message);
-            return false;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const resetState = () => {
-        setSuccess(false);
-        setPasswordVerified(false);
-        setShowPasswordModal(true);
-        setError(null);
-    };
-
-    return {
-        deleteCountry,
-        loading,
-        error,
-        success,
-        resetState,
-        passwordVerified,
-        showPasswordModal,
-        setShowPasswordModal,
-        setPasswordVerified,
-    };
+  return {
+    deleteCountry,
+    loading,
+    error,
+    success,
+    resetState,
+    passwordVerified,
+    showPasswordModal,
+    setShowPasswordModal,
+    setPasswordVerified,
+  };
 };
 const useViewCountryById = () => {
-    const [country, setCountry] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [lastFetchedId, setLastFetchedId] = useState(null);
+  const [country, setCountry] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [lastFetchedId, setLastFetchedId] = useState(null);
 
-    const token = useSelector((state) => state.user.token);
+  const token = useSelector((state) => state.user.token);
 
-    const viewCountry = async (id) => {
-        if (lastFetchedId === id && country) {
-            return country;
-        }
+  const viewCountry = async (id) => {
+    if (lastFetchedId === id && country) {
+      return country;
+    }
 
-        setLoading(true);
-        setError(null);
+    setLoading(true);
+    setError(null);
 
-        if (!token) {
-            setError('Authentication token is missing');
-            CustomErrorToast('Authentication token is missing');
-            setLoading(false);
-            return;
-        }
+    if (!token) {
+      setError('Authentication token is missing');
+      CustomErrorToast('Authentication token is missing');
+      setLoading(false);
+      return;
+    }
 
-        if (!id) {
-            setError('Country ID is required');
-            CustomErrorToast('Country ID is required');
-            setLoading(false);
-            return;
-        }
+    if (!id) {
+      setError('Country ID is required');
+      CustomErrorToast('Country ID is required');
+      setLoading(false);
+      return;
+    }
 
-        try {
-            const response = await axios.get(`${API_BASE_URL}/admin/countries/view/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/countries/view/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-            if (response.data.success) {
-                const data = response.data.result || response.data || {};
-                const formattedCountry = {
-                    id: data.id || 'Unknown',
-                    Currency_Id: data.currency_id || data.currency || 'Unknown',
-                    Country_name: data.country_name || data.name || 'Unknown',
-                    Country_code: data.country_code || data.code || 'N/A',
-                    Country_dial_code: data.country_dial_code || data.dial_code || data.phone_code || 'N/A',
-                    Country_Flag: data.country_flag || data.flag || 'N/A',
-                    status: data.status || 'N/A',
-                };
+      if (response.data.success) {
+        const data = response.data.result || response.data || {};
+        const formattedCountry = {
+          id: data.id || 'Unknown',
+          Currency_Id: data.currency_id || data.currency || 'Unknown',
+          Country_name: data.country_name || data.name || 'Unknown',
+          Country_code: data.country_code || data.code || 'N/A',
+          Country_dial_code: data.country_dial_code || data.dial_code || data.phone_code || 'N/A',
+          Country_Flag: data.country_flag || data.flag || 'N/A',
+          status: data.status || 'N/A',
+        };
 
-                setCountry(formattedCountry);
-                setLastFetchedId(id);
-                return formattedCountry;
-            } else {
-                setCountry(null);
-                const message = response.data.message || 'Failed to retrieve country';
-                setError(message);
-                CustomErrorToast(message);
-            }
-        } catch (err) {
-            setCountry(null);
-            const errorMessage = err.response?.data?.message || err.message || 'Failed to retrieve country';
-            setError(errorMessage);
-            CustomErrorToast(errorMessage);
-        } finally {
-            setLoading(false);
-        }
-    };
+        setCountry(formattedCountry);
+        setLastFetchedId(id);
+        return formattedCountry;
+      } else {
+        setCountry(null);
+        const message = response.data.message || 'Failed to retrieve country';
+        setError(message);
+        CustomErrorToast(message);
+      }
+    } catch (err) {
+      setCountry(null);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to retrieve country';
+      setError(errorMessage);
+      CustomErrorToast(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return { viewCountry, country, loading, error };
+  return { viewCountry, country, loading, error };
 };
 
 export { useFetchCountryCurrencies, useAddCountry, useDeleteCountry, useViewCountryById };

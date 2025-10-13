@@ -3,7 +3,7 @@ export const styles = {
     position: 'fixed',
     top: 0,
     height: { xs: 48, md: 64 },
-    backgroundColor: '#E1EFF8',
+    backgroundColor: '#FFFFFF',
     borderBottom: '1px solid #ddd',
     display: 'flex',
     flexDirection: { xs: 'column', md: 'row' },

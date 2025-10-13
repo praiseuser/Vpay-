@@ -2,8 +2,10 @@ import axios from 'axios';
 import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../config/path';
-import customErrorToast from '../components/CustomErrorToast';
-import customSuccessToast from '../components/CustomSuccessToast';
+import updateConfig from '../utilities/updateConfig';
+import { useAuth } from '../context/AuthContext';
+import CustomSuccessToast from '../components/CustomSuccessToast';
+import CustomErrorToast from '../components/CustomErrorToast';
 
 const useFetchCurrencies = () => {
   const [cryptoCurrencies, setCryptoCurrencies] = useState([]);
@@ -29,15 +31,15 @@ const useFetchCurrencies = () => {
         const data = response.data.result || response.data || [];
         if (Array.isArray(data) && data.length === 0) {
           setError('No cryptocurrency found');
-          customErrorToast('No cryptocurrency found');
+          CustomErrorToast('No cryptocurrency found');
         } else {
           setCryptoCurrencies(Array.isArray(data) ? data : []);
-          customSuccessToast('Crypto currencies fetched successfully!');
+          CustomSuccessToast('Crypto currencies fetched successfully!');
         }
       } catch (err) {
         const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch crypto currencies';
         setError(errorMessage);
-        customErrorToast(errorMessage);
+        CustomErrorToast(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -48,93 +50,42 @@ const useFetchCurrencies = () => {
       hasFetched.current = true;
     } else if (!token) {
       setError('Authentication token is missing');
-      customErrorToast('Authentication token is missing');
+      CustomErrorToast('Authentication token is missing');
       setLoading(false);
     }
   }, [token]);
 
   return { cryptoCurrencies, loading, error };
 };
+
 const useCreateCryptoCurrency = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const [passwordVerified, setPasswordVerified] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false); 
+  const { config } = useAuth();
 
-  const userState = useSelector((state) => state.user);
-  const token = userState.token;
+  return async (formData, activityPin) => {
+    const updatedConfig = updateConfig(config, activityPin);
 
-  const createCryptoCurrency = async (cryptoData, activityPin) => {
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-    setShowPasswordModal(true); 
-
-    if (!token || typeof token !== 'string' || token.trim() === '') {
-      setError('Invalid or missing authentication token');
-      customErrorToast('Invalid or missing authentication token');
-      setLoading(false);
-      setShowPasswordModal(false); 
-      return false;
-    }
-
-    if (!activityPin || typeof activityPin !== 'string' || activityPin.trim() === '') {
-      setError('Account password is required');
-      customErrorToast('Account password is required');
-      setLoading(false);
-      return false;
-    }
-
+    console.log("Creating crypto with data:", formData);
     try {
-      const response = await axios.post(`${API_BASE_URL}/admin/crypto-currency/create`, cryptoData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'activity_pin': activityPin,
-        },
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/admin/crypto-currency/create`,
+        formData,
+        updatedConfig
+      );
 
-      if (response.data.success) {
-        setSuccess(true);
-        setPasswordVerified(true);
-        setShowPasswordModal(false); 
-        customSuccessToast('Crypto currency created successfully');
-        return true;
+      CustomSuccessToast(response.data.message);
+      return response.data;
+    } catch (error) {
+      console.error("Error:", error);
+
+      if (error?.response?.data?.message) {
+        CustomErrorToast(error.response.data.message);
       } else {
-        const message = response.data.message || 'Failed to create crypto currency';
-        setError(message);
-        customErrorToast(message);
-        return false;
+        CustomErrorToast("An error occurred!");
       }
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Invalid password or failed to create crypto currency';
-      setError(errorMessage);
-      customErrorToast(errorMessage);
-      return false;
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const resetState = () => {
-    setSuccess(false);
-    setPasswordVerified(false);
-    setShowPasswordModal(false); // Ensure modal stays hidden on reset
-    setError(null);
-  };
-
-  return { 
-    createCryptoCurrency, 
-    loading, 
-    error, 
-    success,
-    showPasswordModal,
-    setShowPasswordModal, 
-    passwordVerified,
-    resetState
   };
 };
+
 const useEditFiatStatus = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

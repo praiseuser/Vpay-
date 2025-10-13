@@ -2,8 +2,8 @@ import axios from 'axios';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../config/path';
-import customErrorToast from '../components/CustomErrorToast';
-import customSuccessToast from '../components/CustomSuccessToast';
+import CustomErrorToast from '../components/CustomErrorToast';
+import CustomSuccessToast from '../components/CustomSuccessToast';
 
 const useFetchRateCurrencies = () => {
   const [rateCurrencies, setRateCurrencies] = useState([]);
@@ -28,16 +28,16 @@ const useFetchRateCurrencies = () => {
       const data = response.data.result || response.data || [];
       const formattedCurrencies = Array.isArray(data)
         ? data.map((item) => {
-            const rateField = item.rate || item.rate_value || item.exchange_rate || 'N/A';
-            return {
-              fiat_currency_code: item.fiat_currency_code || 'Unknown',
-              rate: typeof rateField === 'string' ? rateField : 'N/A',
-              status: item.status || 'N/A',
-              created_at: item.created_at || null,
-              updated_at: item.updated_at || null,
-              id: item.id || item.currency_id || null,
-            };
-          })
+          const rateField = item.rate || item.rate_value || item.exchange_rate || 'N/A';
+          return {
+            fiat_currency_code: item.fiat_currency_code || 'Unknown',
+            rate: typeof rateField === 'string' ? rateField : 'N/A',
+            status: item.status || 'N/A',
+            created_at: item.created_at || null,
+            updated_at: item.updated_at || null,
+            id: item.id || item.currency_id || null,
+          };
+        })
         : [];
 
       if (formattedCurrencies.length === 0) {
@@ -68,75 +68,70 @@ const useFetchRateCurrencies = () => {
 
   return { rateCurrencies, loading, error, refetch: fetchRateCurrencies };
 };
+
 const useCreateRate = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
   const [currencies, setCurrencies] = useState([]);
   const hasFetchedCurrencies = useRef(false);
   const [passwordVerified, setPasswordVerified] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false); // Changed to false
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const userState = useSelector((state) => state.user);
-  const token = userState.token;
+  const token = userState?.token;
 
+  // ✅ Fetch fiat currencies for dropdown
   useEffect(() => {
     const fetchCurrencies = async () => {
       if (!token) {
-        setError('Authentication token is missing');
-        customErrorToast('Authentication token is missing');
+        setError("Authentication token is missing");
+        CustomErrorToast("Authentication token is missing");
         return;
       }
 
       try {
         const response = await axios.get(`${API_BASE_URL}/admin/fiat-currencies`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        const fetchedCurrencies = response.data.result || response.data || [];
-        const formattedCurrencies = Array.isArray(fetchedCurrencies)
-          ? fetchedCurrencies.map((item) => ({
-            currency_id: item.id || item.currency_id || 'Unknown',
-            currency_name: item.name || item.fiat_currency || item.currency_name || 'Unknown',
-            country_name: item.country_name || 'N/A',
-            country_code: item.country_code || 'N/A',
-            country_dial_code: item.dial_code || item.phone_code || 'N/A',
-            status: item.status || 'active',
+
+        const data = response.data.result || [];
+
+        const formattedCurrencies = Array.isArray(data)
+          ? data.map((item) => ({
+            id: item.id,
+            fiat_currency_name: item.fiat_currency_name,
+            fiat_currency_code: item.fiat_currency_code,
+            country_code: item.country_code,
+            status: item.status,
           }))
           : [];
 
-        if (formattedCurrencies.length === 0) {
-          setError('No fiat currencies available from the API');
-          customErrorToast('No fiat currencies available');
-        } else {
-          setCurrencies(formattedCurrencies);
-          if (!hasFetchedCurrencies.current) {
-            customSuccessToast('Fiat currencies fetched successfully');
-            hasFetchedCurrencies.current = true;
-          }
+        setCurrencies(formattedCurrencies);
+
+        if (!hasFetchedCurrencies.current) {
+          CustomSuccessToast("Fiat currencies fetched successfully");
+          hasFetchedCurrencies.current = true;
         }
       } catch (err) {
-        const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch fiat currencies';
+        const errorMessage =
+          err.response?.data?.message || err.message || "Failed to fetch fiat currencies";
         setError(errorMessage);
-        customErrorToast(errorMessage);
+        CustomErrorToast(errorMessage);
       }
     };
 
     fetchCurrencies();
   }, [token]);
 
-  const createRate = async (selectedCurrencyId, rate, status, activityPin) => {
-    if (!token || !selectedCurrencyId || !rate) {
-      const errorMessage = 'Token, currency, or rate is missing';
-      setError(errorMessage);
-      customErrorToast(errorMessage);
+  // ✅ Create Rate
+  const createRate = async (currency_id, rate, status, activityPin) => {
+    if (!token || !currency_id || !rate) {
+      CustomErrorToast("Token, currency, or rate is missing");
       return { success: false };
     }
 
-    if (!activityPin || typeof activityPin !== 'string' || activityPin.trim() === '') {
-      setError('Account password is required');
-      customErrorToast('Account password is required');
+    if (!activityPin?.trim()) {
+      CustomErrorToast("Account password is required");
       return { success: false };
     }
 
@@ -144,40 +139,42 @@ const useCreateRate = () => {
     setError(null);
 
     try {
-      const stringCurrencyId = String(selectedCurrencyId);
-      const stringRate = String(rate);
-      const finalStatus = status === 'null' ? null : String(status);
-
       const response = await axios.post(
         `${API_BASE_URL}/admin/rate/create`,
         {
-          currency_id: stringCurrencyId,
-          rate: stringRate,
-          status: finalStatus,
+          currency_id: String(currency_id),
+          rate: String(rate),
+          status: status === "null" ? null : String(status),
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'activity_pin': activityPin,
+            "Content-Type": "application/json",
+            activity_pin: activityPin,
           },
         }
       );
 
-      if (response.status >= 200 && response.status < 300) {
-        const currency = currencies.find((c) => c.currency_id === stringCurrencyId);
-        const currencyName = currency ? currency.currency_name : 'Unknown Currency';
-        customSuccessToast(`Rate created successfully for ${currencyName}`);
+      const result = response.data;
+      if (result?.error === 0) {
+        const currency = currencies.find((c) => c.id === currency_id);
+        const currencyName = currency
+          ? `${currency.fiat_currency_name} (${currency.fiat_currency_code})`
+          : "Unknown Currency";
+
+        CustomSuccessToast(`Rate created successfully for ${currencyName}`);
         setPasswordVerified(true);
         setShowPasswordModal(false);
-        return { success: true, currencyName };
+        return { success: true };
       } else {
-        throw new Error(response.data.message || 'Failed to create rate');
+        CustomErrorToast(result?.message || "Failed to create rate");
+        return { success: false };
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Invalid password or failed to create rate';
+      const errorMessage =
+        err.response?.data?.message || err.message || "Failed to create rate";
+      CustomErrorToast(errorMessage);
       setError(errorMessage);
-      customErrorToast(errorMessage);
       return { success: false };
     } finally {
       setIsCreating(false);
@@ -187,11 +184,20 @@ const useCreateRate = () => {
   const resetState = () => {
     setIsCreating(false);
     setPasswordVerified(false);
-    setShowPasswordModal(false); // Changed to false
+    setShowPasswordModal(false);
     setError(null);
   };
 
-  return { createRate, isCreating, error, currencies, passwordVerified, showPasswordModal, setShowPasswordModal, resetState };
+  return {
+    createRate,
+    isCreating,
+    error,
+    currencies,
+    passwordVerified,
+    showPasswordModal,
+    setShowPasswordModal,
+    resetState,
+  };
 };
 const useDeleteRate = () => {
   const [loadingStates, setLoadingStates] = useState({});

@@ -1,237 +1,134 @@
 import React, { useState } from 'react';
 import { Box, Typography, TextField, MenuItem, Button, Divider, Grid } from '@mui/material';
-import styles from '../AddCryptoPageStyles';
 import PropTypes from 'prop-types';
+import styles from '../AddCryptoPageStyles';
 
 const CryptoFormFields = ({ formData, errors, handleChange }) => {
-  const [imagePreview, setImagePreview] = useState(null); // State for image preview
+  const [imagePreview, setImagePreview] = useState(null);
   const networkOptions = ['mainnet', 'testnet'];
-  const statusOptions = ['Active'];
+  const statusOptions = [
+    { label: 'Active', value: '1' },
+    { label: 'Inactive', value: '0' },
+  ];
 
-  // Handle image upload and preview
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
-      handleChange({ target: { name: 'cryptoImage', value: file } }); // Pass file to formData
+      handleChange({ target: { name: 'cryptoImage', files: [file] } });
     }
   };
 
   return (
-    <Box
-      sx={{
-        ...styles.inputFields,
-        width: '100%', // Full width without maxWidth cap
-        margin: '0 auto', // Center the form
-        padding: '24px',
-        backgroundColor: '#FFFFFF',
-        border: '1px solid #E0E0E0',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        transition: 'opacity 0.3s ease',
-        '&:hover': { opacity: 0.95 },
-      }}
-    >
-      <Typography
-        variant="h5"
-        sx={{ fontFamily: 'Mada, sans-serif', color: '#1A237E', mb: 2 }}
-      >
+    <Box sx={{
+      ...styles.inputFields,
+      width: '100%',
+      margin: '0 auto',
+      padding: '24px',
+      backgroundColor: '#FFFFFF',
+      border: '1px solid #E0E0E0',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+    }}>
+      <Typography variant="h5" sx={{ fontFamily: 'Mada, sans-serif', color: '#1A237E', mb: 2 }}>
         Add New Crypto
       </Typography>
       <Divider sx={{ borderColor: '#D3D3D3', mb: 2 }} />
 
       <Grid container spacing={2}>
+        {/* Crypto Name */}
         <Grid item xs={12} md={6}>
-          <Box sx={styles.fieldContainer}>
-            <Typography sx={styles.fieldLabel}>Cryptocurrency</Typography>
-            <TextField
-              name="selectedCrypto"
-              value={formData.selectedCrypto}
-              onChange={handleChange}
-              variant="outlined"
-              fullWidth
-              placeholder="Enter cryptocurrency..."
-              error={!!errors.selectedCrypto}
-              helperText={errors.selectedCrypto}
-              sx={{
-                ...styles.textField,
-                '& .MuiInputBase-root': {
-                  backgroundColor: '#F5F5F5',
-                  borderRadius: '6px',
-                  padding: '12px', // Increased padding for larger size
-                  fontSize: '16px', // Increased font size
-                },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#E0E0E0', borderWidth: '2px' }, // Thicker border
-                  '&:hover fieldset': { borderColor: '#BBDEFB' },
-                  '&.Mui-focused fieldset': { borderColor: '#BBDEFB' },
-                },
-              }}
-            />
-          </Box>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Box sx={styles.fieldContainer}>
-            <Typography sx={styles.fieldLabel}>Crypto Symbol</Typography>
-            <TextField
-              name="cryptoSymbol"
-              value={formData.cryptoSymbol || ''}
-              onChange={handleChange}
-              variant="outlined"
-              fullWidth
-              placeholder="Enter symbol (e.g., BTC)..."
-              error={!!errors.cryptoSymbol}
-              helperText={errors.cryptoSymbol}
-              sx={{
-                ...styles.textField,
-                '& .MuiInputBase-root': {
-                  backgroundColor: '#F5F5F5',
-                  borderRadius: '6px',
-                  padding: '12px', // Increased padding
-                  fontSize: '16px', // Increased font size
-                },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#E0E0E0', borderWidth: '2px' }, // Thicker border
-                },
-              }}
-            />
-          </Box>
+          <TextField
+            label="Crypto Name"
+            name="crypto_name"
+            value={formData.crypto_name || ''}
+            onChange={handleChange}
+            fullWidth
+            placeholder="Enter crypto name..."
+            error={!!errors.crypto_name}
+            helperText={errors.crypto_name}
+          />
         </Grid>
 
+        {/* Crypto Symbol */}
         <Grid item xs={12} md={6}>
-          <Box sx={styles.fieldContainer}>
-            <Typography sx={styles.fieldLabel}>Crypto Image</Typography>
-            <Box sx={{ mb: 1 }}>
-              <Button
-                variant="contained"
-                component="label"
-                sx={{
-                  backgroundColor: '#26A69A',
-                  color: '#FFFFFF',
-                  borderRadius: '6px',
-                  padding: '12px 16px', // Increased padding
-                  fontSize: '16px', // Increased font size
-                  '&:hover': { backgroundColor: '#00695C' },
-                }}
-              >
-                Upload Image
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
-              </Button>
-              {imagePreview && (
-                <Box sx={{ mt: 2 }}>
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    style={{ width: '120px', height: '120px', borderRadius: '8px', objectFit: 'cover' }} // Increased size
-                  />
-                </Box>
-              )}
+          <TextField
+            label="Crypto Symbol"
+            name="crypto_symbol"
+            value={formData.crypto_symbol || ''}
+            onChange={handleChange}
+            fullWidth
+            placeholder="Enter symbol (e.g., BTC)"
+            error={!!errors.crypto_symbol}
+            helperText={errors.crypto_symbol}
+          />
+        </Grid>
+
+        {/* Crypto Image */}
+        <Grid item xs={12} md={6}>
+          <Button variant="contained" component="label">
+            Upload Image
+            <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
+          </Button>
+          {imagePreview && (
+            <Box mt={2}>
+              <img src={imagePreview} alt="Preview" width={120} height={120} />
             </Box>
-            {errors.cryptoImage && <Typography color="error">{errors.cryptoImage}</Typography>}
-          </Box>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Box sx={styles.fieldContainer}>
-            <Typography sx={styles.fieldLabel}>Chain</Typography>
-            <TextField
-              name="chain"
-              value={formData.chain || ''}
-              onChange={handleChange}
-              variant="outlined"
-              fullWidth
-              placeholder="Enter chain (e.g., Ethereum)..."
-              error={!!errors.chain}
-              helperText={errors.chain}
-              sx={{
-                ...styles.textField,
-                '& .MuiInputBase-root': {
-                  backgroundColor: '#F5F5F5',
-                  borderRadius: '6px',
-                  padding: '12px', // Increased padding
-                  fontSize: '16px', // Increased font size
-                },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#E0E0E0', borderWidth: '2px' }, // Thicker border
-                },
-              }}
-            />
-          </Box>
+          )}
         </Grid>
 
+        {/* Chain */}
         <Grid item xs={12} md={6}>
-          <Box sx={styles.fieldContainer}>
-            <Typography sx={styles.fieldLabel}>Select Network</Typography>
-            <TextField
-              select
-              name="selectedNetwork"
-              value={formData.selectedNetwork}
-              onChange={handleChange}
-              variant="outlined"
-              fullWidth
-              placeholder="Choose..."
-              error={!!errors.selectedNetwork}
-              helperText={errors.selectedNetwork}
-              sx={{
-                ...styles.textField,
-                '& .MuiInputBase-root': {
-                  backgroundColor: '#F5F5F5',
-                  borderRadius: '6px',
-                  padding: '12px', // Increased padding
-                  fontSize: '16px', // Increased font size
-                },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#E0E0E0', borderWidth: '2px' }, // Thicker border
-                },
-              }}
-            >
-              <MenuItem value="">Choose...</MenuItem>
-              {networkOptions.map((network) => (
-                <MenuItem key={network} value={network}>
-                  {network}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
+          <TextField
+            label="Chain"
+            name="chain"
+            value={formData.chain || ''}
+            onChange={handleChange}
+            fullWidth
+            placeholder="Enter chain (e.g., Ethereum)"
+            error={!!errors.chain}
+            helperText={errors.chain}
+          />
         </Grid>
+
+        {/* Network */}
         <Grid item xs={12} md={6}>
-          <Box sx={styles.fieldContainer}>
-            <Typography sx={styles.fieldLabel}>Status</Typography>
-            <TextField
-              select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              variant="outlined"
-              fullWidth
-              sx={{
-                ...styles.textField,
-                '& .MuiInputBase-root': {
-                  backgroundColor: '#F5F5F5',
-                  borderRadius: '6px',
-                  padding: '12px', // Increased padding
-                  fontSize: '16px', // Increased font size
-                },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#E0E0E0', borderWidth: '2px' }, // Thicker border
-                },
-              }}
-              error={!!errors.status}
-              helperText={errors.status}
-            >
-              {statusOptions.map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
+          <TextField
+            select
+            label="Select Network"
+            name="selectedNetwork"
+            value={formData.selectedNetwork || ''}
+            onChange={handleChange}
+            fullWidth
+            error={!!errors.selectedNetwork}
+            helperText={errors.selectedNetwork}
+          >
+            <MenuItem value="">Choose...</MenuItem>
+            {networkOptions.map((network) => (
+              <MenuItem key={network} value={network}>{network}</MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+
+        {/* Status */}
+        <Grid item xs={12} md={6}>
+          <TextField
+            select
+            label="Status"
+            name="status"
+            value={formData.status || '1'}
+            onChange={handleChange}
+            fullWidth
+            error={!!errors.status}
+            helperText={errors.status}
+          >
+            <MenuItem value="">Choose...</MenuItem>
+            {statusOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+            ))}
+          </TextField>
         </Grid>
       </Grid>
     </Box>

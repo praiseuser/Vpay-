@@ -2,8 +2,10 @@ import axios from 'axios';
 import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../config/path';
-import customErrorToast from '../components/CustomErrorToast';
-import customSuccessToast from '../components/CustomSuccessToast';
+import { useAuth } from '../context/AuthContext';
+import updateConfig from '../utilities/updateConfig';
+import CustomSuccessToast from '../components/CustomSuccessToast';
+import CustomErrorToast from '../components/CustomErrorToast';
 
 const useFetchFiatCurrencies = () => {
   const [fiatCurrencies, setFiatCurrencies] = useState([]);
@@ -14,119 +16,104 @@ const useFetchFiatCurrencies = () => {
   const userState = useSelector((state) => state.user);
   const token = userState.token;
 
-  useEffect(() => {
-    const fetchFiatCurrencies = async () => {
-      setLoading(true);
-      setError(null);
 
-      try {
-        const response = await axios.get(`${API_BASE_URL}/admin/fiat-currencies`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = response.data.result || [];
-        const formattedCurrencies = Array.isArray(data)
-          ? data.map((item) => ({
-            fiat_currency_name: item.fiat_currency_name,
-            fiat_currency_code: item.fiat_currency_code,
-            status: item.status,
-          }))
-          : [];
-
-        setFiatCurrencies(formattedCurrencies);
-      } catch (err) {
-        const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch fiat currencies';
-        setError(errorMessage);
-        customErrorToast(errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (token && !hasFetched.current) {
-      fetchFiatCurrencies();
-      hasFetched.current = true;
-    }
-  }, [token]);
-
-  return { fiatCurrencies, loading, error };
-};
-const useCreateFiatCurrency = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const [passwordVerified, setPasswordVerified] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false); 
-
-  const userState = useSelector((state) => state.user);
-  const token = userState.token;
-
-  const createFiatCurrency = async (fiatData, accountPassword) => {
+  const fetchFiat = async () => {
     setLoading(true);
     setError(null);
-    setSuccess(false);
-    setShowPasswordModal(true); 
-
-    const payload = {
-      ...fiatData,
-      status: fiatData.status === 1 ? '1' : '0',
-    };
-
-    if (!token || typeof token !== 'string' || token.trim() === '') {
-      setError('Invalid or missing authentication token');
-      customErrorToast('Invalid or missing authentication token');
-      setLoading(false);
-      setShowPasswordModal(false); 
-      return false;
-    }
-
-    if (!accountPassword || typeof accountPassword !== 'string' || accountPassword.trim() === '') {
-      setError('Account password is required');
-      customErrorToast('Account password is required');
-      setLoading(false);
-      return false;
-    }
-
     try {
-      const response = await axios.post(`${API_BASE_URL}/admin/fiat-currency/create`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'account-password': accountPassword,
-        },
+      const response = await axios.get(`${API_BASE_URL}/admin/fiat-currencies`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.data.success) {
-        setSuccess(true);
-        setPasswordVerified(true);
-        setShowPasswordModal(false); 
-        customSuccessToast('Fiat currency created successfully');
-        return true;
-      } else {
-        const message = response.data.message || 'Failed to create fiat currency';
-        setError(message);
-        customErrorToast(message);
-        return false;
-      }
+
+      console.log("Fiat currencies response:", response.data);
+      const data = response.data.result || [];
+      const formattedCurrencies = Array.isArray(data)
+        ? data.map((item) => ({
+            id: item.id,
+            fiat_currency_name: item.fiat_currency_name,
+            fiat_currency_code: item.fiat_currency_code,
+            country_code: item.country_code,
+            status: item.status,
+          }))
+        : [];
+
+      setFiatCurrencies(formattedCurrencies);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Invalid password or failed to create fiat currency';
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch fiat currencies';
       setError(errorMessage);
-      customErrorToast(errorMessage);
-      return false;
+      CustomErrorToast(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const resetState = () => {
-    setSuccess(false);
-    setPasswordVerified(false);
-    setShowPasswordModal(false);
-    setError(null);
-  };
+  // Fetch initially if not fetched
+  useEffect(() => {
+    if (token && !hasFetched.current) {
+      fetchFiat();
+      hasFetched.current = true;
+    }
+  }, [token]);
 
-  return { createFiatCurrency, loading, error, success, passwordVerified, showPasswordModal, setShowPasswordModal, resetState };
-};  
-export { useFetchFiatCurrencies, useCreateFiatCurrency };
+  return { fiatCurrencies, loading, error, fetchFiat }; // <-- return the fetch function
+};
+const useCreateFiatCurrency = () => {
+  const { config } = useAuth();
+
+  return async (formData, activityPin) => {
+    const updatedConfig = updateConfig(config, activityPin);
+    console.log("Creating crypto with data:", formData);
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/admin/fiat-currency/create`,
+        formData,
+        updatedConfig
+      );
+
+      CustomSuccessToast(response.data.message);
+      return response.data;
+    } catch (error) {
+      console.error("Error:", error);
+
+      if (error?.response?.data?.message) {
+        CustomErrorToast(error.response.data.message);
+      } else {
+        CustomErrorToast("An error occurred!");
+      }
+    }
+  };
+};
+
+const useUpdateFiat = () => {
+  const { config } = useAuth();
+
+  return async (id, formData, activityPin) => {
+    try {
+      const updatedConfig = updateConfig(config, activityPin)
+      const response = await axios.post(
+        `${API_BASE_URL}/admin/fiat-currency/update/${id}`,
+        formData,
+        updatedConfig
+      );
+      const result = response.data
+      if (result?.error === 0) {
+        CustomSuccessToast(result.message)
+      }
+      if (result?.error) {
+        toast.error(result?.message)
+        return false
+      }
+    } catch (error) {
+      console.error("Error:", error)
+      if (error?.response?.data) {
+        CustomErrorToast(error.response.data.message)
+      } else {
+        CustomErrorToast("An error occurred!")
+      }
+    }
+  };
+};
+
+
+export { useFetchFiatCurrencies, useCreateFiatCurrency, useUpdateFiat };

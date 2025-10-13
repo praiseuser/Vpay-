@@ -10,7 +10,7 @@ export const useAuth = () => {
 
 export default function UserContextProvider({ children }) {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user); // user object
+  const user = useSelector((state) => state.user.user);
   const token = useSelector((state) => state.user.token);
 
   const isAuthenticated = !!user;
@@ -32,13 +32,13 @@ export default function UserContextProvider({ children }) {
 
   const value = {
     isAuthenticated,
-    user,       // ✅ include user here
+    user,    
     login,
     logout,
     config,
   };
 
-  console.log("UserContext value:", value); // debug
+  console.log("UserContext value:", value);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
