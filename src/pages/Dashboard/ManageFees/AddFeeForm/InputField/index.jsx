@@ -5,14 +5,24 @@ import { fadeIn } from '../style';
 
 const CustomInput = styled(Box)`
   flex: 1;
-  max-width: 400px; /* Increased from 350px to 400px */
+  max-width: 400px;
   animation: ${fadeIn} 0.5s ease-out;
 `;
 
-const InputField = ({ label, name, value, onChange, options, type = 'text', placeholder, isCheckbox = false, disabled = false }) => {
+const InputField = ({
+  label,
+  name,
+  value,
+  onChange,
+  options = null,
+  type = 'text',
+  placeholder,
+  isCheckbox = false,
+  disabled = false,
+}) => {
   if (isCheckbox) {
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 20, '&:last-child': { marginBottom: 0 } }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: '20px', mb: 2 }}>
         <FormControlLabel
           control={
             <Checkbox
@@ -29,10 +39,11 @@ const InputField = ({ label, name, value, onChange, options, type = 'text', plac
     );
   }
 
-  const isSelect = !!options;
+  // Only render a Select if options are explicitly passed
+  const isSelect = Array.isArray(options) && options.length > 0;
 
-return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 2 }}>
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: '20px', mb: 2 }}>
       <Typography
         sx={{
           fontFamily: 'Raleway',
@@ -59,17 +70,10 @@ return (
               '& .MuiOutlinedInput-root': {
                 height: '42px',
                 borderRadius: '10px',
-                backgroundColor: '#FAFAFA',
-                padding: '0 14px',
                 '& fieldset': {
                   borderColor: value ? '#02042D' : '#D9D9D9',
                   borderWidth: '2px',
-                  boxShadow: value ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
                 },
-              },
-              '& .MuiMenuItem-root': {
-                color: '#000',
-                fontSize: '14px',
               },
             }}
           >
@@ -95,16 +99,17 @@ return (
               '& .MuiOutlinedInput-root': {
                 height: '42px',
                 borderRadius: '10px',
-                backgroundColor: '#FAFAFA',
                 '& fieldset': {
                   borderColor: value ? '#02042D' : '#D9D9D9',
                   borderWidth: '2px',
-                  boxShadow: value ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
                 },
               },
             }}
             placeholder={placeholder}
-            inputProps={{ min: type === 'number' ? 0.01 : undefined, step: type === 'number' ? '0.01' : undefined }}
+            inputProps={{
+              min: type === 'number' ? 0.01 : undefined,
+              step: type === 'number' ? '0.01' : undefined,
+            }}
           />
         )}
       </CustomInput>

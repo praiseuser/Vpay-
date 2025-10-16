@@ -156,57 +156,69 @@ export const useFetchSupportTickets = (page = 1) => {
 export const useFetchAllSupportTickets = (page = 1) => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [errorComponent, setErrorComponent] = useState(null);
   const token = useSelector((state) => state.user.token);
 
-  const fetchTickets = useCallback(async (showToast = false) => {
-    setLoading(true);
-    setError(null);
+  const showErrorToast = (msg) => {
+    setErrorComponent(<CustomErrorToast message={msg} />);
+  };
 
-    if (!token) {
-      const msg = 'Authentication token is missing';
-      setError(msg);
-      if (showToast) toast(<CustomErrorToast message={msg} />);
-      setLoading(false);
-      return;
-    }
+  const fetchTickets = useCallback(
+    async (showError = false) => {
+      setLoading(true);
+      setErrorComponent(null);
 
-    try {
-      const response = await axios.get(`${API_BASE_URL}/admin/all/support-tickets/${page}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = response.data.result?.tickets || [];
-      const formattedTickets = Array.isArray(data)
-        ? data.map((item) => ({
-            id: item.id || null,
-            ticketNumber: item.ticket_number || null,
-            subject: item.subject || 'No Subject',
-            status: item.status === '1' ? 'Closed' : item.status === '0' ? 'Open' : 'In Progress',
-            createdAt: item.created_at || null,
-          }))
-        : [];
-
-      setTickets(formattedTickets);
-
-      if (formattedTickets.length === 0) {
-        const msg = 'No support tickets found';
-        setError(msg);
-        if (showToast) toast(<CustomErrorToast message={msg} />);
+      if (!token) {
+        const msg = 'Authentication token is missing';
+        if (showError) showErrorToast(msg);
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Failed to fetch all support tickets';
-      setError(msg);
-      if (showToast) toast(<CustomErrorToast message={msg} />);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, page]);
 
-  return { tickets, loading, error, fetchTickets };
+      try {
+        const response = await axios.get(`${API_BASE_URL}/admin/all/support-tickets/${page}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = response.data.result?.tickets || [];
+        const formattedTickets = Array.isArray(data)
+          ? data.map((item) => ({
+              id: item.id || null,
+              ticketNumber: item.ticket_number || null,
+              subject: item.subject || 'No Subject',
+              status:
+                item.status === '1'
+                  ? 'Closed'
+                  : item.status === '0'
+                  ? 'Open'
+                  : 'In Progress',
+              createdAt: item.created_at || null,
+            }))
+          : [];
+
+        setTickets(formattedTickets);
+
+        if (formattedTickets.length === 0) {
+          const msg = 'No support tickets found';
+          if (showError) showErrorToast(msg);
+        }
+      } catch (err) {
+        const msg =
+          err.response?.data?.message ||
+          err.message ||
+          'Failed to fetch all support tickets';
+        if (showError) showErrorToast(msg);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, page]
+  );
+
+  return { tickets, loading, errorComponent, fetchTickets };
 };
 export const useUpdateTicketStatus = (onSuccessCallback) => {
   const [loading, setLoading] = useState(false);
@@ -323,113 +335,95 @@ export const useDeleteTicket = (onSuccessCallback) => {
 export const useFetchOpenSupportTickets = (page = 1) => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const token = useSelector((state) => state.user.token);
 
-  const fetchTickets = useCallback(async (showToast = false) => {
-    setLoading(true);
-    setError(null);
+  const fetchTickets = useCallback(
+    async () => {
+      setLoading(true);
 
-    if (!token) {
-      const msg = 'Authentication token is missing';
-      setError(msg);
-      if (showToast) toast(<CustomErrorToast message={msg} />);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await axios.get(`${API_BASE_URL}/admin/support-tickets/open/${page}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = response.data.result?.tickets || [];
-      const formattedTickets = Array.isArray(data)
-        ? data.map((item) => ({
-            id: item.id || null,
-            ticketNumber: item.ticket_number || null,
-            subject: item.subject || 'No Subject',
-            status: 'Open',
-            createdAt: item.created_at || null,
-          }))
-        : [];
-
-      setTickets(formattedTickets);
-
-      if (formattedTickets.length === 0) {
-        const msg = 'No open support tickets found';
-        setError(msg);
-        if (showToast) toast(<CustomErrorToast message={msg} />);
+      if (!token) {
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Failed to fetch open support tickets';
-      setError(msg);
-      if (showToast) toast(<CustomErrorToast message={msg} />);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, page]);
 
-  return { tickets, loading, error, fetchTickets };
+      try {
+        const response = await axios.get(`${API_BASE_URL}/admin/support-tickets/open/${page}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = response.data.result?.tickets || [];
+        const formattedTickets = Array.isArray(data)
+          ? data.map((item) => ({
+              id: item.id || null,
+              ticketNumber: item.ticket_number || null,
+              subject: item.subject || 'No Subject',
+              status: 'Open',
+              createdAt: item.created_at || null,
+            }))
+          : [];
+
+        setTickets(formattedTickets);
+      } catch (err) {
+        console.error('Error fetching open support tickets:', err);
+        setTickets([]); // return empty on failure
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, page]
+  );
+
+  return { tickets, loading, fetchTickets };
 };
 export const useFetchClosedSupportTickets = (page = 1) => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const token = useSelector((state) => state.user.token);
 
-  const fetchTickets = useCallback(async (showToast = false) => {
-    setLoading(true);
-    setError(null);
+  const fetchTickets = useCallback(
+    async () => {
+      setLoading(true);
 
-    if (!token) {
-      const msg = 'Authentication token is missing';
-      setError(msg);
-      if (showToast) toast(<CustomErrorToast message={msg} />);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await axios.get(`${API_BASE_URL}/admin/support-tickets/closed/${page}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = response.data.result?.tickets || [];
-      const formattedTickets = Array.isArray(data)
-        ? data.map((item) => ({
-            id: item.id || null,
-            ticketNumber: item.ticket_number || null,
-            subject: item.subject || 'No Subject',
-            status: 'Closed',
-            createdAt: item.created_at || null,
-          }))
-        : [];
-
-      setTickets(formattedTickets);
-
-      if (formattedTickets.length === 0) {
-        const msg = 'No closed support tickets found';
-        setError(msg);
-        if (showToast) toast(<CustomErrorToast message={msg} />);
+      if (!token) {
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Failed to fetch closed support tickets';
-      setError(msg);
-      if (showToast) toast(<CustomErrorToast message={msg} />);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, page]);
 
-  return { tickets, loading, error, fetchTickets };
-}
+      try {
+        const response = await axios.get(`${API_BASE_URL}/admin/support-tickets/closed/${page}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = response.data.result?.tickets || [];
+        const formattedTickets = Array.isArray(data)
+          ? data.map((item) => ({
+              id: item.id || null,
+              ticketNumber: item.ticket_number || null,
+              subject: item.subject || 'No Subject',
+              status: 'Closed',
+              createdAt: item.created_at || null,
+            }))
+          : [];
+
+        setTickets(formattedTickets);
+      } catch (err) {
+        console.error('Error fetching closed support tickets:', err);
+        setTickets([]); // return empty array on failure
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, page]
+  );
+
+  return { tickets, loading, fetchTickets };
+};
 export const useDeleteReply = (onSuccessCallback) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

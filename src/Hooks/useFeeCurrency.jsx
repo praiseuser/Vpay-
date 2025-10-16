@@ -186,109 +186,121 @@ const useFetchFees = () => {
 const useUpdateFee = () => {
   const [loading, setLoading] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [activityPin, setactivityPin] = useState(''); // ✅ lowercase
+  const [activityPin, setactivityPin] = useState(''); // lowercase
 
   const userState = useSelector((state) => state.user);
   const token = userState?.token || localStorage.getItem('token');
 
-  const VALID_FEE_NAMES = ['Swap', 'Send', 'PayApp', 'Payout'];
   const VALID_FEE_TYPES = ['percentage', 'fixed'];
 
-  const updateFee = useCallback(async (feeId, feeData, pin = '') => {
-    setLoading(true);
+  const updateFee = useCallback(
+    async (feeId, feeData, pin = '') => {
+      setLoading(true);
 
-    if (!token) {
-      customErrorToast('Authentication token not found. Please log in to update a fee');
-      setLoading(false);
-      return false;
-    }
-
-    if (!feeId) {
-      customErrorToast('No fee ID provided');
-      setLoading(false);
-      return false;
-    }
-
-    if (!feeData.fee_name || !VALID_FEE_NAMES.includes(feeData.fee_name)) {
-      customErrorToast('Fee name must be one of: Swap, Send, PayApp, Payout');
-      setLoading(false);
-      return false;
-    }
-
-    if (!feeData.fee_type || !VALID_FEE_TYPES.includes(feeData.fee_type)) {
-      customErrorToast('Fee type must be either percentage or fixed');
-      setLoading(false);
-      return false;
-    }
-
-    const feeAmount = parseFloat(feeData.fee_amount);
-    if (isNaN(feeAmount) || feeAmount <= 0) {
-      customErrorToast('Fee amount must be a positive number');
-      setLoading(false);
-      return false;
-    }
-
-    if (feeData.has_max_limit) {
-      const maxLimit = parseFloat(feeData.max_limit);
-      if (isNaN(maxLimit) || maxLimit <= 0) {
-        customErrorToast('Max limit must be a positive number when Has Max Limit is enabled');
+      if (!token) {
+        customErrorToast('Authentication token not found. Please log in to update a fee');
         setLoading(false);
         return false;
       }
-    }
 
-    // Show modal if no PIN
-    if (!pin || pin.trim() === '') {
-      setShowPasswordModal(true);
-      setLoading(false);
-      return false;
-    }
-
-    const payload = {
-      fee_name: feeData.fee_name,
-      fee_type: feeData.fee_type,
-      fee_amount: feeAmount,
-      status: feeData.status,
-      has_max_limit: feeData.has_max_limit,
-      max_limit: feeData.has_max_limit ? parseFloat(feeData.max_limit) : null,
-    };
-
-    try {
-      const response = await axios.post(`${API_BASE_URL}/admin/transaction-fee/update/${feeId}`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'activity_pin': pin.trim(), // ✅ backend expects activityPin
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.status === 200 || (response.status === 400 && response.data?.message === 'Error while editing Transaction Fee!')) {
-        customSuccessToast('Fee updated successfully');
-        setShowPasswordModal(false);
-        setactivityPin(''); // ✅ lowercase
-        return true;
-      } else {
-        customErrorToast(response.data?.message || 'Unexpected server response');
+      if (!feeId) {
+        customErrorToast('No fee ID provided');
+        setLoading(false);
         return false;
       }
-    } catch (err) {
-      let errorMessage = 'Error updating transaction fee';
-      if (err.response) {
-        errorMessage = err.response.data?.message || err.message || errorMessage;
-        if (err.response.status === 401) {
-          setShowPasswordModal(true);
+
+      // fee_name may be typed manually now — just ensure it's not empty
+      if (!feeData.fee_name || feeData.fee_name.trim() === '') {
+        customErrorToast('Fee name cannot be empty');
+        setLoading(false);
+        return false;
+      }
+
+      // keep validation for fee_type
+      if (!feeData.fee_type || !VALID_FEE_TYPES.includes(feeData.fee_type)) {
+        customErrorToast('Fee type must be either "percentage" or "fixed"');
+        setLoading(false);
+        return false;
+      }
+
+      const feeAmount = parseFloat(feeData.fee_amount);
+      if (isNaN(feeAmount) || feeAmount <= 0) {
+        customErrorToast('Fee amount must be a positive number');
+        setLoading(false);
+        return false;
+      }
+
+      if (feeData.has_max_limit) {
+        const maxLimit = parseFloat(feeData.max_limit);
+        if (isNaN(maxLimit) || maxLimit <= 0) {
+          customErrorToast('Max limit must be a positive number when Has Max Limit is enabled');
+          setLoading(false);
+          return false;
         }
       }
-      customErrorToast(errorMessage);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+
+      // Show modal if no PIN
+      if (!pin || pin.trim() === '') {
+        setShowPasswordModal(true);
+        setLoading(false);
+        return false;
+      }
+
+      const payload = {
+        fee_name: feeData.fee_name,
+        fee_type: feeData.fee_type,
+        fee_amount: feeAmount,
+        status: feeData.status,
+        has_max_limit: feeData.has_max_limit,
+        max_limit: feeData.has_max_limit ? parseFloat(feeData.max_limit) : null,
+      };
+
+      try {
+        const response = await axios.post(
+          `${API_BASE_URL}/admin/transaction-fee/update/${feeId}`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              activity_pin: pin.trim(), // backend expects activity_pin
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (
+          response.status === 200 ||
+          (response.status === 400 &&
+            response.data?.message === 'Error while editing Transaction Fee!')
+        ) {
+          customSuccessToast('Fee updated successfully');
+          setShowPasswordModal(false);
+          setactivityPin('');
+          return true;
+        } else {
+          customErrorToast(response.data?.message || 'Unexpected server response');
+          return false;
+        }
+      } catch (err) {
+        let errorMessage = 'Error updating transaction fee';
+        if (err.response) {
+          errorMessage = err.response.data?.message || err.message || errorMessage;
+          if (err.response.status === 401) {
+            setShowPasswordModal(true);
+          }
+        }
+        customErrorToast(errorMessage);
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token]
+  );
 
   const resetState = () => {
     setShowPasswordModal(false);
-    setactivityPin(''); // ✅ lowercase
+    setactivityPin('');
   };
 
   return {
@@ -296,8 +308,8 @@ const useUpdateFee = () => {
     loading,
     showPasswordModal,
     setShowPasswordModal,
-    activityPin, // ✅ lowercase
-    setactivityPin, // ✅ lowercase
+    activityPin,
+    setactivityPin,
     resetState,
   };
 };

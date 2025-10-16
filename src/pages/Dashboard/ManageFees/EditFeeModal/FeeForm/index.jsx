@@ -10,26 +10,22 @@ import {
   Switch,
 } from '@mui/material';
 
-const FeeForm = ({ formData, handleChange, validFeeNames, validFeeTypes, loading }) => (
+const FeeForm = ({ formData, handleChange, validFeeTypes, loading }) => (
   <form>
-    <FormControl fullWidth sx={{ mb: 2 }}>
-      <InputLabel>Fee Name</InputLabel>
-      <Select
-        name="fee_name"
-        value={formData.fee_name}
-        onChange={handleChange}
-        label="Fee Name"
-        required
-        disabled={loading}
-      >
-        {validFeeNames.map((name) => (
-          <MenuItem key={name} value={name}>
-            {name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+    {/* Fee Name (Manual Input instead of dropdown) */}
+    <TextField
+      fullWidth
+      label="Fee Name"
+      name="fee_name"
+      value={formData.fee_name}
+      onChange={handleChange}
+      sx={{ mb: 2 }}
+      required
+      disabled={loading}
+      placeholder="Enter fee name"
+    />
 
+    {/* Fee Type (Dropdown remains) */}
     <FormControl fullWidth sx={{ mb: 2 }}>
       <InputLabel>Fee Type</InputLabel>
       <Select
@@ -48,6 +44,7 @@ const FeeForm = ({ formData, handleChange, validFeeNames, validFeeTypes, loading
       </Select>
     </FormControl>
 
+    {/* Fee Amount */}
     <TextField
       fullWidth
       label="Fee Amount"
@@ -60,6 +57,7 @@ const FeeForm = ({ formData, handleChange, validFeeNames, validFeeTypes, loading
       disabled={loading}
     />
 
+    {/* Status Switch */}
     <FormControlLabel
       control={
         <Switch
@@ -73,6 +71,7 @@ const FeeForm = ({ formData, handleChange, validFeeNames, validFeeTypes, loading
       sx={{ mb: 2 }}
     />
 
+    {/* Has Max Limit Switch */}
     <FormControlLabel
       control={
         <Switch
@@ -86,6 +85,7 @@ const FeeForm = ({ formData, handleChange, validFeeNames, validFeeTypes, loading
       sx={{ mb: 2 }}
     />
 
+    {/* Max Limit (Conditional Field) */}
     {formData.has_max_limit && (
       <TextField
         fullWidth
@@ -112,7 +112,6 @@ FeeForm.propTypes = {
     max_limit: PropTypes.string,
   }).isRequired,
   handleChange: PropTypes.func.isRequired,
-  validFeeNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   validFeeTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   loading: PropTypes.bool.isRequired,
 };

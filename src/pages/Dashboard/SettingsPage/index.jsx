@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Grid, Typography } from "@mui/material";
-import { toast } from "react-toastify";
 
-import { useUpdateSettings, useCreateSettings } from "../../../Hooks/useSetting";
+import { useUpdateSettings } from "../../../Hooks/useSetting";
+import { useFetchSettings } from "../../../Hooks/useSetting";
 import LogoSection from "../SettingsPage/LogoSection";
 import SettingsForm from "../SettingsPage/SettingsForm";
 import ActionButtons from "../SettingsPage/ActionButtons";
-import PasswordModal from "../Card/PasswordModal";
 import {
   pageStyles,
   titleStyles,
@@ -16,8 +15,8 @@ import {
 } from "./SettingsPageStyles";
 
 const SettingsPage = () => {
-  const { updateSettings, isSaving, error: updateError } = useUpdateSettings();
-  const createSettings = useCreateSettings();
+  const { updateSettings, isSaving } = useUpdateSettings();
+  const { fetchSettings } = useFetchSettings();
 
   const [settings, setSettings] = useState({
     name: "",
@@ -32,8 +31,6 @@ const SettingsPage = () => {
   });
 
   const [isEditing, setIsEditing] = useState(false);
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [activityPin, setActivityPin] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Handle input change
@@ -49,52 +46,39 @@ const SettingsPage = () => {
     }
   };
 
+  // Fetch settings on mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      setLoading(true);
+      const result = await fetchSettings(); // <-- call the fetch function
+      if (result) {
+        setSettings({
+          name: result.name || "",
+          logo: result.logo || null,
+          email: result.email || "",
+          phone: result.phone || "",
+          facebook: result.facebook || "",
+          instagram: result.instagram || "",
+          linkedin: result.linkedin || "",
+          youtube: result.youtube || "",
+          twitter: result.twitter || "",
+        });
+        setIsEditing(true);
+      }
+      setLoading(false);
+    };
+    loadSettings();
+  }, []);
+
   // Handle save (update existing settings)
   const handleSave = async () => {
-    const success = await updateSettings(settings);
-    if (success) toast.success("Settings updated successfully");
-  };
-
-  // Open password modal before creating settings
-  const handleCreate = () => {
-    setIsPasswordModalOpen(true);
-  };
-
-  // When password modal is submitted
-  const handlePasswordSubmit = async () => {
     setLoading(true);
-    try {
-      // Build JSON payload
-      const payload = {
-        name: settings.name,
-        email: settings.email,
-        phone: settings.phone,
-        facebook: settings.facebook,
-        instagram: settings.instagram,
-        linkedin: settings.linkedin,
-        youtube: settings.youtube,
-        twitter: settings.twitter,
-        logo: null, // temporarily skip image to test JSON
-      };
-
-      console.log("Creating settings with payload:", payload);
-
-      const response = await createSettings(payload, activityPin);
-      if (response) {
-        toast.success("Settings created successfully!");
-        setIsEditing(true);
-        setIsPasswordModalOpen(false);
-        setActivityPin("");
-      }
-    } catch (err) {
-      toast.error("Failed to create settings");
-      console.error(err);
-    } finally {
-      setLoading(false);
+    const success = await updateSettings(settings);
+    setLoading(false);
+    if (success) {
+      setIsEditing(true);
     }
   };
-
-
 
   return (
     <Box sx={pageStyles}>
@@ -114,23 +98,9 @@ const SettingsPage = () => {
         <ActionButtons
           isEditing={isEditing}
           isSaving={isSaving || loading}
-          settings={settings}
-          handleCreate={handleCreate}
           handleSave={handleSave}
         />
       </Grid>
-
-      {/* 🔐 Password Modal */}
-      {isPasswordModalOpen && (
-        <PasswordModal
-          open={isPasswordModalOpen}
-          onClose={() => setIsPasswordModalOpen(false)}
-          onSubmit={handlePasswordSubmit}
-          password={activityPin}
-          setPassword={setActivityPin}
-          loading={loading}
-        />
-      )}
     </Box>
   );
 };

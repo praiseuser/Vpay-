@@ -1,68 +1,120 @@
-import React from "react";
-import { Box, Button, Grid } from "@mui/material";
-import { buttonStyles } from "../SettingsPageStyles";
+import React, { useState, useEffect } from "react";
+import { Box, Grid, Typography } from "@mui/material";
+import { useUpdateSettings, useFetchSettings } from '../../../../Hooks/useSetting';
+import LogoSection from '../LogoSection';
+import SettingsForm from '../SettingsForm';
+import ActionButtons from "../ActionButtons";
+import PasswordModal from "../../Card/PasswordModal";
 
-const ActionButtons = ({ isEditing, isSaving, handleCreate, handleSave, settings }) => {
-  const onCreateClick = () => {
-    if (!settings || typeof settings !== "object" || Object.keys(settings).length === 0)
-      return console.error("Settings data is missing or invalid");
+import {
+  pageStyles,
+  titleStyles,
+  cardStyles,
+  headerBarStyles,
+  sectionTitleStyles,
+} from '../SettingsPageStyles'
 
-    // Build plain JSON payload (not FormData)
-    const payload = {
-      name: settings.name || "",
-      logo: null, // backend expects null if no file
-      phone: settings.phone || "",
-      email: settings.email || "",
-      twitter: settings.twitter || "",
-      linkedin: settings.linkedin || "",
-      youtube: settings.youtube || "",
-      facebook: settings.facebook || "",
-      instagram: settings.instagram || "",
-    };
+const SettingsPage = () => {
+  const { updateSettings, loading: isSaving } = useUpdateSettings();
+  const { fetchSettings } = useFetchSettings();
 
-    console.log("🚀 Sending JSON payload:", payload);
+  const [settings, setSettings] = useState({
+    name: "",
+    logo: null,
+    email: "",
+    phone: "",
+    facebook: "",
+    linkedin: "",
+    instagram: "",
+    youtube: "",
+    twitter: "",
+  });
 
-    handleCreate(payload);
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false); // ✅ controls modal
+
+  // Handle input change
+  const handleChange = (field) => (event) => {
+    if (field === "logo") {
+      const file = event.target.files[0];
+      if (file) {
+        const imageUrl = URL.createObjectURL(file);
+        setSettings((prev) => ({ ...prev, [field]: { file, url: imageUrl } }));
+      }
+    } else {
+      setSettings((prev) => ({ ...prev, [field]: event.target.value || "" }));
+    }
   };
 
+  // Fetch settings on mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      setLoading(true);
+      const result = await fetchSettings();
+      if (result) {
+        setSettings({
+          name: result.name || "",
+          logo: result.logo || null,
+          email: result.email || "",
+          phone: result.phone || "",
+          facebook: result.facebook || "",
+          instagram: result.instagram || "",
+          linkedin: result.linkedin || "",
+          youtube: result.youtube || "",
+          twitter: result.twitter || "",
+        });
+        setIsEditing(true);
+      }
+      setLoading(false);
+    };
+    loadSettings();
+  }, []);
+
+  // ✅ Open modal when Save is clicked
+  const handleSave = () => {
+    setOpenModal(true);
+  };
+
+  // ✅ Called after user enters activity pin
+  const handleConfirmSave = async (activityPin) => {
+    setOpenModal(false);
+    setLoading(true);
+    const success = await updateSettings(settings, activityPin);
+    setLoading(false);
+    if (success) setIsEditing(true);
+  };
 
   return (
-    <Grid item xs={12}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 2,
-          padding: 2,
-          bgcolor: "#fff",
-          borderTop: "1px solid #e0e0e0",
-          position: "sticky",
-          bottom: 0,
-          zIndex: 1000,
-          minHeight: 60,
-        }}
-      >
-        {!isEditing && (
-          <Button
-            variant="contained"
-            onClick={onCreateClick}
-            disabled={isSaving}
-            sx={buttonStyles.create}
-          >
-            {isSaving ? "Creating..." : "Create"}
-          </Button>
-        )}
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          disabled={isSaving || !isEditing}
-          sx={buttonStyles.save}
-        >
-          {isSaving ? "Saving..." : "Save Changes"}
-        </Button>
-      </Box>
-    </Grid>
+    <Box sx={pageStyles}>
+      <Typography sx={titleStyles}>Settings</Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Box sx={cardStyles}>
+            <Box sx={headerBarStyles} />
+            <Typography sx={sectionTitleStyles}>General Settings</Typography>
+            <Grid container spacing={4}>
+              <LogoSection settings={settings} handleChange={handleChange} />
+              <SettingsForm settings={settings} handleChange={handleChange} />
+            </Grid>
+          </Box>
+        </Grid>
+
+        <ActionButtons
+          isEditing={isEditing}
+          isSaving={isSaving || loading}
+          handleSave={handleSave} // ✅ now opens modal
+        />
+      </Grid>
+
+      {/* ✅ Password modal */}
+      <PasswordModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onConfirm={handleConfirmSave} // callback after entering pin
+      />
+    </Box>
   );
 };
 
-export default ActionButtons;
+export default SettingsPage;

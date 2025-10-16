@@ -13,21 +13,16 @@ const FormBody = ({ formData, handleChange, loading }) => {
 
   return (
     <Box sx={{ position: 'relative', zIndex: 1 }}>
-      {/* Row 1: Fee Name */}
+      {/* Row 1: Fee Name (changed to text input) */}
       <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
         <InputField
           label="Fee Name"
           name="fee_name"
           value={formData.fee_name}
           onChange={handleChange}
-          options={[
-            { value: '', label: 'Select Fee Name' },
-            { value: 'Swap', label: 'Swap' },
-            { value: 'Send', label: 'Send' },
-            { value: 'PayApp', label: 'PayApp' },
-            { value: 'Payout', label: 'Payout' },
-          ]}
+          placeholder="Enter Fee Name (e.g., Swap, Send, etc.)"
           disabled={loading}
+          required
         />
       </Box>
 

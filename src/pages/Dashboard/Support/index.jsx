@@ -52,7 +52,7 @@ const Support = () => {
     else if (activeTabIndex === 1) fetchOpenTickets();
     else if (activeTabIndex === 2) fetchClosedTickets();
 
-    setHasShownError(false); 
+    setHasShownError(false);
   }, [activeTabIndex, fetchAllTickets, fetchOpenTickets, fetchClosedTickets]);
 
   useEffect(() => {
