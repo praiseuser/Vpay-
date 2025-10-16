@@ -1,106 +1,100 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Grid, Typography } from '@mui/material';
-import { useSelector } from "react-redux";
+import React, { useState } from "react";
+import { Box, Grid, Typography } from "@mui/material";
 import { toast } from "react-toastify";
-import axios from 'axios';
 
-import { useUpdateSettings } from '../../../Hooks/useSetting';
-import LogoSection from '../SettingsPage/LogoSection';
-import SettingsForm from '../SettingsPage/SettingsForm';
-import ActionButtons from '../SettingsPage/ActionButtons';
+import { useUpdateSettings, useCreateSettings } from "../../../Hooks/useSetting";
+import LogoSection from "../SettingsPage/LogoSection";
+import SettingsForm from "../SettingsPage/SettingsForm";
+import ActionButtons from "../SettingsPage/ActionButtons";
+import PasswordModal from "../Card/PasswordModal";
 import {
   pageStyles,
   titleStyles,
   cardStyles,
   headerBarStyles,
-  sectionTitleStyles
-} from './SettingsPageStyles';
+  sectionTitleStyles,
+} from "./SettingsPageStyles";
 
 const SettingsPage = () => {
   const { updateSettings, isSaving, error: updateError } = useUpdateSettings();
+  const createSettings = useCreateSettings();
 
   const [settings, setSettings] = useState({
-    name: 'My Website',
+    name: "",
     logo: null,
-    email: 'info@mywebsite.com',
-    phone: '1234567890',
-    facebook: '',
-    linkedin: '',
-    instagram: '',
-    youtube: '',
+    email: "",
+    phone: "",
+    facebook: "",
+    linkedin: "",
+    instagram: "",
+    youtube: "",
+    twitter: "",
   });
 
-  const [isEditing, setIsEditing] = useState(true); // Assume editing mode by default
+  const [isEditing, setIsEditing] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [activityPin, setActivityPin] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const userState = useSelector((state) => state.user);
-  const token = userState.token;
-
+  // Handle input change
   const handleChange = (field) => (event) => {
-    if (field === 'logo') {
+    if (field === "logo") {
       const file = event.target.files[0];
       if (file) {
         const imageUrl = URL.createObjectURL(file);
-        setSettings((prevSettings) => ({
-          ...prevSettings,
-          [field]: { file, url: imageUrl },
-        }));
+        setSettings((prev) => ({ ...prev, [field]: { file, url: imageUrl } }));
       }
     } else {
-      setSettings((prevSettings) => ({
-        ...prevSettings,
-        [field]: event.target.value || '',
-      }));
+      setSettings((prev) => ({ ...prev, [field]: event.target.value || "" }));
     }
   };
 
+  // Handle save (update existing settings)
   const handleSave = async () => {
-    if (!isEditing || !token) {
-      toast.error("Invalid state or no token found, please log in");
-      return;
-    }
-
     const success = await updateSettings(settings);
-    if (success) {
-      toast.success("Settings updated successfully");
-    }
+    if (success) toast.success("Settings updated successfully");
   };
 
-  const handleCreate = async () => {
-    if (!token) {
-      toast.error("No token found, please log in");
-      return;
-    }
+  // Open password modal before creating settings
+  const handleCreate = () => {
+    setIsPasswordModalOpen(true);
+  };
 
+  // When password modal is submitted
+  const handlePasswordSubmit = async () => {
+    setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('name', settings.name);
-      formData.append('email', settings.email);
-      formData.append('phone', settings.phone);
-      formData.append('facebook', settings.facebook);
-      formData.append('linkedin', settings.linkedin);
-      formData.append('instagram', settings.instagram);
-      formData.append('youtube', settings.youtube);
+      // Build JSON payload
+      const payload = {
+        name: settings.name,
+        email: settings.email,
+        phone: settings.phone,
+        facebook: settings.facebook,
+        instagram: settings.instagram,
+        linkedin: settings.linkedin,
+        youtube: settings.youtube,
+        twitter: settings.twitter,
+        logo: null, // temporarily skip image to test JSON
+      };
 
-      if (settings.logo && settings.logo.file) {
-        formData.append('logo', settings.logo.file);
+      console.log("Creating settings with payload:", payload);
+
+      const response = await createSettings(payload, activityPin);
+      if (response) {
+        toast.success("Settings created successfully!");
+        setIsEditing(true);
+        setIsPasswordModalOpen(false);
+        setActivityPin("");
       }
-
-      const response = await axios.post(`${API_BASE_URL}/v1/admin/settings`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      toast.success("Settings created successfully");
-      setIsEditing(true);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || "Failed to create settings";
-      toast.error(`Error: ${errorMessage}`);
+      toast.error("Failed to create settings");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (updateError) return <div>Error: {updateError}</div>;
+
 
   return (
     <Box sx={pageStyles}>
@@ -116,15 +110,27 @@ const SettingsPage = () => {
             </Grid>
           </Box>
         </Grid>
-        <Grid item xs={12}>
-          <ActionButtons
-            isEditing={isEditing}
-            isSaving={isSaving}
-            handleCreate={handleCreate}
-            handleSave={handleSave}
-          />
-        </Grid>
+
+        <ActionButtons
+          isEditing={isEditing}
+          isSaving={isSaving || loading}
+          settings={settings}
+          handleCreate={handleCreate}
+          handleSave={handleSave}
+        />
       </Grid>
+
+      {/* 🔐 Password Modal */}
+      {isPasswordModalOpen && (
+        <PasswordModal
+          open={isPasswordModalOpen}
+          onClose={() => setIsPasswordModalOpen(false)}
+          onSubmit={handlePasswordSubmit}
+          password={activityPin}
+          setPassword={setActivityPin}
+          loading={loading}
+        />
+      )}
     </Box>
   );
 };

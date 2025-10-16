@@ -42,14 +42,14 @@ const useFetchRateCurrencies = () => {
 
       if (formattedCurrencies.length === 0) {
         setError('No rate data available from the API');
-        customErrorToast('No rate data available');
+        CustomErrorToast('No rate data available');
       } else {
         setRateCurrencies(formattedCurrencies);
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch rate currencies';
       setError(errorMessage);
-      customErrorToast(errorMessage);
+      CustomErrorToast(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,7 @@ const useFetchRateCurrencies = () => {
       hasFetched.current = true;
     } else if (!token) {
       setError('Authentication token is missing');
-      customErrorToast('Authentication token is missing');
+      CustomErrorToast('Authentication token is missing');
       setLoading(false);
     }
   }, [token]);
@@ -80,7 +80,6 @@ const useCreateRate = () => {
   const userState = useSelector((state) => state.user);
   const token = userState?.token;
 
-  // ✅ Fetch fiat currencies for dropdown
   useEffect(() => {
     const fetchCurrencies = async () => {
       if (!token) {

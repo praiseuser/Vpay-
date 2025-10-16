@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ReplyIcon from '@mui/icons-material/Reply';
 import EditIcon from '@mui/icons-material/Edit';
 import CustomTable from '../../../../components/CustomTable';
-import CustomLoader from '../../../../components/CustomLoader'; // Assuming this is the path to your CustomLoader
+import CustomLoader from '../../../../components/CustomLoader';
 
 const StyledTableCell = styled('span')(({ theme }) => ({
   fontFamily: 'Mada',
@@ -13,30 +13,67 @@ const StyledTableCell = styled('span')(({ theme }) => ({
     fontWeight: 600,
     backgroundColor: '#f5f5f5',
   },
+  display: 'flex',
+  alignItems: 'center',
 }));
 
-const SupportTable = ({ tickets, loading, error, onDelete, onReplyOpen, onStatusOpen, deletingTicketId, emptyMessage = 'No tickets available' }) => {
+const SupportTable = ({
+  tickets,
+  loading,
+  error,
+  onDelete,
+  onReplyOpen,
+  onStatusOpen,
+  deletingTicketId,
+  emptyMessage = 'No support tickets found',
+}) => {
   const formatRows = (data) => {
     if (!data || data.length === 0) {
+      // ✅ Show message as one centered row (full-width)
       return [
         {
-          id: <StyledTableCell></StyledTableCell>,
-          subject: <StyledTableCell></StyledTableCell>,
-          status: <StyledTableCell></StyledTableCell>,
-          createdAt: <StyledTableCell></StyledTableCell>,
-          actions: (
-            <StyledTableCell>
-              <Typography sx={{ textAlign: 'center', color: '#757575' }}>{emptyMessage}</Typography>
+          id: (
+            <StyledTableCell
+              sx={{
+                textAlign: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                gridColumn: '1 / -1',
+              }}
+              colSpan={5}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  color: '#757575',
+                  textAlign: 'center',
+                  width: '100%',
+                }}
+              >
+                {emptyMessage}
+              </Typography>
             </StyledTableCell>
           ),
+          subject: '',
+          status: '',
+          createdAt: '',
+          actions: '',
         },
       ];
     }
+
     return data.map((ticket) => ({
       id: <StyledTableCell>{ticket.ticketNumber}</StyledTableCell>,
       subject: <StyledTableCell>{ticket.subject}</StyledTableCell>,
       status: <StyledTableCell>{ticket.status}</StyledTableCell>,
-      createdAt: <StyledTableCell>{new Date(ticket.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</StyledTableCell>,
+      createdAt: (
+        <StyledTableCell>
+          {new Date(ticket.createdAt).toLocaleString('en-US', {
+            dateStyle: 'medium',
+            timeStyle: 'short',
+          })}
+        </StyledTableCell>
+      ),
       actions: (
         <StyledTableCell>
           <Button onClick={() => onReplyOpen(ticket)} sx={{ mr: 1 }}>
@@ -61,15 +98,8 @@ const SupportTable = ({ tickets, loading, error, onDelete, onReplyOpen, onStatus
     { id: 'actions', label: 'ACTIONS', minWidth: 150 },
   ];
 
-  if (error)
-    return (
-      <Box sx={{ p: 4 }}>
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
-
   return (
-    <Box sx={{ position: 'relative', minHeight: '200px' }}>
+    <Box sx={{ position: 'relative', minHeight: '250px' }}>
       {loading && (
         <Box
           sx={{
@@ -82,17 +112,21 @@ const SupportTable = ({ tickets, loading, error, onDelete, onReplyOpen, onStatus
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: 'rgba(255, 255, 255, 0.7)',
-            zIndex: 1,
+            zIndex: 2,
           }}
         >
           <CustomLoader />
         </Box>
       )}
+
       <CustomTable
         columns={columns}
         rows={formatRows(tickets)}
         showAddButton={false}
-        sx={{ '& .MuiTableCell-root': { padding: '12px' }, opacity: loading ? 0.5 : 1 }}
+        sx={{
+          '& .MuiTableCell-root': { padding: '12px' },
+          opacity: loading ? 0.5 : 1,
+        }}
       />
     </Box>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
-import BouncingLoader from '../../../../components/BouncingLoader';
+import CustomLoader from '../../../../components/CustomLoader';
 import { loadingOverlayStyle } from '../countryStyles';
 
 const LoadingOverlay = ({ loading }) => {
@@ -9,7 +9,7 @@ const LoadingOverlay = ({ loading }) => {
 
   return (
     <Box sx={loadingOverlayStyle}>
-      <BouncingLoader />
+     <CustomLoader />
     </Box>
   );
 };

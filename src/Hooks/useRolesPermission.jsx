@@ -303,8 +303,10 @@ export const useFetchAdminPermissions = (adminId) => {
         `${API_BASE_URL}/admin/role-permissions/${adminId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      console.log("🔍 Full backend response:", res.data);
 
       const dataArray = Array.isArray(res.data.result) ? res.data.result : [];
+      console.log("✅ Extracted permissions array:", dataArray);
 
       const sortedData = [...dataArray].sort((a, b) => {
         const aDate = new Date(a.updated_at).getTime();
@@ -325,7 +327,6 @@ export const useFetchAdminPermissions = (adminId) => {
         }
       }
 
-      // ✅ Use functional update to preserve previous `checked` safely
       setPermissions((prev) =>
         prefillPermissions(Object.values(uniquePermissionsMap), prev)
       );
@@ -342,7 +343,8 @@ export const useFetchAdminPermissions = (adminId) => {
     } finally {
       setLoading(false);
     }
-  }, [adminId, token]); // ✅ removed `permissions` from deps
+  }, [adminId, token]);
+
 
   useEffect(() => {
     if (adminId) fetchPermissions();
@@ -453,8 +455,6 @@ export const useUpdateAdminPermissions = (adminId, permissions, setPermissions) 
     updatePermissions,
   };
 };
-
-
 export const usePermissions = () => {
   const token = useSelector((state) => state.user.token);
 

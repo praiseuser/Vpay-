@@ -38,12 +38,13 @@ const formatRows = (data, onEditClick, loading) => {
     return [];
   }
 
-  return data.map((item) => {
+  return data.map((item, index) => {
     const imageSrc = item.crypto_image
       ? `${BASE_IMAGE_URL}${item.crypto_image}`
       : '';
 
     return {
+      serial: <TableText style={rowStyle}>{index + 1}</TableText>,
       crypto_name: <TableText style={rowStyle}>{item.crypto_name}</TableText>,
       network: <TableText style={rowStyle}>{item.network}</TableText>,
       crypto_symbol: (
@@ -66,9 +67,7 @@ const formatRows = (data, onEditClick, loading) => {
           )}
         </Box>
       ),
-      status: (
-        <CustomButton type={item.status === '1' ? 'green' : 'red'} />
-      ),
+      status: <CustomButton type={item.status === '1' ? 'green' : 'red'} />,
       action: (
         <Box
           style={{
@@ -83,6 +82,7 @@ const formatRows = (data, onEditClick, loading) => {
       ),
     };
   });
+
 };
 
 export { formatRows };

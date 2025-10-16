@@ -37,7 +37,7 @@ const AddCountryForm = ({ onCancel }) => {
     status: "1",
   });
 
-  const [accountPassword, setAccountPassword] = useState("");
+  const [activityPin, setactivityPin] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
 
   const {
@@ -107,14 +107,14 @@ const AddCountryForm = ({ onCancel }) => {
   };
 
   const handlePasswordSubmit = async () => {
-    if (!accountPassword.trim()) return;
+    if (!activityPin.trim()) return;
 
     setPasswordLoading(true);
-    const success = await addCountry(formData, accountPassword);
+    const success = await addCountry(formData, activityPin);
     setPasswordLoading(false);
 
     if (success) {
-      setAccountPassword("");
+      setactivityPin("");
       onCancel();
     }
   };
@@ -138,7 +138,7 @@ const AddCountryForm = ({ onCancel }) => {
     }
 
     if (passwordVerified) {
-      const success = await addCountry(formData, accountPassword);
+      const success = await addCountry(formData, activityPin);
       if (success) {
         onCancel();
       }
@@ -173,8 +173,8 @@ const AddCountryForm = ({ onCancel }) => {
         setShowPasswordModal={setShowPasswordModal}
         handlePasswordSubmit={handlePasswordSubmit}
         handlePasswordModalClose={handlePasswordModalClose}
-        accountPassword={accountPassword}
-        setAccountPassword={setAccountPassword}
+        activityPin={activityPin}
+        setactivityPin={setactivityPin}
         passwordLoading={passwordLoading}
         error={error}
       />

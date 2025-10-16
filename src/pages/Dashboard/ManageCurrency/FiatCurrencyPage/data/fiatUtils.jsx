@@ -23,7 +23,7 @@ const formatRows = (data, handleEditClick, loading) => {
           </Box>
         ),
         fiat_currency_code: '',
-        country_code: '', 
+        country_code: '',
         status: '',
         action: '',
       },
@@ -37,7 +37,7 @@ const formatRows = (data, handleEditClick, loading) => {
   return data.map((item, index) => ({
     sn: <span style={{ ...rowStyle }}>{index + 1}</span>,
     fiat_currency_name: (
-      <span style={{ ...rowStyle, fontSize: '13px',  }}>
+      <span style={{ ...rowStyle, fontSize: '13px', }}>
         {item.fiat_currency_name}
       </span>
     ),
@@ -50,18 +50,12 @@ const formatRows = (data, handleEditClick, loading) => {
       <span style={{ ...rowStyle, fontSize: '13px', }}>
         {item.country_code}
       </span>
-    ), 
+    ),
     status: (
-      <Chip
-        label={item.status === '1' || item.status === 1 ? 'Enabled' : 'Disabled'}
-        color={item.status === '1' || item.status === 1 ? 'success' : 'default'}
-        variant="outlined"
-        size="small"
-        sx={{ fontWeight: 600, fontSize: '12px', textTransform: 'uppercase' }}
-      />
+      <CustomButton type={item.status === '1' ? 'red' : 'green'} />
     ),
     action: (
-      <Box style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+      <Box style={{ display: 'flex', gap: '8px', }}>
         <CustomButton type="edit" onClick={() => handleEditClick(item)} />
       </Box>
     ),

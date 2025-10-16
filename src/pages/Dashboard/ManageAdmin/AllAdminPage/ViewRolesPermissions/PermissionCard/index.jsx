@@ -5,7 +5,7 @@ const permissionsList = ["create", "read", "update", "delete"];
 
 const PermissionCard = ({
   adminTypeId,
-  module = {}, // renamed from `data` to `module`
+  module = {}, 
   setFormattedPermissions,
   handlePermissionChange,
   handleAdminTypeToggle,
@@ -13,7 +13,6 @@ const PermissionCard = ({
 }) => {
   const checked = module.checked || false;
 
-  // Toggle entire role
   const handleToggle = () => {
     const isEnabled = !checked;
     setFormattedPermissions((prev) => ({
@@ -22,6 +21,8 @@ const PermissionCard = ({
         ...prev[adminTypeId],
         checked: isEnabled,
         displayName: prev[adminTypeId]?.displayName || module.displayName || `Role ${adminTypeId}`,
+
+        
         ...(isEnabled
           ? {}
           : { create: false, read: false, update: false, delete: false }),
@@ -31,7 +32,6 @@ const PermissionCard = ({
   };
 
 
-  // Toggle individual permission
   const handleSwitchChange = (perm) => {
     const newValue = !module[perm];
     setFormattedPermissions((prev) => ({

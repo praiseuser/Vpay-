@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Box, TextField, MenuItem, Chip, Typography, CircularProgress } from '@mui/material';
+import { Box, TextField, MenuItem, Chip, Typography } from '@mui/material';
 import CustomTable from '../../../components/CustomTable';
 import { styled } from '@mui/material/styles';
 import { transactionStyles } from './style';
 import useFetchTransactions from '../../../Hooks/useTransactions';
+import CustomLoader from '../../../components/CustomLoader';
 
 const StyledTableCell = styled('span')(({ theme }) => transactionStyles.styledTableCell);
 
 const Transaction = () => {
   const [filterType, setFilterType] = useState('All');
   const [filterCategory, setFilterCategory] = useState('All');
-  const { transactions, loading, error, refetch } = useFetchTransactions();
+  const { transactions, loading, error } = useFetchTransactions();
 
   const filteredTransactions = transactions.filter((transaction) => {
     const typeMatch = filterType === 'All' || transaction.transaction_data.currencyType === filterType;
@@ -20,10 +21,10 @@ const Transaction = () => {
 
   const formatRows = (data) =>
     data.map((item, index) => ({
-      id: <StyledTableCell className="table-text font-weight-600">{index + 1}</StyledTableCell>, // Serial number starting from 1
+      id: <StyledTableCell className="table-text font-weight-600">{index + 1}</StyledTableCell>,
       service: <StyledTableCell className="table-text font-weight-400">{item.transaction_data.service}</StyledTableCell>,
       provider: <StyledTableCell className="table-text font-weight-400">{item.transaction_data.provider}</StyledTableCell>,
-      amount: <StyledTableCell className="table-text font-weight-400">{`${item.transaction_data.currency} ${item.transaction_data.amount}`}</StyledTableCell>, // Currency before amount
+      amount: <StyledTableCell className="table-text font-weight-400">{`${item.transaction_data.currency} ${item.transaction_data.amount}`}</StyledTableCell>,
       status: (
         <StyledTableCell>
           <Chip
@@ -47,7 +48,29 @@ const Transaction = () => {
     { id: 'createdAt', label: 'CREATED AT', minWidth: 150 },
   ];
 
-  if (error) return <Box sx={{ p: 4 }}><Typography color="error">{error}</Typography></Box>;
+  const rows =
+    !loading && filteredTransactions.length === 0
+      ? [
+        {
+          id: (
+            <StyledTableCell
+              colSpan={columns.length}
+              sx={{
+                textAlign: 'center',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Typography color="textSecondary" variant="body1">
+                {error || 'No transactions data available'}
+              </Typography>
+            </StyledTableCell>
+          ),
+        },
+      ]
+      : formatRows(filteredTransactions);
 
   return (
     <Box sx={{ p: 0 }}>
@@ -104,24 +127,26 @@ const Transaction = () => {
 
       <Box sx={{ position: 'relative', minHeight: '200px' }}>
         {loading && (
-          <Box sx={{
-            position: 'absolute',
-            top: '70%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            height: '100%',
-            zIndex: 1,
-          }}>
-            <CircularProgress />
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '72%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+              height: '100%',
+              zIndex: 1,
+            }}
+          >
+            <CustomLoader />
           </Box>
         )}
         <CustomTable
           columns={columns}
-          rows={formatRows(filteredTransactions)}
+          rows={rows}
           showAddButton={false}
           sx={{ '& .MuiTableCell-root': { padding: '12px' }, opacity: loading ? 0.5 : 1 }}
         />
@@ -131,3 +156,4 @@ const Transaction = () => {
 };
 
 export default Transaction;
+

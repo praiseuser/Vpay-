@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Box, Divider } from '@mui/material';
+import { Divider } from '@mui/material';
 import PropTypes from 'prop-types';
 import useAddFeeLogic from '../AddFeeForm/useAddFeeLogic';
 import FormHeader from '../AddFeeForm/FormHeader';
@@ -11,6 +11,8 @@ import { FormContainer } from './style';
 
 const AddFeeForm = ({ formData: initialFormData, setFormData, handleCreateFee, handleCancel }) => {
   const formRef = useRef(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
   const {
     handleChange,
     handleSubmit,
@@ -20,13 +22,10 @@ const AddFeeForm = ({ formData: initialFormData, setFormData, handleCreateFee, h
     createFiatCurrency,
     showPasswordModal,
     setShowPasswordModal,
-    accountPassword,
-    setAccountPassword,
-    passwordVerified,
+    activityPin,
+    setactivityPin,
     resetState,
   } = useAddFeeLogic({ initialFormData, setFormData, handleCreateFee });
-
-  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const handleAddFeeClick = () => {
     if (formRef.current) {
@@ -34,19 +33,21 @@ const AddFeeForm = ({ formData: initialFormData, setFormData, handleCreateFee, h
     }
   };
 
-  const handlePasswordSubmit = async (password) => {
+  // Password modal submit
+  const handlePasswordSubmit = async (pin) => {
     setPasswordLoading(true);
-    const trimmedPassword = password.trim();
-    if (!trimmedPassword) {
+    const trimmedPin = pin?.trim();
+    if (!trimmedPin) {
       setPasswordLoading(false);
       return;
     }
+
     const latestFormData = { ...initialFormData };
-    const success = await createFiatCurrency(latestFormData, trimmedPassword);
+    const success = await createFiatCurrency(latestFormData, trimmedPin);
 
     if (success) {
       setShowPasswordModal(false);
-      setAccountPassword('');
+      setactivityPin('');
       handleCreateFee(latestFormData);
     } else {
       console.log('Password submission failed:', formError);
@@ -64,20 +65,24 @@ const AddFeeForm = ({ formData: initialFormData, setFormData, handleCreateFee, h
       <PasswordModal
         open={showPasswordModal}
         onClose={handlePasswordModalClose}
-        onSubmit={handlePasswordSubmit}
-        password={accountPassword}
-        setPassword={setAccountPassword}
+        onSubmit={handlePasswordSubmit} // receives pin from modal
+        password={activityPin}
+        setPassword={setactivityPin}
         loading={passwordLoading || formLoading}
         error={null}
       />
+
       <FormHeader />
       <Divider sx={{ width: '100%', borderColor: '#E0E0E0', mb: 2 }} />
+
       <StatusMessage loading={formLoading} error={formError} success={formSuccess} />
+
       <FormBody
         formData={initialFormData}
         handleChange={handleChange}
         loading={formLoading}
       />
+
       <FormFooter
         loading={formLoading}
         handleCancel={handleCancel}

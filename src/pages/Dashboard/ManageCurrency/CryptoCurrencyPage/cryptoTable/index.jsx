@@ -7,6 +7,7 @@ import { Box } from '@mui/material';
 
 const CryptoTable = ({ cryptoData, onAddButtonClick, onEditClick, loading, activeTab, setActiveTab }) => {
   const columns = [
+    { id: 'serial', label: 'S/N', minWidth: 80 },
     { id: 'crypto_name', label: 'CRYPTO NAME', minWidth: 150 },
     { id: 'network', label: 'NETWORK', minWidth: 150 },
     { id: 'crypto_symbol', label: 'CRYPTO SYMBOL', minWidth: 150 },
@@ -20,7 +21,7 @@ const CryptoTable = ({ cryptoData, onAddButtonClick, onEditClick, loading, activ
 
   return (
     <Box
-     
+
     >
       <CustomTable
         columns={columns}

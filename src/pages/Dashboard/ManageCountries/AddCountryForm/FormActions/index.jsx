@@ -10,8 +10,8 @@ const FormActions = ({
   setShowPasswordModal,
   handlePasswordSubmit,
   handlePasswordModalClose,
-  accountPassword,
-  setAccountPassword,
+  activityPin,
+  setactivityPin,
   passwordLoading,
   error
 }) => (
@@ -59,8 +59,8 @@ const FormActions = ({
       open={showPasswordModal} 
       onClose={handlePasswordModalClose}
       onSubmit={handlePasswordSubmit}
-      password={accountPassword}
-      setPassword={setAccountPassword}
+      password={activityPin}
+      setPassword={setactivityPin}
       loading={passwordLoading || loading}
       error={error}
     />

@@ -132,7 +132,7 @@ const useAddCountry = () => {
     }
   }, [token]);
 
-  const addCountry = async (countryData, accountPassword) => {
+  const addCountry = async (countryData, activityPin) => {
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -144,9 +144,9 @@ const useAddCountry = () => {
       return false;
     }
 
-    if (!accountPassword || typeof accountPassword !== 'string' || accountPassword.trim() === '') {
-      setError('Account password is required');
-      CustomErrorToast('Account password is required');
+    if (!activityPin || typeof activityPin !== 'string' || activityPin.trim() === '') {
+      setError('activityPin is required');
+      CustomErrorToast('activityPin is required');
       setLoading(false);
       return false;
     }
@@ -159,7 +159,7 @@ const useAddCountry = () => {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-            'account-password': accountPassword,
+            'account-pin': activityPin,
           },
         }
       );

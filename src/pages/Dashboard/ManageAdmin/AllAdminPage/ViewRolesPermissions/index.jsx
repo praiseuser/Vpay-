@@ -15,7 +15,7 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
   const [accountPassword, setAccountPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const { permissions, setPermissions, loading, error: fetchError } =
+  const { permissions, setPermissions, loading, error: fetchError, refetchPermissions } =
     useFetchAdminPermissions(adminId);
 
   const {
@@ -36,12 +36,15 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
   const [formattedPermissions, setFormattedPermissions] = useState({});
 
   useEffect(() => {
-    if (!allRoles) return;
+    if (!allRoles || !permissions) return;
 
     const formatted = {};
 
     allRoles.forEach((role) => {
-      const perm = permissions[role.id] || {};
+      // ✅ Find permission data for this specific role
+      const perm = permissions[String(role.id)] || {};
+
+      // ✅ Merge backend data and local state (this fixes the issue)
       formatted[role.id] = {
         admin_id: adminId,
         admin_type_id: role.id,
@@ -50,7 +53,15 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
         read: Boolean(perm.read),
         update: Boolean(perm.update),
         delete: Boolean(perm.delete),
-        checked: Boolean(perm.checked || perm.create || perm.read || perm.update || perm.delete),
+
+        // ✅ Automatically mark as checked if any permission is true
+        checked: Boolean(
+          perm.checked ||
+          perm.create ||
+          perm.read ||
+          perm.update ||
+          perm.delete
+        ),
       };
     });
 
@@ -68,7 +79,10 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
     if (success) {
       setAccountPassword("");
       setModalOpen(false);
-      refetchRoles();
+
+      console.log("Update successful, now refetching permissions...");
+      await refetchPermissions();
+      await refetchRoles();
     }
   };
 

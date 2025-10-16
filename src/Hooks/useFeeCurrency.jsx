@@ -12,7 +12,7 @@ const useCreateFeeCurrency = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [passwordVerified, setPasswordVerified] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [accountPassword, setAccountPassword] = useState('');
+  const [activityPin, setactivityPin] = useState('');
 
   const userState = useSelector((state) => state.user);
   const token = userState?.token || localStorage.getItem('token');
@@ -20,7 +20,7 @@ const useCreateFeeCurrency = () => {
   const VALID_FEE_NAMES = ['Swap', 'Send', 'PayApp', 'Payout'];
   const VALID_FEE_TYPES = ['percentage', 'fixed'];
 
-  const createFiatCurrency = async (fiatData, accountPasswordParam) => {
+  const createFiatCurrency = async (fiatData, activityPinParam) => {
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -61,7 +61,7 @@ const useCreateFeeCurrency = () => {
       return false;
     }
 
-    if (!accountPasswordParam || typeof accountPasswordParam !== 'string' || accountPasswordParam.trim() === '') {
+    if (!activityPinParam || typeof activityPinParam !== 'string' || activityPinParam.trim() === '') {
       setShowPasswordModal(true);
       setLoading(false);
       return false;
@@ -79,14 +79,14 @@ const useCreateFeeCurrency = () => {
     const url = `${API_BASE_URL}/admin/transaction-fee/create`;
     console.log('Request URL:', url);
     console.log('Request Payload:', payload);
-    console.log('Request Password:', accountPasswordParam);
+    console.log('Request Password:', activityPinParam);
 
     try {
       const response = await axios.post(url, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'account-password': accountPasswordParam,
+          'activity_pin': activityPinParam,
         },
       });
 
@@ -96,7 +96,7 @@ const useCreateFeeCurrency = () => {
         customSuccessToast('Fee created successfully');
         setPasswordVerified(true);
         setShowPasswordModal(false);
-        setAccountPassword('');
+        setactivityPin('');
         return true;
       } else {
         const message = response.data.message || 'Failed to create fee';
@@ -131,62 +131,62 @@ const useCreateFeeCurrency = () => {
     setShowPasswordModal(false);
     setError(null);
     setSuccessMessage(null);
-    setAccountPassword('');
+    setactivityPin('');
   };
 
-  return { createFiatCurrency, loading, error, success, successMessage, passwordVerified, showPasswordModal, setShowPasswordModal, accountPassword, setAccountPassword, resetState };
+  return { createFiatCurrency, loading, error, success, successMessage, passwordVerified, showPasswordModal, setShowPasswordModal, activityPin, setactivityPin, resetState };
 };
 const useFetchFees = () => {
-    const [fees, setFees] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+  const [fees, setFees] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    const userState = useSelector((state) => state.user);
-    const token = userState?.token || localStorage.getItem('token');
+  const userState = useSelector((state) => state.user);
+  const token = userState?.token || localStorage.getItem('token');
 
-    const fetchFees = async () => {
-        if (!token) {
-            setError('Authentication token not found');
-            customErrorToast('Please log in to view fees');
-            setLoading(false);
-            return;
-        }
+  const fetchFees = async () => {
+    if (!token) {
+      setError('Authentication token not found');
+      customErrorToast('Please log in to view fees');
+      setLoading(false);
+      return;
+    }
 
-        setLoading(true);
-        setError(null);
+    setLoading(true);
+    setError(null);
 
-        try {
-            const response = await axios.get(`${API_BASE_URL}/admin/transaction-fees`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-            setFees(response.data.result || []);
-        } catch (err) {
-            const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch fees';
-            setError(errorMessage);
-            customErrorToast(errorMessage);
-        } finally {
-            setLoading(false);
-        }
-    };
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/transaction-fees`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      setFees(response.data.result || []);
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch fees';
+      setError(errorMessage);
+      customErrorToast(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-        if (token) {
-            fetchFees();
-        } else {
-            setError('Authentication token not found');
-            customErrorToast('Please log in to view fees');
-        }
-    }, [token]);
+  useEffect(() => {
+    if (token) {
+      fetchFees();
+    } else {
+      setError('Authentication token not found');
+      customErrorToast('Please log in to view fees');
+    }
+  }, [token]);
 
-    return { fees, fetchFees, loading, error };
+  return { fees, fetchFees, loading, error };
 };
 const useUpdateFee = () => {
   const [loading, setLoading] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [accountPassword, setAccountPassword] = useState('');
+  const [activityPin, setactivityPin] = useState(''); // ✅ lowercase
 
   const userState = useSelector((state) => state.user);
   const token = userState?.token || localStorage.getItem('token');
@@ -194,7 +194,7 @@ const useUpdateFee = () => {
   const VALID_FEE_NAMES = ['Swap', 'Send', 'PayApp', 'Payout'];
   const VALID_FEE_TYPES = ['percentage', 'fixed'];
 
-  const updateFee = useCallback(async (id, feeData, password) => {
+  const updateFee = useCallback(async (feeId, feeData, pin = '') => {
     setLoading(true);
 
     if (!token) {
@@ -203,7 +203,7 @@ const useUpdateFee = () => {
       return false;
     }
 
-    if (!id) {
+    if (!feeId) {
       customErrorToast('No fee ID provided');
       setLoading(false);
       return false;
@@ -237,7 +237,8 @@ const useUpdateFee = () => {
       }
     }
 
-    if (!password || typeof password !== 'string' || password.trim() === '') {
+    // Show modal if no PIN
+    if (!pin || pin.trim() === '') {
       setShowPasswordModal(true);
       setLoading(false);
       return false;
@@ -253,27 +254,24 @@ const useUpdateFee = () => {
     };
 
     try {
-      console.log('Sending update request - Payload:', payload, 'Password:', password, 'Fee ID:', id);
-      const response = await axios.post(`${API_BASE_URL}/admin/transaction-fee/update/${id}`, payload, {
+      const response = await axios.post(`${API_BASE_URL}/admin/transaction-fee/update/${feeId}`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'account-password': password.trim(),
+          'activity_pin': pin.trim(), // ✅ backend expects activityPin
           'Content-Type': 'application/json',
         },
       });
 
-      console.log('Server response:', response.data);
       if (response.status === 200 || (response.status === 400 && response.data?.message === 'Error while editing Transaction Fee!')) {
         customSuccessToast('Fee updated successfully');
         setShowPasswordModal(false);
-        setAccountPassword('');
+        setactivityPin(''); // ✅ lowercase
         return true;
       } else {
         customErrorToast(response.data?.message || 'Unexpected server response');
         return false;
       }
     } catch (err) {
-      console.log('Server error response:', err.response ? err.response.data : err.message);
       let errorMessage = 'Error updating transaction fee';
       if (err.response) {
         errorMessage = err.response.data?.message || err.message || errorMessage;
@@ -290,67 +288,75 @@ const useUpdateFee = () => {
 
   const resetState = () => {
     setShowPasswordModal(false);
-    setAccountPassword('');
+    setactivityPin(''); // ✅ lowercase
   };
 
-  return { updateFee, loading, showPasswordModal, setShowPasswordModal, accountPassword, setAccountPassword, resetState };
+  return {
+    updateFee,
+    loading,
+    showPasswordModal,
+    setShowPasswordModal,
+    activityPin, // ✅ lowercase
+    setactivityPin, // ✅ lowercase
+    resetState,
+  };
 };
 const useDeleteTransactionFee = () => {
-    const [loadingStates, setLoadingStates] = useState({});
-    const [error, setError] = useState(null);
-    const [successMessage, setSuccessMessage] = useState(null);
+  const [loadingStates, setLoadingStates] = useState({});
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
-    const userState = useSelector((state) => state.user);
-    const token = userState?.token || localStorage.getItem('token');
+  const userState = useSelector((state) => state.user);
+  const token = userState?.token || localStorage.getItem('token');
 
-    const deleteTransactionFee = useCallback(async (id) => {
-        setLoadingStates((prev) => ({ ...prev, [id]: true }));
-        setError(null);
-        setSuccessMessage(null);
+  const deleteTransactionFee = useCallback(async (id) => {
+    setLoadingStates((prev) => ({ ...prev, [id]: true }));
+    setError(null);
+    setSuccessMessage(null);
 
-        if (!token) {
-            setError('Authentication token not found');
-            customErrorToast('Please log in to delete a fee');
-            setLoadingStates((prev) => ({ ...prev, [id]: false }));
-            return;
-        }
+    if (!token) {
+      setError('Authentication token not found');
+      customErrorToast('Please log in to delete a fee');
+      setLoadingStates((prev) => ({ ...prev, [id]: false }));
+      return;
+    }
 
-        if (!id) {
-            setError('No fee ID provided');
-            customErrorToast('No fee ID provided');
-            setLoadingStates((prev) => ({ ...prev, [id]: false }));
-            return;
-        }
+    if (!id) {
+      setError('No fee ID provided');
+      customErrorToast('No fee ID provided');
+      setLoadingStates((prev) => ({ ...prev, [id]: false }));
+      return;
+    }
 
-        try {
-            const response = await axios.post(`${API_BASE_URL}/admin/transaction-fee/delete/${id}`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+    try {
+      const response = await axios.post(`${API_BASE_URL}/admin/transaction-fee/delete/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-            setSuccessMessage('Transaction fee deleted successfully!');
-            customSuccessToast('Transaction fee deleted successfully!');
-            setLoadingStates((prev) => ({ ...prev, [id]: false }));
-            return response.data;
-        } catch (err) {
-            let errorMessage = 'Something went wrong while deleting the transaction fee';
-            if (err.response) {
-                errorMessage = err.response?.data?.message || err.message || errorMessage;
-            } else {
-                errorMessage = err.message || errorMessage;
-            }
-            setError(errorMessage);
-            customErrorToast(errorMessage);
-            setLoadingStates((prev) => ({ ...prev, [id]: false }));
-            return null;
-        }
-    }, [token]);
+      setSuccessMessage('Transaction fee deleted successfully!');
+      customSuccessToast('Transaction fee deleted successfully!');
+      setLoadingStates((prev) => ({ ...prev, [id]: false }));
+      return response.data;
+    } catch (err) {
+      let errorMessage = 'Something went wrong while deleting the transaction fee';
+      if (err.response) {
+        errorMessage = err.response?.data?.message || err.message || errorMessage;
+      } else {
+        errorMessage = err.message || errorMessage;
+      }
+      setError(errorMessage);
+      customErrorToast(errorMessage);
+      setLoadingStates((prev) => ({ ...prev, [id]: false }));
+      return null;
+    }
+  }, [token]);
 
-    const isFeeLoading = (feeId) => !!loadingStates[feeId];
+  const isFeeLoading = (feeId) => !!loadingStates[feeId];
 
-    return { deleteTransactionFee, isFeeLoading, error, successMessage };
+  return { deleteTransactionFee, isFeeLoading, error, successMessage };
 };
 
 export { useCreateFeeCurrency, useFetchFees, useUpdateFee, useDeleteTransactionFee };

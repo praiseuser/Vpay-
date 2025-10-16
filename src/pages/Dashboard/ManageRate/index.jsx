@@ -1,8 +1,6 @@
-import { useMediaQuery } from '@mui/material';
-import CustomTabs from '../../../components/CustomTabs/CustomTabs';
 import { useState } from 'react';
+import CustomTabs from '../../../components/CustomTabs/CustomTabs';
 import CreateRateForm from '../ManageRate/CreateRateForm';
-import CryptoRate from '../ManageRate/CryptoRate';
 import FiatRate from '../ManageRate/FiatRate';
 
 const ManageRate = () => {
@@ -14,8 +12,6 @@ const ManageRate = () => {
     Rate: '',
     status: '1',
   });
-
-  const isMobile = useMediaQuery('(max-width: 600px)');
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -53,20 +49,19 @@ const ManageRate = () => {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        height: isMobile ? '100vh' : 'auto',
+        height: 'auto',
         overflow: 'hidden',
       }}
     >
       <div style={{ flexShrink: 0 }}>
         <CustomTabs
-          tabLabels={['Crypto Currency', 'FIAT Currency']}
+          tabLabels={['FIAT Currency']}
           value={tabValue}
           onChange={handleTabChange}
         />
       </div>
 
       <div className="manage-rate-content-box">
-
         {showAddRateForm ? (
           <CreateRateForm
             formData={formData}
@@ -74,8 +69,6 @@ const ManageRate = () => {
             handleCreateRate={handleCreateRate}
             handleCancel={handleCancel}
           />
-        ) : tabValue === 0 ? (
-          <CryptoRate rates={rates} onAddButtonClick={handleAddRateForm} />
         ) : (
           <FiatRate rates={rates} onAddButtonClick={handleAddRateForm} />
         )}

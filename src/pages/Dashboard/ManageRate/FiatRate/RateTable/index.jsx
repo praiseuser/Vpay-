@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, Chip } from '@mui/material';
 import CustomTable from '../../../../../components/CustomTable';
 import CustomButton from '../../../../../components/CustomButton';
-import BouncingLoader from '../../../../../components/BouncingLoader';
+import CustomLoader from '../../../../../components/CustomLoader';
 
 const RateTable = ({
   rateCurrencies,
@@ -27,13 +27,7 @@ const RateTable = ({
       ),
       rate: <span className="table-text font-weight-500">{item.rate || 'N/A'}</span>,
       status: (
-        <Chip
-          label={item.status === '1' || item.status === 1 ? 'Enabled' : 'Disabled'}
-          color={item.status === '1' || item.status === 1 ? 'success' : 'default'}
-          variant="outlined"
-          size="small"
-          sx={{ fontWeight: 600, fontSize: '12px', textTransform: 'uppercase' }}
-        />
+        <CustomButton type={item.status === '1' ? 'green' : 'red'} />
       ),
       action: (
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -84,7 +78,7 @@ const RateTable = ({
             marginTop: '20px',
           }}
         >
-          <BouncingLoader />
+          <CustomLoader />
         </Box>
       )}
     </Box>

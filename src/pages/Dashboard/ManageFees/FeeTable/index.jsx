@@ -2,7 +2,7 @@ import { Typography, Box, Chip } from '@mui/material';
 import PropTypes from 'prop-types';
 import CustomTable from '../../../../components/CustomTable';
 import CustomButton from '../../../../components/CustomButton';
-import BouncingLoader from '../../../../components/BouncingLoader';
+import CustomLoader from '../../../../components/CustomLoader';
 
 function FeeTable({
   fees,
@@ -13,6 +13,7 @@ function FeeTable({
   onDeleteFee,
 }) {
   const columns = [
+    { id: 'sno', label: 'S/N', minWidth: 60 },
     { id: 'fee_name', label: 'FEE NAME', minWidth: 150 },
     { id: 'fee_type', label: 'FEE TYPE', minWidth: 150 },
     { id: 'fee_amount', label: 'FEE AMOUNT', minWidth: 150 },
@@ -30,25 +31,16 @@ function FeeTable({
   };
 
   return (
-    <Box sx={{ position: 'relative', minHeight: '300px' }}> 
+    <Box sx={{ position: 'relative', minHeight: '300px' }}>
       <CustomTable
         columns={columns}
-        rows={fees.map((fee) => ({
+        rows={fees.map((fee, index) => ({
+          sno: index + 1,
           fee_name: fee.fee_name || 'N/A',
           fee_type: fee.fee_type || 'N/A',
           fee_amount: fee.fee_amount ? `${fee.fee_amount}%` : 'N/A',
           status: (
-            <Chip
-              label={fee.status === '1' || fee.status === true ? 'Enabled' : 'Disabled'}
-              color={fee.status === '1' || fee.status === true ? 'success' : 'default'}
-              variant="outlined"
-              size="small"
-              style={{
-                fontWeight: 600,
-                fontSize: '12px',
-                textTransform: 'uppercase',
-              }}
-            />
+            <CustomButton type={fee.status === '1' ? 'red' : 'green'} />
           ),
           has_max_limit: fee.has_max_limit ? 'Yes' : 'No',
           max_limit: fee.max_limit || 'N/A',
@@ -83,14 +75,14 @@ function FeeTable({
         <Box
           sx={{
             position: 'absolute',
-            top: '65%', 
+            top: '65%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             zIndex: 1,
-            marginTop: '20px', 
+            marginTop: '20px',
           }}
         >
-          <BouncingLoader />
+          <CustomLoader />
         </Box>
       )}
     </Box>

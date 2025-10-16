@@ -14,7 +14,6 @@ import ActionButtons from '../EditFeeModal/ActionsButton';
 
 function EditFeeModal({ open, fee, onClose, onUpdate }) {
   useEffect(() => {
-    console.log('EditFeeModal - Received fee:', fee);
   }, [fee]);
 
   const [formData, setFormData] = useState({
@@ -25,7 +24,7 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
     has_max_limit: false,
     max_limit: '',
   });
-  const { updateFee, loading, showPasswordModal, setShowPasswordModal, accountPassword, setAccountPassword, resetState } = useUpdateFee();
+  const { updateFee, loading, showPasswordModal, setShowPasswordModal, activityPin, setactivityPin, resetState } = useUpdateFee();
 
   useEffect(() => {
     if (fee) {
@@ -93,25 +92,24 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
       return;
     }
 
-    const success = await updateFee(feeId, formData, accountPassword);
+    const success = await updateFee(feeId, formData, activityPin);
     if (success) {
-      onUpdate(); // Trigger parent to refresh data
-      onClose(); // Close modal on success
+      onUpdate(); 
+      onClose();
     }
   };
 
   const handlePasswordSubmit = async (password) => {
     const trimmedPassword = password.trim();
     if (!trimmedPassword) {
-      console.log('Invalid password: empty or only spaces');
       return;
     }
-    setAccountPassword(trimmedPassword);
+    setactivityPin(trimmedPassword);
     const feeId = fee?.id || fee?._id;
     const success = await updateFee(feeId, formData, trimmedPassword);
     if (success) {
-      onUpdate(); // Trigger parent to refresh data
-      onClose(); // Close modal on success
+      onUpdate(); 
+      onClose(); 
     }
   };
 
@@ -195,10 +193,12 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
           open={showPasswordModal}
           onClose={handlePasswordModalClose}
           onSubmit={handlePasswordSubmit}
-          password={accountPassword}
-          setPassword={setAccountPassword}
+          password={activityPin}       
+          setPassword={setactivityPin}
           loading={loading}
         />
+
+
       </Box>
     </Modal>
   );

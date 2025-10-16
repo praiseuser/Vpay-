@@ -159,13 +159,14 @@ export const useFetchAllSupportTickets = (page = 1) => {
   const [error, setError] = useState(null);
   const token = useSelector((state) => state.user.token);
 
-  const fetchTickets = useCallback(async () => {
+  const fetchTickets = useCallback(async (showToast = false) => {
     setLoading(true);
     setError(null);
 
     if (!token) {
-      setError('Authentication token is missing');
-      toast(<CustomErrorToast message="Authentication token is missing" />);
+      const msg = 'Authentication token is missing';
+      setError(msg);
+      if (showToast) toast(<CustomErrorToast message={msg} />);
       setLoading(false);
       return;
     }
@@ -177,8 +178,6 @@ export const useFetchAllSupportTickets = (page = 1) => {
           'Content-Type': 'application/json',
         },
       });
-
-      console.log('Fetch all support tickets response:', response.data);
 
       const data = response.data.result?.tickets || [];
       const formattedTickets = Array.isArray(data)
@@ -192,22 +191,20 @@ export const useFetchAllSupportTickets = (page = 1) => {
         : [];
 
       setTickets(formattedTickets);
+
       if (formattedTickets.length === 0) {
-        toast(<CustomErrorToast message="No support tickets found" />);
+        const msg = 'No support tickets found';
+        setError(msg);
+        if (showToast) toast(<CustomErrorToast message={msg} />);
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch all support tickets';
-      console.error('Error fetching all support tickets:', err.response ? { status: err.response.status, data: err.response.data } : err.message);
-      setError(errorMessage);
-      toast(<CustomErrorToast message={errorMessage} />);
+      const msg = err.response?.data?.message || err.message || 'Failed to fetch all support tickets';
+      setError(msg);
+      if (showToast) toast(<CustomErrorToast message={msg} />);
     } finally {
       setLoading(false);
     }
   }, [token, page]);
-
-  useEffect(() => {
-    fetchTickets();
-  }, [fetchTickets]);
 
   return { tickets, loading, error, fetchTickets };
 };
@@ -329,13 +326,14 @@ export const useFetchOpenSupportTickets = (page = 1) => {
   const [error, setError] = useState(null);
   const token = useSelector((state) => state.user.token);
 
-  const fetchTickets = useCallback(async () => {
+  const fetchTickets = useCallback(async (showToast = false) => {
     setLoading(true);
     setError(null);
 
     if (!token) {
-      setError('Authentication token is missing');
-      toast(<CustomErrorToast message="Authentication token is missing" />);
+      const msg = 'Authentication token is missing';
+      setError(msg);
+      if (showToast) toast(<CustomErrorToast message={msg} />);
       setLoading(false);
       return;
     }
@@ -348,37 +346,32 @@ export const useFetchOpenSupportTickets = (page = 1) => {
         },
       });
 
-      console.log('Fetch open support tickets response:', response.data);
-
       const data = response.data.result?.tickets || [];
       const formattedTickets = Array.isArray(data)
         ? data.map((item) => ({
-          id: item.id || null,
-          ticketNumber: item.ticket_number || null,
-          subject: item.subject || 'No Subject',
-          status: 'Open',
-          createdAt: item.created_at || null,
-        }))
+            id: item.id || null,
+            ticketNumber: item.ticket_number || null,
+            subject: item.subject || 'No Subject',
+            status: 'Open',
+            createdAt: item.created_at || null,
+          }))
         : [];
 
       setTickets(formattedTickets);
+
       if (formattedTickets.length === 0) {
-        setError('No open support tickets available');
-        toast(<CustomErrorToast message="No open support tickets found" />);
+        const msg = 'No open support tickets found';
+        setError(msg);
+        if (showToast) toast(<CustomErrorToast message={msg} />);
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch open support tickets';
-      console.error('Error fetching open support tickets:', err.response ? { status: err.response.status, data: err.response.data } : err.message);
-      setError(errorMessage);
-      toast(<CustomErrorToast message={errorMessage} />);
+      const msg = err.response?.data?.message || err.message || 'Failed to fetch open support tickets';
+      setError(msg);
+      if (showToast) toast(<CustomErrorToast message={msg} />);
     } finally {
       setLoading(false);
     }
   }, [token, page]);
-
-  useEffect(() => {
-    fetchTickets();
-  }, [fetchTickets]);
 
   return { tickets, loading, error, fetchTickets };
 };
@@ -388,13 +381,14 @@ export const useFetchClosedSupportTickets = (page = 1) => {
   const [error, setError] = useState(null);
   const token = useSelector((state) => state.user.token);
 
-  const fetchTickets = useCallback(async () => {
+  const fetchTickets = useCallback(async (showToast = false) => {
     setLoading(true);
     setError(null);
 
     if (!token) {
-      setError('Authentication token is missing');
-      toast(<CustomErrorToast message="Authentication token is missing" />);
+      const msg = 'Authentication token is missing';
+      setError(msg);
+      if (showToast) toast(<CustomErrorToast message={msg} />);
       setLoading(false);
       return;
     }
@@ -407,41 +401,35 @@ export const useFetchClosedSupportTickets = (page = 1) => {
         },
       });
 
-      console.log('Fetch closed support tickets response:', response.data);
-
       const data = response.data.result?.tickets || [];
-      const formattedTickets = Array.isArray(data)  
+      const formattedTickets = Array.isArray(data)
         ? data.map((item) => ({
-          id: item.id || null,
-          ticketNumber: item.ticket_number || null,
-          subject: item.subject || 'No Subject',
-          status: 'Closed',
-          createdAt: item.created_at || null,
-        }))
+            id: item.id || null,
+            ticketNumber: item.ticket_number || null,
+            subject: item.subject || 'No Subject',
+            status: 'Closed',
+            createdAt: item.created_at || null,
+          }))
         : [];
 
+      setTickets(formattedTickets);
+
       if (formattedTickets.length === 0) {
-        setError('No closed support tickets available');
-        toast(<CustomErrorToast message="No closed support tickets found" />);
-      } else {
-        setTickets(formattedTickets);
+        const msg = 'No closed support tickets found';
+        setError(msg);
+        if (showToast) toast(<CustomErrorToast message={msg} />);
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch closed support tickets';
-      console.error('Error fetching closed support tickets:', err.response ? { status: err.response.status, data: err.response.data } : err.message);
-      setError(errorMessage);
-      toast(<CustomErrorToast message={errorMessage} />);
+      const msg = err.response?.data?.message || err.message || 'Failed to fetch closed support tickets';
+      setError(msg);
+      if (showToast) toast(<CustomErrorToast message={msg} />);
     } finally {
       setLoading(false);
     }
   }, [token, page]);
 
-  useEffect(() => {
-    fetchTickets();
-  }, [fetchTickets]);
-
   return { tickets, loading, error, fetchTickets };
-};
+}
 export const useDeleteReply = (onSuccessCallback) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

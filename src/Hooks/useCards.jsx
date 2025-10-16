@@ -16,7 +16,7 @@ const useFetchCards = () => {
 
     const token = useSelector((state) => state.user.token);
 
-    const verifyPasswordAndFetchCards = async (accountPassword) => {
+    const verifyPasswordAndFetchCards = async (activityPin) => {
         setLoading(true);
         setError(null);
 
@@ -27,9 +27,9 @@ const useFetchCards = () => {
             return false;
         }
 
-        if (!accountPassword) {
-            setError('Account password is required');
-            CustomErrorToast('Account password is required');
+        if (!activityPin) {
+            setError('activityPin is required');
+            CustomErrorToast('activityPin is required');
             setLoading(false);
             return false;
         }
@@ -39,7 +39,7 @@ const useFetchCards = () => {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
-                    'account-password': accountPassword,
+                    'activity_pin': activityPin,
                 },
             });
 
@@ -90,10 +90,10 @@ const useFetchCards = () => {
         hasFetched.current = false;
     };
 
-    return { 
-        cards, 
-        loading, 
-        error, 
+    return {
+        cards,
+        loading,
+        error,
         showPasswordModal,
         passwordVerified,
         verifyPassword: verifyPasswordAndFetchCards,

@@ -10,23 +10,24 @@ const Card = ({ collapsed }) => {
     const [cards, setCards] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
-    
-    const [accountPassword, setAccountPassword] = useState('');
+
+    const [activityPin, setActivityPin] = useState('');
     const [passwordLoading, setPasswordLoading] = useState(false);
 
-    const { 
-        cards: fetchedCards, 
-        loading, 
-        error, 
+    const {
+        cards: fetchedCards,
+        loading,
+        error,
         showPasswordModal,
         passwordVerified,
         verifyPassword,
-        resetState
+        resetState,
     } = useFetchCards();
 
+    // ✅ Load cards when password is verified
     useEffect(() => {
-        if (fetchedCards.length > 0) {
-            const mappedCards = fetchedCards.map(card => ({
+        if (passwordVerified && fetchedCards.length > 0) {
+            const mappedCards = fetchedCards.map((card) => ({
                 ...card,
                 isActive: card.status.toLowerCase() === 'active',
                 isFrozen: card.status.toLowerCase() === 'frozen',
@@ -35,57 +36,26 @@ const Card = ({ collapsed }) => {
             }));
             setCards(mappedCards);
         }
-    }, [fetchedCards]);
+    }, [fetchedCards, passwordVerified]);
 
+    // ✅ Handle password verification
     const handlePasswordSubmit = async () => {
-        if (!accountPassword.trim()) {
-            return;
-        }
-        
+        if (!activityPin.trim()) return;
         setPasswordLoading(true);
-        const success = await verifyPassword(accountPassword);
+        const success = await verifyPassword(activityPin);
         setPasswordLoading(false);
-        
         if (success) {
-            setAccountPassword('');
+            setActivityPin('');
+            handlePasswordModalClose(); // ✅ Close PasswordModal when verified
         }
     };
 
+    // ✅ Close modal manually if needed
     const handlePasswordModalClose = () => {
-    };
-
-    const handleToggleActive = (cardNumber) => {
-        setCards(prevCards =>
-            prevCards.map(card =>
-                card.cardNumber === cardNumber ? { ...card, isActive: !card.isActive, status: card.isActive ? 'Inactive' : 'Active' } : card
-            )
-        );
-        handleCloseModal();
-        setTimeout(() => {}, 500);
-    };
-
-    const handleToggleFreeze = (cardNumber) => {
-        setCards(prevCards =>
-            prevCards.map(card =>
-                card.cardNumber === cardNumber ? { ...card, isFrozen: !card.isFrozen, status: card.isFrozen ? 'Active' : 'Frozen' } : card
-            )
-        );
-        handleCloseModal();
-        setTimeout(() => {}, 500);
-    };
-
-    const handleToggleBlock = (cardNumber) => {
-        setCards(prevCards =>
-            prevCards.map(card =>
-                card.cardNumber === cardNumber ? { ...card, isBlocked: !card.isBlocked, status: card.isBlocked ? 'Active' : 'Blocked' } : card
-            )
-        );
-        handleCloseModal();
-        setTimeout(() => {}, 500);
+        setActivityPin('');
     };
 
     const handleOpenModal = (cardNumber) => {
-        console.log('Opening modal for cardNumber:', cardNumber);
         setSelectedCard(cardNumber);
         setModalOpen(true);
     };
@@ -95,22 +65,63 @@ const Card = ({ collapsed }) => {
         setSelectedCard(null);
     };
 
+    // ✅ Toggle actions
+    const handleToggleActive = (cardNumber) => {
+        setCards((prev) =>
+            prev.map((card) =>
+                card.cardNumber === cardNumber
+                    ? { ...card, isActive: !card.isActive, status: card.isActive ? 'Inactive' : 'Active' }
+                    : card
+            )
+        );
+        handleCloseModal();
+    };
+
+    const handleToggleFreeze = (cardNumber) => {
+        setCards((prev) =>
+            prev.map((card) =>
+                card.cardNumber === cardNumber
+                    ? { ...card, isFrozen: !card.isFrozen, status: card.isFrozen ? 'Active' : 'Frozen' }
+                    : card
+            )
+        );
+        handleCloseModal();
+    };
+
+    const handleToggleBlock = (cardNumber) => {
+        setCards((prev) =>
+            prev.map((card) =>
+                card.cardNumber === cardNumber
+                    ? { ...card, isBlocked: !card.isBlocked, status: card.isBlocked ? 'Active' : 'Blocked' }
+                    : card
+            )
+        );
+        handleCloseModal();
+    };
+
     return (
         <Box>
-            <PasswordModal 
-                open={showPasswordModal} 
-                onClose={handlePasswordModalClose}
-                onSubmit={handlePasswordSubmit}
-                password={accountPassword}
-                setPassword={setAccountPassword}
-                loading={passwordLoading || loading}
-                error={error}
-            />
-            <Box sx={{ 
-                opacity: showPasswordModal ? 0.3 : 1,
-                pointerEvents: showPasswordModal ? 'none' : 'auto',
-                transition: 'opacity 0.3s ease'
-            }}>
+            {/* ✅ Password Modal - visible only when needed */}
+            {showPasswordModal && !passwordVerified && (
+                <PasswordModal
+                    open={showPasswordModal}
+                    onClose={handlePasswordModalClose}
+                    onSubmit={handlePasswordSubmit}
+                    password={activityPin}
+                    setPassword={setActivityPin}
+                    loading={passwordLoading}
+                    error={error}
+                />
+            )}
+
+            {/* ✅ Table and modals section */}
+            <Box
+                sx={{
+                    opacity: showPasswordModal && !passwordVerified ? 0.3 : 1,
+                    pointerEvents: showPasswordModal && !passwordVerified ? 'none' : 'auto',
+                    transition: 'opacity 0.3s ease',
+                }}
+            >
                 <CardTable
                     cards={cards}
                     filter={filter}
@@ -118,17 +129,20 @@ const Card = ({ collapsed }) => {
                     loading={loading}
                     error={error}
                     handleOpenModal={handleOpenModal}
-                />
-                <CardModal
-                    open={modalOpen}
-                    onClose={handleCloseModal}
-                    selectedCard={selectedCard}
-                    cards={cards}
-                    handleToggleActive={handleToggleActive}
-                    handleToggleFreeze={handleToggleFreeze}
-                    handleToggleBlock={handleToggleBlock}
+                    passwordVerified={passwordVerified}
                 />
             </Box>
+
+            {/* ✅ Card Action Modal */}
+            <CardModal
+                open={modalOpen}
+                onClose={handleCloseModal}
+                selectedCard={selectedCard}
+                cards={cards}
+                handleToggleActive={handleToggleActive}
+                handleToggleFreeze={handleToggleFreeze}
+                handleToggleBlock={handleToggleBlock}
+            />
         </Box>
     );
 };

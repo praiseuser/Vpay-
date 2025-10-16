@@ -25,11 +25,11 @@ const DashboardLayout = ({ children }) => {
 
     warningTimerRef.current = setTimeout(() => {
       toast(<CustomErrorToast message="You will be logged out in 1 minute due to inactivity." />);
-    }, 9 * 60 * 1000);
+    }, 29 * 60 * 1000);
 
     timerRef.current = setTimeout(() => {
       logout();
-    }, 10 * 60 * 1000);
+    }, 30 * 60 * 1000);
   };
 
   useEffect(() => {

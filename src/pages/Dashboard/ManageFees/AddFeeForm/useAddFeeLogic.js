@@ -10,8 +10,8 @@ export function useAddFeeLogic({ initialFormData, setFormData, handleCreateFee }
     successMessage,
     showPasswordModal,
     setShowPasswordModal,
-    accountPassword,
-    setAccountPassword,
+    activityPin,
+    setactivityPin,
     passwordVerified,
     resetState,
   } = useCreateFeeCurrency();
@@ -64,7 +64,7 @@ export function useAddFeeLogic({ initialFormData, setFormData, handleCreateFee }
     console.log('Sending payload to createFiatCurrency:', payload);
 
     if (passwordVerified) {
-      const success = await createFiatCurrency(payload, accountPassword);
+      const success = await createFiatCurrency(payload, activityPin);
       if (success) {
         handleCreateFee(payload);
       }
@@ -82,8 +82,8 @@ export function useAddFeeLogic({ initialFormData, setFormData, handleCreateFee }
     createFiatCurrency,
     showPasswordModal,
     setShowPasswordModal,
-    accountPassword,
-    setAccountPassword,
+    activityPin,
+    setactivityPin,
     passwordVerified,
     resetState,
   };
