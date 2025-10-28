@@ -1,189 +1,173 @@
-import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import { Box, Typography } from "@mui/material";
+import React, { useState } from "react";
+import AddForm from "../../../../components/AddForm";
 import { useAddCountry } from "../../../../Hooks/useCountryCurrency";
-import { toast } from "react-toastify";
-import CountryFormFields from "../AddCountryForm/CountryFormFields";
-import FormActions from "../AddCountryForm/FormActions";
-import {
-  formContainerStyle,
-  titleStyle,
-  errorStyle,
-} from "../AddCountryForm/countryFormStyles";
+import CustomSuccessToast from "../../../../components/CustomSuccessToast";
+import CustomErrorToast from "../../../../components/CustomErrorToast";
+import PasswordModal from "../../Card/PasswordModal";
 
-const statusOptions = [
-  { label: "ACTIVE", value: "1" },
-  { label: "INACTIVE", value: "0" },
-];
-
-
-const getBase64extension = (base64String) => {
-  if (!base64String) return null;
-  const match = base64String.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
-  if (match && match[1]) {
-    const mimeType = match[1].toLowerCase();
-    return mimeType.split('/')[1]; 
-  }
-  return null;
-};
-
-const AddCountryForm = ({ onCancel }) => {
-  const [formData, setFormData] = useState({
-    currency_id: "",
-    country_name: "",
-    country_code: "",
-    country_dial_code: "",
-    country_flag: "",
-    status: "1",
-  });
-
-  const [activityPin, setactivityPin] = useState("");
-  const [passwordLoading, setPasswordLoading] = useState(false);
-
+const AddCountryForm = () => {
   const {
     addCountry,
     fiatCurrencies,
     loading,
     error,
-    success,
     showPasswordModal,
     setShowPasswordModal,
-    passwordVerified,
-    resetState,
   } = useAddCountry();
 
+  const [formData, setFormData] = useState({
+    currency_id: "",
+    country_name: "",
+    country_code: "",
+    country_dial_code: "",
+    country_flag: null,
+    status: "1",
+  });
 
-  useEffect(() => {
-    const selectedCurrency = fiatCurrencies.find(
-      (c) => String(c.currency_id) === String(formData.currency_id)
-    );
-    if (selectedCurrency) {
-      setFormData((prev) => ({
-        ...prev,
-        status:
-          selectedCurrency.status === "1" || selectedCurrency.status === 1
-            ? "1"
-            : "0",
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        country_name: "",
-        country_code: "",
-        country_dial_code: "",
-        status: "1",
-      }));
-    }
-  }, [formData.currency_id, fiatCurrencies]);
+  const [imagePreview, setImagePreview] = useState("");
+  const [activityPin, setActivityPin] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // Handlers
-  const handleCurrencyChange = (currencyId) => {
-    setFormData((prev) => ({ ...prev, currency_id: currencyId }));
-  };
-
-  const handleTextChange = (field, value) => {
+  // Handle input changes
+  const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleImageUpload = (e) => {
+  // Handle image upload
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result;
-      const extension = getBase64extension(base64String);
-      if (extension && ["jpg", "jpeg", "png"].includes(extension)) {
-        setFormData((prev) => ({ ...prev, country_flag: base64String }));
-      } else {
-        toast.error("Please upload a valid image file (jpg, jpeg, or png)");
-      }
-    };
-    reader.readAsDataURL(file);
+    if (file) {
+      setFormData((prev) => ({ ...prev, country_flag: file }));
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
-  const handleStatusChange = (status) => {
-    setFormData((prev) => ({ ...prev, status }));
+  // Open modal before submitting
+  const handleSubmit = () => {
+    setShowPasswordModal(true);
   };
 
+  // Submit with activity pin
   const handlePasswordSubmit = async () => {
-    if (!activityPin.trim()) return;
-
     setPasswordLoading(true);
-    const success = await addCountry(formData, activityPin);
-    setPasswordLoading(false);
 
-    if (success) {
-      setactivityPin("");
-      onCancel();
-    }
-  };
+    try {
+      const selectedCurrency = fiatCurrencies.find(
+        (c) => c.currency_id === formData.currency_id
+      );
 
-  const handlePasswordModalClose = () => {
-    resetState();
-    onCancel();
-  };
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.currency_id) {
-      toast.error("Please select a valid currency");
-      return;
-    }
-    if (!formData.country_flag || !formData.country_flag.startsWith("data:image/")) {
-      toast.error("Please upload a valid flag image");
-      return;
-    }
-
-    if (passwordVerified) {
-      const success = await addCountry(formData, activityPin);
-      if (success) {
-        onCancel();
+      const formDataToSend = new FormData();
+      formDataToSend.append("currency_id", formData.currency_id);
+      formDataToSend.append("currency_name", selectedCurrency?.currency_name || "");
+      formDataToSend.append("currency_code", selectedCurrency?.fiat_currency_code || "");
+      formDataToSend.append("country_code", formData.country_code);
+      formDataToSend.append("country_name", formData.country_name);
+      formDataToSend.append("country_dial_code", formData.country_dial_code);
+      formDataToSend.append("status", formData.status);
+      if (formData.country_flag) {
+        formDataToSend.append("country_flag", formData.country_flag);
       }
-    } else {
-      setShowPasswordModal(true); 
+
+      const success = await addCountry(formDataToSend, activityPin);
+
+      if (success) {
+        CustomSuccessToast("✅ Country added successfully!");
+        setFormData({
+          currency_id: "",
+          country_name: "",
+          country_code: "",
+          country_dial_code: "",
+          country_flag: null,
+          status: "1",
+        });
+        setImagePreview("");
+        setActivityPin("");
+      } else {
+        CustomErrorToast("❌ Failed to add country");
+      }
+    } catch {
+      CustomErrorToast("An error occurred while adding country");
+    } finally {
+      setPasswordLoading(false);
+      setShowPasswordModal(false);
     }
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={formContainerStyle}>
-      <Typography variant="h6" sx={titleStyle}>
-        Add New Country
-      </Typography>
-
-      <CountryFormFields
-        formData={formData}
-        handleCurrencyChange={handleCurrencyChange}
-        handleTextChange={handleTextChange}
-        handleImageUpload={handleImageUpload}
-        handleStatusChange={handleStatusChange}
-        fiatCurrencies={fiatCurrencies}
-        statusOptions={statusOptions}
+    <>
+      <AddForm
+        title="Add New Country"
+        description="Enter the country details below to add a new record."
+        onSubmit={handleSubmit}
         loading={loading}
+        textFields={[
+          {
+            label: "Select Currency",
+            name: "currency_id",
+            value: formData.currency_id,
+            onChange: (e) => handleChange("currency_id", e.target.value),
+            select: true,
+            options: fiatCurrencies.map((c) => ({
+              label: c.fiat_currency_code,
+              value: c.currency_id,
+            })),
+            required: true,
+          },
+          {
+            label: "Country Name",
+            name: "country_name",
+            value: formData.country_name,
+            onChange: (e) => handleChange("country_name", e.target.value),
+            required: true,
+          },
+          {
+            label: "Country Code",
+            name: "country_code",
+            value: formData.country_code,
+            onChange: (e) => handleChange("country_code", e.target.value),
+            required: true,
+          },
+          {
+            label: "Dial Code",
+            name: "country_dial_code",
+            value: formData.country_dial_code,
+            onChange: (e) => handleChange("country_dial_code", e.target.value),
+            required: true,
+          },
+          {
+            label: "Status",
+            name: "status",
+            value: formData.status,
+            onChange: (e) => handleChange("status", e.target.value),
+            select: true,
+            options: [
+              { label: "Active", value: "1" },
+              { label: "Inactive", value: "0" },
+            ],
+            required: true,
+          },
+          {
+            label: "Country Flag",
+            name: "country_flag",
+            type: "file",
+            onChange: handleImageChange,
+            preview: imagePreview,
+          },
+        ]}
       />
 
-      {error && <Typography sx={errorStyle}>{error}</Typography>}
-
-      <FormActions
-        onCancel={onCancel}
-        loading={loading}
-        showPasswordModal={showPasswordModal}
-        setShowPasswordModal={setShowPasswordModal}
-        handlePasswordSubmit={handlePasswordSubmit}
-        handlePasswordModalClose={handlePasswordModalClose}
-        activityPin={activityPin}
-        setactivityPin={setactivityPin}
-        passwordLoading={passwordLoading}
+      {/* 🔐 Activity PIN Modal */}
+      <PasswordModal
+        open={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        onSubmit={handlePasswordSubmit}
+        password={activityPin}
+        setPassword={setActivityPin}
+        loading={passwordLoading || loading}
         error={error}
       />
-    </Box>
+    </>
   );
-};
-
-AddCountryForm.propTypes = {
-  onCancel: PropTypes.func.isRequired,
 };
 
 export default AddCountryForm;

@@ -1,161 +1,107 @@
 import React, { useState } from "react";
-import {
-    Box,
-    FormControl,
-    OutlinedInput,
-    Stack,
-    Typography,
-    Button,
-} from "@mui/material";
+import AddForm from "../../../components/AddForm";
 import PasswordModal from "../Card/PasswordModal";
+import { useCreateFiatCurrency } from "../../../Hooks/useFiatCurrency";
 import CustomErrorToast from "../../../components/CustomErrorToast";
 import CustomSuccessToast from "../../../components/CustomSuccessToast";
-import { useCreateFiatCurrency } from "../../../Hooks/useFiatCurrency";
 
 const AddFiatPage = () => {
-    const [currency, setCurrency] = useState("");
-    const [currencyCode, setCurrencyCode] = useState("");
-    const [countryCode, setCountryCode] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [showPasswordModal, setShowPasswordModal] = useState(false);
-    const [activityPin, setActivityPin] = useState("");
+  const [currency, setCurrency] = useState("");
+  const [currencyCode, setCurrencyCode] = useState("");
+  const [countryCode, setCountryCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [activityPin, setActivityPin] = useState("");
 
-    const createFiatCurrency = useCreateFiatCurrency();
+  const createFiatCurrency = useCreateFiatCurrency();
 
-    const handleSubmit = () => {
-        if (!currency || !currencyCode || !countryCode) {
-            CustomErrorToast("Please fill in all required fields.");
-            return;
-        }
-        setShowPasswordModal(true);
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    const handlePasswordSubmit = async () => {
-        setLoading(true);
-        try {
-            const formData = {
-                fiat_currency_name: currency,
-                fiat_currency_code: currencyCode,
-                country_code: countryCode,
-                status: "1",
-            };
+    if (!currency || !currencyCode || !countryCode) {
+      CustomErrorToast("Please fill in all required fields.");
+      return;
+    }
 
-            const response = await createFiatCurrency(formData, activityPin);
+    setShowPasswordModal(true);
+  };
 
-            if (response) {
-                CustomSuccessToast("Fiat currency added successfully!");
-                setShowPasswordModal(false);
+  const handlePasswordSubmit = async () => {
+    setLoading(true);
+    try {
+      const formData = {
+        fiat_currency_name: currency,
+        fiat_currency_code: currencyCode,
+        country_code: countryCode,
+        status: "1",
+      };
 
-                setCurrency("");
-                setCurrencyCode("");
-                setCountryCode("");
-                setActivityPin("");
-            }
-        } catch (error) {
-            console.error("Error adding fiat:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+      const response = await createFiatCurrency(formData, activityPin);
 
-    return (
-        <Box
-            sx={{
-                backgroundColor: "white",
-                pb: "2rem",
-                maxWidth: 1000,
-                mx: "auto",
-                borderRadius: "10px",
-            }}
-        >
-            <Stack
-                direction="row"
-                justifyContent="space-between"
-                borderBottom="2px solid #D9D9D9"
-            >
-                <Typography
-                    variant="h5"
-                    sx={{
-                        fontWeight: 600,
-                        px: "2rem",
-                        py: "2rem",
-                        color: "#4A85F6",
-                    }}
-                >
-                    Add Fiat Currency
-                </Typography>
-            </Stack>
+      if (response) {
+        CustomSuccessToast("Fiat currency added successfully!");
+        setShowPasswordModal(false);
+        setCurrency("");
+        setCurrencyCode("");
+        setCountryCode("");
+        setActivityPin("");
+      }
+    } catch (error) {
+      console.error("Error adding fiat:", error);
+      CustomErrorToast("Something went wrong while adding fiat.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            <Stack direction="row" flexWrap="wrap" gap={3} p={2}>
-                <FormControl sx={{ minWidth: 250 }}>
-                    <Typography variant="caption">Currency Name</Typography>
-                    <OutlinedInput
-                        value={currency}
-                        onChange={(e) => setCurrency(e.target.value)}
-                        placeholder="Enter currency name (e.g., US Dollar)"
-                        sx={{
-                            backgroundColor: "#D9D9D9",
-                            borderRadius: "10px",
-                            height: "40px",
-                        }}
-                    />
-                </FormControl>
+  const textFields = [
+    {
+      label: "Currency Name",
+      name: "fiat_currency_name",
+      value: currency,
+      onChange: (e) => setCurrency(e.target.value),
+      placeholder: "Enter currency name (e.g., US Dollar)",
+      required: true,
+    },
+    {
+      label: "Currency Code",
+      name: "fiat_currency_code",
+      value: currencyCode,
+      onChange: (e) => setCurrencyCode(e.target.value),
+      placeholder: "Enter currency code (e.g., USD)",
+      required: true,
+    },
+    {
+      label: "Country Code",
+      name: "country_code",
+      value: countryCode,
+      onChange: (e) => setCountryCode(e.target.value),
+      placeholder: "Enter country code (e.g., US)",
+      required: true,
+    },
+  ];
 
-                <FormControl sx={{ minWidth: 250 }}>
-                    <Typography variant="caption">Currency Code</Typography>
-                    <OutlinedInput
-                        value={currencyCode}
-                        onChange={(e) => setCurrencyCode(e.target.value)}
-                        placeholder="Enter currency code (e.g., USD)"
-                        sx={{
-                            backgroundColor: "#D9D9D9",
-                            borderRadius: "10px",
-                            height: "40px",
-                        }}
-                    />
-                </FormControl>
+  return (
+    <>
+      <AddForm
+        title="Add Fiat Currency"
+        description="Fill in the details below to add a new fiat currency."
+        textFields={textFields}
+        onSubmit={handleSubmit}
+      />
 
-                <FormControl sx={{ minWidth: 250 }}>
-                    <Typography variant="caption">Country Code</Typography>
-                    <OutlinedInput
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        placeholder="Enter country code (e.g., US)"
-                        sx={{
-                            backgroundColor: "#D9D9D9",
-                            borderRadius: "10px",
-                            height: "40px",
-                        }}
-                    />
-                </FormControl>
-            </Stack>
-
-            <Box display="flex" gap={3} mt={3} pl={2}>
-                <Button variant="outlined" onClick={() => window.history.back()}>
-                    Cancel
-                </Button>
-                <Button
-                    variant="contained"
-                    sx={{ backgroundColor: "#4A85F6", color: "white" }}
-                    onClick={handleSubmit}
-                    disabled={loading}
-                >
-                    {loading ? "Adding..." : "Add Fiat +"}
-                </Button>
-            </Box>
-
-            {showPasswordModal && (
-                <PasswordModal
-                    open={showPasswordModal}
-                    onClose={() => setShowPasswordModal(false)}
-                    onSubmit={handlePasswordSubmit}
-                    password={activityPin}
-                    setPassword={setActivityPin}
-                    loading={loading}
-                />
-            )}
-        </Box>
-    );
+      {showPasswordModal && (
+        <PasswordModal
+          open={showPasswordModal}
+          onClose={() => setShowPasswordModal(false)}
+          onSubmit={handlePasswordSubmit}
+          password={activityPin}
+          setPassword={setActivityPin}
+          loading={loading}
+        />
+      )}
+    </>
+  );
 };
 
 export default AddFiatPage;

@@ -32,9 +32,9 @@ const SettingsPage = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [openModal, setOpenModal] = useState(false); // ✅ controls modal
+  const [openModal, setOpenModal] = useState(false); 
 
-  // Handle input change
+
   const handleChange = (field) => (event) => {
     if (field === "logo") {
       const file = event.target.files[0];

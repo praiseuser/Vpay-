@@ -1,20 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Stack, Typography, FormControl, OutlinedInput, Button, Select } from '@mui/material';
-import FiatTable from '../FiatCurrencyPage/FiatTable';
-import PasswordModal from '../../Card/PasswordModal';
-import { useFetchFiatCurrencies, useUpdateFiat } from '../../../../Hooks/useFiatCurrency';
-import { pageContainerStyle } from '../FiatCurrencyPage/fiatStyles';
+import React, { useState } from "react";
+import {
+  Box,
+  Stack,
+  Typography,
+  FormControl,
+  OutlinedInput,
+  Button,
+  Select,
+} from "@mui/material";
+import FiatTable from "../FiatCurrencyPage/FiatTable";
+import PasswordModal from "../../Card/PasswordModal";
+import AddFiatPage from "../../AddFiatPage";
+import {
+  useFetchFiatCurrencies,
+  useUpdateFiat,
+} from "../../../../Hooks/useFiatCurrency";
+import { pageContainerStyle } from "../FiatCurrencyPage/fiatStyles";
 
 const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
   const [editingFiat, setEditingFiat] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
-    fiat_currency_name: '',
-    fiat_currency_code: '',
-    country_code: '',
-    status: '1',
+    fiat_currency_name: "",
+    fiat_currency_code: "",
+    country_code: "",
+    status: "1",
   });
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [verifyPassword, setVerifyPassword] = useState('');
+  const [verifyPassword, setVerifyPassword] = useState("");
   const [loadingButton, setLoadingButton] = useState(false);
 
   const { fiatCurrencies, loading, fetchFiat } = useFetchFiatCurrencies();
@@ -35,7 +48,7 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
   };
 
   const handleSubmit = () => {
-    setShowPasswordModal(true); // show password modal on form submit
+    setShowPasswordModal(true);
   };
 
   const handlePasswordSubmit = async () => {
@@ -44,11 +57,11 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
     try {
       await updateFiat(editingFiat.id, formData, verifyPassword);
       setShowPasswordModal(false);
-      setVerifyPassword('');
+      setVerifyPassword("");
       setEditingFiat(null);
-      await fetchFiat(); // refresh the data
+      await fetchFiat();
     } catch (error) {
-      console.error('Failed to update fiat currency:', error);
+      console.error("Failed to update fiat currency:", error);
     } finally {
       setLoadingButton(false);
     }
@@ -57,37 +70,40 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
   const handleCancelEdit = () => {
     setEditingFiat(null);
     setFormData({
-      fiat_currency_name: '',
-      fiat_currency_code: '',
-      country_code: '',
-      status: '1',
+      fiat_currency_name: "",
+      fiat_currency_code: "",
+      country_code: "",
+      status: "1",
     });
   };
 
   return (
     <Box
-      className={`p-${isMobile ? '2' : '6'} w-full`}
-      style={isMobile ? { ...pageContainerStyle, height: '100vh' } : pageContainerStyle}
+      className={`p-${isMobile ? "2" : "6"} w-full`}
+      style={isMobile ? { ...pageContainerStyle, height: "100vh" } : pageContainerStyle}
     >
       {editingFiat ? (
         <Box
           sx={{
-            backgroundColor: 'white',
+            backgroundColor: "white",
             p: 3,
             borderRadius: 2,
             maxWidth: 600,
-            mx: 'auto',
+            mx: "auto",
           }}
         >
           <Typography variant="h5" mb={2}>
             Edit Fiat Currency
           </Typography>
+
           <Stack spacing={2}>
             <FormControl fullWidth>
               <Typography variant="caption">Currency Name</Typography>
               <OutlinedInput
                 value={formData.fiat_currency_name}
-                onChange={(e) => handleInputChange('fiat_currency_name', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("fiat_currency_name", e.target.value)
+                }
                 placeholder="Enter currency name"
               />
             </FormControl>
@@ -96,7 +112,9 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
               <Typography variant="caption">Currency Code</Typography>
               <OutlinedInput
                 value={formData.fiat_currency_code}
-                onChange={(e) => handleInputChange('fiat_currency_code', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("fiat_currency_code", e.target.value)
+                }
                 placeholder="Enter currency code"
               />
             </FormControl>
@@ -105,7 +123,9 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
               <Typography variant="caption">Country Code</Typography>
               <OutlinedInput
                 value={formData.country_code}
-                onChange={(e) => handleInputChange('country_code', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("country_code", e.target.value)
+                }
                 placeholder="Enter country code"
               />
             </FormControl>
@@ -115,7 +135,7 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
               <Select
                 native
                 value={formData.status}
-                onChange={(e) => handleInputChange('status', e.target.value)}
+                onChange={(e) => handleInputChange("status", e.target.value)}
               >
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
@@ -132,6 +152,8 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
             </Stack>
           </Stack>
         </Box>
+      ) : showAddForm ? (
+        <AddFiatPage onClose={() => setShowAddForm(false)} />
       ) : (
         <FiatTable
           fiatData={fiatCurrencies}
@@ -139,6 +161,7 @@ const FiatCurrencyPage = ({ activeTab, setActiveTab, isMobile }) => {
           loading={loading}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          onAddButtonClick={() => setShowAddForm(true)} 
         />
       )}
 

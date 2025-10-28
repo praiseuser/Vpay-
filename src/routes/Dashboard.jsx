@@ -22,6 +22,10 @@ import Support from "../pages/Dashboard/Support";
 import AccountPassword from "../pages/Dashboard/AccountPassword";
 import ProtectedRoute from "../ProtectedRoute";
 import DetailsPage from "../pages/Dashboard/DetailsPage";
+import BlogPage from "../pages/Dashboard/Blog/BlogPage"; 
+import CategoryPage from "../pages/Dashboard/BlogCategory/CategoryPage";
+import ProviderPage from "../pages/Dashboard/ProviderCategory/ProviderPage";
+import FaqPage from "../pages/Dashboard/Faq/FaqPage";
 
 const DashboardRoutes = () => {
   return (
@@ -45,8 +49,12 @@ const DashboardRoutes = () => {
           <Route path="card" element={<Card />} />
           <Route path="transaction" element={<Transaction />} />
           <Route path="support" element={<Support />} />
+          <Route path="blog" element={<BlogPage />} /> 
           <Route path="account-password" element={<AccountPassword />} />
           <Route path="details-page/:id" element={<DetailsPage />} />
+          <Route path="blog-category" element={<CategoryPage />} />
+          <Route path="provider-category" element={<ProviderPage />} />
+          <Route path="faq" element={<FaqPage />} />
         </Routes>
       </DashboardLayout>
     </ProtectedRoute>

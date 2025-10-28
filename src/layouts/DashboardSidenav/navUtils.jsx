@@ -89,6 +89,21 @@ export const getNav = (role, subRoles) => {
       path: "/dashboard/blog",
       icon: <RateReviewIcon />,
     },
+    (isSuperAdmin || roleSet.has("BLOG CATEGORY")) && {
+      label: "Blog Category",
+      path: "/dashboard/blog-category",
+      icon: <RateReviewIcon />,
+    },
+    (isSuperAdmin || roleSet.has("FAQ")) && {
+      label: "Faq",
+      path: "/dashboard/faq",
+      icon: <RateReviewIcon />,
+    },
+     (isSuperAdmin || roleSet.has("PROVIDER CATEGORY")) && {
+      label: "Provider Category",
+      path: "/dashboard/provider-category",
+      icon: <RateReviewIcon />,
+    },
     (isSuperAdmin || roleSet.has("CARD")) && {
       label: "Manage Card",
       path: "/dashboard/card",

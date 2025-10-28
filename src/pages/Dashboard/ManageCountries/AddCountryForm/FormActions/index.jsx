@@ -11,11 +11,12 @@ const FormActions = ({
   handlePasswordSubmit,
   handlePasswordModalClose,
   activityPin,
-  setactivityPin,
+  setActivityPin,
   passwordLoading,
   error
 }) => (
   <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3, px: 2 }}>
+    {/* Cancel Button */}
     <Typography
       onClick={onCancel}
       sx={{
@@ -32,6 +33,8 @@ const FormActions = ({
     >
       Cancel
     </Typography>
+
+    {/* Submit Button */}
     <Button
       variant="contained"
       color="primary"
@@ -55,12 +58,14 @@ const FormActions = ({
     >
       {loading ? 'Adding...' : 'Submit'}
     </Button>
+
+    {/* 🔐 Activity PIN Modal */}
     <PasswordModal 
       open={showPasswordModal} 
       onClose={handlePasswordModalClose}
       onSubmit={handlePasswordSubmit}
       password={activityPin}
-      setPassword={setactivityPin}
+      setPassword={setActivityPin}
       loading={passwordLoading || loading}
       error={error}
     />
@@ -74,8 +79,8 @@ FormActions.propTypes = {
   setShowPasswordModal: PropTypes.func.isRequired,
   handlePasswordSubmit: PropTypes.func.isRequired,
   handlePasswordModalClose: PropTypes.func.isRequired,
-  accountPassword: PropTypes.string.isRequired,
-  setAccountPassword: PropTypes.func.isRequired,
+  activityPin: PropTypes.string.isRequired,
+  setActivityPin: PropTypes.func.isRequired,
   passwordLoading: PropTypes.bool.isRequired,
   error: PropTypes.string,
 };

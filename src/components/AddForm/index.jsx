@@ -1,118 +1,184 @@
-import React from "react";
-import { Box, Button, TextField, Typography, MenuItem, Paper } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Grid,
+  TextField,
+  Typography,
+  Button,
+  Divider,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 
 const AddForm = ({
-    title = "Add Form",
-    fields = [],
-    onSubmit,
-    buttonText = "Submit",
+  title,
+  description,
+  textFields = [],
+  onSubmit,
+  onCancel,
+  initialValues = {},
+  submitText = "Add",
 }) => {
-    const [formData, setFormData] = React.useState({});
+  const [formValues, setFormValues] = useState(initialValues);
+  const [previewImages, setPreviewImages] = useState({});
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
+  useEffect(() => {
+    setFormValues(initialValues);
+  }, [initialValues]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (onSubmit) onSubmit(formData);
-    };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
+  };
 
-    return (
-        <Box sx={{ width: "100%", px: 2, mt: 6 }}>
-            <Paper
-                elevation={8}
-                sx={{
-                    width: "100%",
-                    p: 6,
-                    borderRadius: 4,
-                    background: "rgba(255, 255, 255, 0.98)",
-                    backdropFilter: "blur(12px)",
-                    boxShadow: "0 15px 50px rgba(0,0,0,0.2)",
-                }}
-            >
-                <Typography
-                    variant="h6"
-                    sx={{
-                        mb: 4,
-                        fontWeight: 700,
-                        color: "#0a2540",
-                        textAlign: "left",
-                        fontSize: 18,
-                    }}
-                >
-                    {title}
-                </Typography>
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
 
-                <Box
-                    component="form"
-                    onSubmit={handleSubmit}
-                    sx={{
-                        display: "grid",
-                        gap: 4,
-                        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-                    }}
-                >
-                    {fields.map((field) => (
-                        <TextField
-                            key={field.name}
-                            select={field.type === "select"}
-                            label={field.label}
-                            name={field.name}
-                            value={formData[field.name] || ""}
-                            onChange={handleChange}
-                            placeholder={field.placeholder || ""}
-                            fullWidth
-                            required={field.required}
-                            helperText={field.helperText || ""}
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    height: 40,
-                                    borderRadius: 3,
-                                    transition: "all 0.3s ease",
-                                    "&:hover fieldset": { borderColor: "#0056d1" },
-                                    "&.Mui-focused fieldset": { borderColor: "#007bff", borderWidth: 2 },
-                                },
-                                "& .MuiInputLabel-root": { fontWeight: 500 },
-                                "& .MuiFormHelperText-root": { color: "#6b6b6b", fontSize: 13 },
-                            }}
-                        >
-                            {field.type === "select" &&
-                                field.options?.map((option) => (
-                                    <MenuItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                        </TextField>
-                    ))}
+  const handleFileChange = async (e, fieldName) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const base64 = await toBase64(file);
+    setPreviewImages((prev) => ({ ...prev, [fieldName]: base64 }));
+    setFormValues((prev) => ({ ...prev, [fieldName]: base64 }));
+  };
 
-                    <Box sx={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", mt: 3 }}>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            sx={{
-                                width: "50%",
-                                py: 0.8,
-                                borderRadius: 3,
-                                fontWeight: 600,
-                                fontSize: 15,
-                                backgroundColor: "#02042D",
-                                color: "#fff",
-                                transition: "all 0.3s ease",
-                                ":hover": {
-                                    backgroundColor: "#04072e",
-                                    transform: "scale(1.02)",
-                                },
-                            }}
-                        >
-                            {buttonText.toUpperCase()}
-                        </Button>
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onSubmit) onSubmit(formValues);
+  };
+
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        backgroundColor: "white",
+        borderRadius: "10px",
+        boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.08)",
+        p: 4.5,
+        mt: 4,
+      }}
+    >
+      {/* Title & Description - Left aligned and close together */}
+      {title && (
+        <Typography
+          variant="h5"
+          sx={{ textAlign: "left", mb: 0.5, fontWeight: 700 }}
+        >
+          {title}
+        </Typography>
+      )}
+      {description && (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 3, textAlign: "left" }}
+        >
+          {description}
+        </Typography>
+      )}
+
+      {/* Form Fields */}
+      <Box component="form" onSubmit={handleSubmit}>
+        <Grid container spacing={3}>
+          {textFields.map((field, i) => (
+            <Grid item xs={12} sm={field.type === "file" ? 12 : 6} key={i}>
+              {field.type === "file" ? (
+                <Box>
+                  <Typography sx={{ mb: 1 }}>{field.label}</Typography>
+                  <Button variant="outlined" component="label">
+                    Select Image
+                    <input
+                      type="file"
+                      name={field.name}
+                      hidden
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, field.name)}
+                    />
+                  </Button>
+                  {previewImages[field.name] && (
+                    <Box mt={2}>
+                      <img
+                        src={previewImages[field.name]}
+                        alt="Preview"
+                        style={{
+                          width: 100,
+                          height: 100,
+                          objectFit: "cover",
+                          borderRadius: 8,
+                          border: "1px solid #ddd",
+                        }}
+                      />
                     </Box>
+                  )}
                 </Box>
-            </Paper>
+              ) : (
+                <TextField
+                  fullWidth
+                  label={field.label}
+                  name={field.name}
+                  type={field.type || "text"}
+                  select={field.select || false}
+                  SelectProps={field.select ? { native: true } : undefined}
+                  value={
+                    field.select
+                      ? String(formValues[field.name] ?? "")
+                      : formValues[field.name] || ""
+                  }
+                  onChange={handleChange}
+                  required={field.required}
+                  InputProps={{
+                    sx: {
+                      height: 45,
+                      fontSize: 14,
+                      padding: "0 14px", 
+                    },
+                  }}
+                >
+                  {field.select &&
+                    field.options?.map((opt, j) => (
+                      <option key={j} value={String(opt.value)}>
+                        {opt.label}
+                      </option>
+
+                    ))}
+                </TextField>
+
+
+              )}
+            </Grid>
+          ))}
+        </Grid>
+
+        <Divider sx={{ mt: 5, mb: 3 }} />
+
+        {/* Buttons */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            startIcon={<AddIcon />}
+            sx={{ borderRadius: "18px", px: 3 }}
+          >
+            {submitText}
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<CloseIcon />}
+            sx={{ borderRadius: "18px", px: 3 }}
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
         </Box>
-    );
+      </Box>
+    </Box>
+  );
 };
 
 export default AddForm;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../config/path";
 import { toast } from "react-toastify";
@@ -8,28 +8,41 @@ import { useAuth } from "../context/AuthContext";
 import CustomSuccessToast from "../components/CustomSuccessToast";
 import CustomErrorToast from "../components/CustomErrorToast";
 
+
 const useFetchSettings = () => {
   const { config } = useAuth();
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchSettings = async () => {
-    setLoading(true);
+  const fetchSettings = useCallback(async (showToast = false) => {
     try {
+      setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/admin/settings`, updateConfig(config));
+      console.log("✅ API response:", response.data);
 
-      console.log("API response:", response.data);
-      setSettings(response.data.result);
-      CustomSuccessToast("Settings fetched successfully!");
-      return response.data.result;
+      const result = response.data?.result || null;
+      if (result) {
+        setSettings(result);
+        if (showToast) {
+          CustomSuccessToast("Settings fetched successfully!");
+        }
+      } else {
+        if (showToast) {
+          CustomErrorToast("No settings data found.");
+        }
+      }
+
+      return result;
     } catch (error) {
-      console.error("Error fetching settings:", error);
-      CustomErrorToast(error?.response?.data?.message || "Failed to fetch settings");
+      console.error("❌ Error fetching settings:", error);
+      if (showToast) {
+        CustomErrorToast(error?.response?.data?.message || "Failed to fetch settings");
+      }
       return null;
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // ✅ Empty dependency array
 
   return { settings, fetchSettings, loading };
 };
@@ -39,7 +52,7 @@ const useUpdateSettings = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const updateSettings = async (newSettings, activityPin = null) => {
+  const updateSettings = useCallback(async (newSettings, activityPin = null) => {
     setLoading(true);
     try {
       const formData = new FormData();
@@ -67,10 +80,11 @@ const useUpdateSettings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [config]);
 
   return { settings, updateSettings, loading };
 };
+
 
 
 export { useFetchSettings, useUpdateSettings, };

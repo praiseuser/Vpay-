@@ -110,7 +110,7 @@ const DashboardLayout = ({ children }) => {
           pr: '16px',
           pt: `${dashboardNavHeight + dashboardLayoutPad}px`,
           pb: '16px',
-          backgroundColor: '#E1EFF8',
+          backgroundColor: '#d1f7efff',
           minHeight: '100vh',
         }}
       >

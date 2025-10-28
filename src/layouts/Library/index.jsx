@@ -58,6 +58,9 @@ export const mainNavList = [
   { label: 'Manage Rate', link: '/dashboard/Rate', subNav: [] },
   { label: 'Manage Countries', link: '/dashboard/countries', subNav: [] },
   { label: 'Manage Currency', link: '/dashboard/Currency', subNav: [] },
+  { label: 'Faq', link: '/dashboard/faq', subNav: [] },
+  { label: 'Provider Category', link: '/dashboard/provider-category', subNav: [] },
+    
   {
     label: 'Manage Providers',
     subNav: [
@@ -67,6 +70,8 @@ export const mainNavList = [
     ],
   },
   { label: 'Card', link: '/dashboard/card', subNav: [] },
+  { label: 'Blog', link: './dashboard/blog', subNav: [] },
+  { label: 'Blog Category', link: './dashboard/blog-category', subNav: [] },
   { label: 'Transaction', link: '/dashboard/transaction', subNav: [] },
   { label: 'Support', link: '/dashboard/support', subNav: [] },
   { label: 'Profile', link: '/dashboard/profile', subNav: [] },

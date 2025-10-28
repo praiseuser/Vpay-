@@ -85,37 +85,44 @@ const useAddCountry = () => {
       setError(null);
 
       try {
+        console.log("📡 Fetching fiat currencies...");
+
         const response = await axios.get(`${API_BASE_URL}/admin/fiat-currencies`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         });
 
-        const data = response.data.result || response.data || [];
+        console.log("✅ Raw fiat currencies response:", response);
+
+        const data = response.data.result || response.data.data || response.data || [];
+
         const formattedCurrencies = Array.isArray(data)
           ? data.map((item) => ({
-            currency_id: String(item.id || item.currency_id || 'Unknown'),
-            currency_name: item.fiat_currency || item.name || item.currency_name || 'Unknown',
-            country_name: item.country_name || 'N/A',
-            country_code: item.country_code || 'N/A',
-            country_dial_code: item.dial_code || item.phone_code || 'N/A',
-            status: item.status || 'active',
-          }))
+              currency_id: String(item.id || "Unknown"),
+              currency_name: item.fiat_currency_name || "Unknown",
+              fiat_currency_code: item.fiat_currency_code || "N/A",
+              status: item.status || "active",
+            }))
           : [];
 
+        console.log("💰 Formatted fiat currencies:", formattedCurrencies);
+
         if (formattedCurrencies.length === 0) {
-          setError('No fiat currencies available from the API');
-          CustomErrorToast('No fiat currencies available');
+          setError("No fiat currencies available from the API");
+          CustomErrorToast("No fiat currencies available");
         } else {
           setFiatCurrencies(formattedCurrencies);
           if (!hasFetchedCurrencies.current) {
-            CustomSuccessToast('Fiat currencies loaded successfully');
+            CustomSuccessToast("Fiat currencies loaded successfully");
             hasFetchedCurrencies.current = true;
           }
         }
       } catch (err) {
-        const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch fiat currencies';
+        console.error("❌ Error fetching fiat currencies:", err);
+        const errorMessage =
+          err.response?.data?.message || err.message || "Failed to fetch fiat currencies";
         setError(errorMessage);
         CustomErrorToast(errorMessage);
       } finally {
@@ -126,8 +133,8 @@ const useAddCountry = () => {
     if (token && !hasFetchedCurrencies.current) {
       fetchFiatCurrencies();
     } else if (!token) {
-      setError('Authentication token is missing');
-      CustomErrorToast('Authentication token is missing');
+      setError("Authentication token is missing");
+      CustomErrorToast("Authentication token is missing");
       setLoading(false);
     }
   }, [token]);
@@ -137,16 +144,20 @@ const useAddCountry = () => {
     setError(null);
     setSuccess(false);
 
-    if (!token || typeof token !== 'string' || token.trim() === '') {
-      setError('Invalid or missing authentication token');
-      CustomErrorToast('Invalid or missing authentication token');
+    console.log("🚀 Submitting country data...");
+    console.log("🧾 FormData content:", [...countryData.entries()]);
+    console.log("🔑 Activity PIN:", activityPin);
+
+    if (!token || typeof token !== "string" || token.trim() === "") {
+      setError("Invalid or missing authentication token");
+      CustomErrorToast("Invalid or missing authentication token");
       setLoading(false);
       return false;
     }
 
-    if (!activityPin || typeof activityPin !== 'string' || activityPin.trim() === '') {
-      setError('activityPin is required');
-      CustomErrorToast('activityPin is required');
+    if (!activityPin || typeof activityPin !== "string" || activityPin.trim() === "") {
+      setError("activityPin is required");
+      CustomErrorToast("activityPin is required");
       setLoading(false);
       return false;
     }
@@ -158,26 +169,31 @@ const useAddCountry = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'account-pin': activityPin,
+            "activity-pin": activityPin,
           },
         }
       );
 
+      console.log("📬 Raw API Response:", response);
+      console.log("📦 Response Data:", response.data);
+
       if (response.data.success) {
+        console.log("✅ Country added successfully:", response.data);
         setSuccess(true);
         setPasswordVerified(true);
         setShowPasswordModal(false);
-        CustomSuccessToast('Country added successfully!');
+        CustomSuccessToast("Country added successfully!");
         return true;
       } else {
-        const message = response.data.message || 'Failed to add country';
+        const message = response.data.message || "Failed to add country";
+        console.warn("⚠️ API returned unsuccessful response:", message);
         setError(message);
         CustomErrorToast(message);
         return false;
       }
     } catch (err) {
-      const message = err.response?.data?.message || err.message || 'Failed to add country';
+      console.error("❌ Error adding country:", err.response || err);
+      const message = err.response?.data?.message || err.message || "Failed to add country";
       setError(message);
       CustomErrorToast(message);
       return false;
@@ -193,7 +209,18 @@ const useAddCountry = () => {
     setError(null);
   };
 
-  return { addCountry, fiatCurrencies, loading, error, success, resetState, passwordVerified, showPasswordModal, setShowPasswordModal, setPasswordVerified };
+  return {
+    addCountry,
+    fiatCurrencies,
+    loading,
+    error,
+    success,
+    resetState,
+    passwordVerified,
+    showPasswordModal,
+    setShowPasswordModal,
+    setPasswordVerified,
+  };
 };
 const useDeleteCountry = () => {
   const [loading, setLoading] = useState(false);
