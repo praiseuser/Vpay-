@@ -4,12 +4,19 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 import PublicIcon from "@mui/icons-material/Public";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
-import ReceiptIcon from "@mui/icons-material/Receipt";
-import SupportIcon from "@mui/icons-material/Support";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import CreditCardIcon from "@mui/icons-material/CreditCard"; 
-import VpnKeyIcon from "@mui/icons-material/VpnKey"; 
+import CreditCardIcon from "@mui/icons-material/CreditCard";
+import VpnKeyIcon from "@mui/icons-material/VpnKey";
+import CategoryIcon from "@mui/icons-material/Category";
+import FeedIcon from "@mui/icons-material/Feed";
+import HelpIcon from "@mui/icons-material/Help";
+import LanguageIcon from "@mui/icons-material/Language";
+import WorkspacesIcon from "@mui/icons-material/Workspaces";
+import StoreIcon from "@mui/icons-material/Store";
+import LanIcon from "@mui/icons-material/Lan"; // ✅ Web3 parent icon
 
 const idToName = {
   1: "USERS",
@@ -54,98 +61,122 @@ export const getNav = (role, subRoles) => {
 
   return [
     { label: "Dashboard", path: "/dashboard", icon: <DashboardIcon /> },
+
     (isSuperAdmin || hasAny(roleSet, "TRANSACTION", "TRANSACTIONS")) && {
-      label: "Transaction",
+      label: "Transactions",
       path: "/dashboard/transaction",
-      icon: <ReceiptIcon />,
+      icon: <ReceiptLongIcon />,
     },
+
     (isSuperAdmin || roleSet.has("SUPPORT")) && {
       label: "Support",
       path: "/dashboard/support",
-      icon: <SupportIcon />,
+      icon: <SupportAgentIcon />,
     },
+
     (isSuperAdmin || hasAny(roleSet, "FEES", "MANAGE FEES")) && {
       label: "Manage Fees",
       path: "/dashboard/fees",
       icon: <AttachMoneyIcon />,
     },
+
     (isSuperAdmin || hasAny(roleSet, "RATES", "RATE")) && {
       label: "Manage Rate",
       path: "/dashboard/rate",
       icon: <RateReviewIcon />,
     },
+
     (isSuperAdmin || roleSet.has("CURRENCY")) && {
       label: "Manage Currency",
       path: "/dashboard/currency",
       icon: <CurrencyExchangeIcon />,
     },
+
     (isSuperAdmin || roleSet.has("COUNTRIES")) && {
       label: "Manage Countries",
       path: "/dashboard/countries",
-      icon: <PublicIcon />,
+      icon: <LanguageIcon />,
     },
+
     (isSuperAdmin || roleSet.has("BLOG")) && {
       label: "Manage Blog",
       path: "/dashboard/blog",
-      icon: <RateReviewIcon />,
+      icon: <FeedIcon />,
     },
+
     (isSuperAdmin || roleSet.has("BLOG CATEGORY")) && {
       label: "Blog Category",
       path: "/dashboard/blog-category",
-      icon: <RateReviewIcon />,
+      icon: <CategoryIcon />,
     },
+
     (isSuperAdmin || roleSet.has("FAQ")) && {
-      label: "Faq",
+      label: "FAQ",
       path: "/dashboard/faq",
-      icon: <RateReviewIcon />,
+      icon: <HelpIcon />,
     },
-     (isSuperAdmin || roleSet.has("PROVIDER CATEGORY")) && {
+
+    (isSuperAdmin || roleSet.has("PROVIDER CATEGORY")) && {
       label: "Provider Category",
       path: "/dashboard/provider-category",
-      icon: <RateReviewIcon />,
+      icon: <WorkspacesIcon />,
     },
+
+    (isSuperAdmin || roleSet.has("PROVIDER")) && {
+      label: "Provider",
+      path: "/dashboard/provider",
+      icon: <StoreIcon />,
+    },
+
     (isSuperAdmin || roleSet.has("CARD")) && {
       label: "Manage Card",
       path: "/dashboard/card",
-      icon: <CreditCardIcon />, 
+      icon: <CreditCardIcon />,
     },
+    (isSuperAdmin || roleSet.has("USER")) && {
+      label: "User",
+      path: "/dashboard/user",
+      icon: <CreditCardIcon />,
+    },
+
     isSuperAdmin && {
       label: "Manage Admin",
       path: "/dashboard/admin",
       icon: <PeopleIcon />,
     },
-    (isSuperAdmin || roleSet.has("NETWORK_PROVIDER")) && {
-      label: "Network Provider",
-      icon: <PublicIcon />,
-      dropdown: [
-        (isSuperAdmin || roleSet.has("NETWORK_PROVIDER")) && {
-          label: "Network Provider",
-          path: "/dashboard/network-provider",
+
+    (isSuperAdmin || hasAny(roleSet, "WEB3", "CONTRACT FEES", "CONTRACT TOKEN TYPES")) && {
+      label: "Web3",
+      icon: <LanIcon />,
+      children: [
+        {
+          label: "Contract Fees",
+          path: "/dashboard/contract-fees",
+          icon: <AttachMoneyIcon />,
         },
-        (isSuperAdmin || roleSet.has("BILL_PROVIDER")) && {
-          label: "Bill Provider",
-          path: "/dashboard/bill-provider",
+        {
+          label: "Contract Token Types",
+          path: "/dashboard/contract-token-types",
+          icon: <CurrencyExchangeIcon />,
         },
-        (isSuperAdmin || roleSet.has("BETTING_PROVIDER")) && {
-          label: "Betting Provider",
-          path: "/dashboard/betting-provider",
-        },
-      ].filter(Boolean),
+      ],
+    },
+
+    {
+      label: "Settings",
+      path: "/dashboard/settings",
+      icon: <SettingsIcon />,
     },
     {
       label: "Account Password",
       path: "/dashboard/account-password",
-      icon: <VpnKeyIcon />
+      icon: <VpnKeyIcon />,
     },
-    {
-      label: "Settings",
-      path: "/dashboard/settings",
-      icon: <SettingsIcon />
-    },
+
     {
       label: "Logout",
       path: "/logout",
-      icon: <LogoutIcon />
+      icon: <LogoutIcon />,
     },
   ].filter(Boolean);
 };

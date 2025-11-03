@@ -15,6 +15,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
+import LanIcon from '@mui/icons-material/Lan'; // ✅ Web3 icon
 
 export const drawerWidth = 260;
 export const layoutPad = 22;
@@ -50,28 +51,41 @@ const logoutTextStyle = {
   fontSize: '13px',
 };
 
+// ✅ Main Navigation Items
 export const mainNavList = [
   { label: 'Dashboard', link: '/dashboard', subNav: [] },
   { label: 'Manage User', link: '/dashboard/user', subNav: [] },
   { label: 'Manage Admin', link: '/dashboard/Admin', subNav: [] },
   { label: 'Manage Fees', link: '/dashboard/Fees', subNav: [] },
   { label: 'Manage Rate', link: '/dashboard/Rate', subNav: [] },
+  { label: 'Manage User', link: '/dashboard/user', subNav: [] },
   { label: 'Manage Countries', link: '/dashboard/countries', subNav: [] },
   { label: 'Manage Currency', link: '/dashboard/Currency', subNav: [] },
   { label: 'Faq', link: '/dashboard/faq', subNav: [] },
   { label: 'Provider Category', link: '/dashboard/provider-category', subNav: [] },
-    
+  { label: 'Provider', link: '/dashboard/provider', subNav: [] },
+
   {
     label: 'Manage Providers',
     subNav: [
-      { label: 'Network Provider', link: 'dashboard/network-provider' },
-      { label: 'Bills Provider', link: 'dashboard/bill-provider' },
-      { label: 'Betting Provider', link: 'dashboard/betting-provider' },
+      { label: 'Network Provider', link: '/dashboard/network-provider' },
+      { label: 'Bills Provider', link: '/dashboard/bill-provider' },
+      { label: 'Betting Provider', link: '/dashboard/betting-provider' },
     ],
   },
+
+  // ✅ New WEB3 Section (Collapsible)
+  {
+    label: 'Web3',
+    subNav: [
+      { label: 'Contract Fees', link: '/dashboard/contract-fees' },
+      { label: 'Contract Token Types', link: '/dashboard/contract-token-types' },
+    ],
+  },
+
   { label: 'Card', link: '/dashboard/card', subNav: [] },
-  { label: 'Blog', link: './dashboard/blog', subNav: [] },
-  { label: 'Blog Category', link: './dashboard/blog-category', subNav: [] },
+  { label: 'Blog', link: '/dashboard/blog', subNav: [] },
+  { label: 'Blog Category', link: '/dashboard/blog-category', subNav: [] },
   { label: 'Transaction', link: '/dashboard/transaction', subNav: [] },
   { label: 'Support', link: '/dashboard/support', subNav: [] },
   { label: 'Profile', link: '/dashboard/profile', subNav: [] },
@@ -82,9 +96,10 @@ export const bottomNavList = [
   { label: 'Logout', link: null, subNav: [] },
 ];
 
+// ✅ Icon Mappings
 export const getIconForNav = (item, props = {}) => {
   const style = { ...iconStyle, ...props };
-  
+
   switch (item.label) {
     case 'Dashboard':
       return <DashboardRoundedIcon style={style} />;
@@ -120,6 +135,15 @@ export const getIconForNav = (item, props = {}) => {
       return <SettingsIcon style={style} />;
     case 'Logout':
       return <ExitToAppIcon style={style} />;
+
+    // ✅ Icons for Web3 Section
+    case 'Web3':
+      return <LanIcon style={style} />;
+    case 'Contract Fees':
+      return <AccountBalanceIcon style={style} />;
+    case 'Contract Token Types':
+      return <CurrencyExchangeIcon style={style} />;
+
     default:
       return <DashboardRoundedIcon style={style} />;
   }

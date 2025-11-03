@@ -3,18 +3,17 @@ import {
   Modal,
   Box,
   Typography,
+  Button,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useUpdateFee } from '../../../../Hooks/useFeeCurrency';
 import { toast } from 'react-toastify';
 import FeeForm from '../EditFeeModal/FeeForm';
-import LoadingErrorDisplay from '../EditFeeModal/LoadingErrorDisplay';
 import PasswordModal from '../../Card/PasswordModal';
 import ActionButtons from '../EditFeeModal/ActionsButton';
 
 function EditFeeModal({ open, fee, onClose, onUpdate }) {
-  useEffect(() => {
-  }, [fee]);
+  useEffect(() => { }, [fee]);
 
   const [formData, setFormData] = useState({
     fee_name: '',
@@ -24,22 +23,34 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
     has_max_limit: false,
     max_limit: '',
   });
-  const { updateFee, loading, showPasswordModal, setShowPasswordModal, activityPin, setactivityPin, resetState } = useUpdateFee();
+
+  const {
+    updateFee,
+    loading,
+    showPasswordModal,
+    setShowPasswordModal,
+    activityPin,
+    setactivityPin,
+    resetState,
+  } = useUpdateFee();
 
   useEffect(() => {
     if (fee) {
       setFormData({
         fee_name: fee.fee_name || '',
         fee_type: fee.fee_type || '',
-        fee_amount: fee.fee_amount ? parseFloat(fee.fee_amount).toString() : '',
+        fee_amount: fee.fee_amount
+          ? parseFloat(fee.fee_amount).toString()
+          : '',
         status: fee.status === '1' || fee.status === true,
         has_max_limit: fee.has_max_limit ?? false,
-        max_limit: fee.max_limit ? parseFloat(fee.max_limit).toString() : '',
+        max_limit: fee.max_limit
+          ? parseFloat(fee.max_limit).toString()
+          : '',
       });
     }
   }, [fee]);
 
-  const VALID_FEE_NAMES = ['Swap', 'Send', 'PayApp', 'Payout'];
   const VALID_FEE_TYPES = ['percentage', 'fixed'];
 
   const handleChange = (e) => {
@@ -52,14 +63,6 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting update fee - FormData:', formData);
-
-    if (!VALID_FEE_NAMES.includes(formData.fee_name)) {
-      toast.error('Fee name must be one of: Swap, Send, PayApp, Payout', {
-        toastId: 'edit-fee-name-error',
-      });
-      return;
-    }
 
     if (!VALID_FEE_TYPES.includes(formData.fee_type)) {
       toast.error('Fee type must be either percentage or fixed', {
@@ -79,9 +82,12 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
     if (formData.has_max_limit) {
       const maxLimit = parseFloat(formData.max_limit);
       if (isNaN(maxLimit) || maxLimit <= 0) {
-        toast.error('Max limit must be a positive number when Has Max Limit is enabled', {
-          toastId: 'edit-fee-limit-error',
-        });
+        toast.error(
+          'Max limit must be a positive number when Has Max Limit is enabled',
+          {
+            toastId: 'edit-fee-limit-error',
+          }
+        );
         return;
       }
     }
@@ -94,22 +100,21 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
 
     const success = await updateFee(feeId, formData, activityPin);
     if (success) {
-      onUpdate(); 
+      onUpdate();
       onClose();
     }
   };
 
   const handlePasswordSubmit = async (password) => {
     const trimmedPassword = password.trim();
-    if (!trimmedPassword) {
-      return;
-    }
+    if (!trimmedPassword) return;
+
     setactivityPin(trimmedPassword);
     const feeId = fee?.id || fee?._id;
     const success = await updateFee(feeId, formData, trimmedPassword);
     if (success) {
-      onUpdate(); 
-      onClose(); 
+      onUpdate();
+      onClose();
     }
   };
 
@@ -145,7 +150,9 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
           <Typography color="error" sx={{ mb: 2, textAlign: 'center' }}>
             No fee data available. Please try again.
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2, mt: 3, justifyContent: 'flex-end' }}>
+          <Box
+            sx={{ display: 'flex', gap: 2, mt: 3, justifyContent: 'flex-end' }}
+          >
             <Button variant="outlined" onClick={onClose}>
               Close
             </Button>
@@ -180,7 +187,6 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
         <FeeForm
           formData={formData}
           handleChange={handleChange}
-          validFeeNames={VALID_FEE_NAMES}
           validFeeTypes={VALID_FEE_TYPES}
           loading={loading}
         />
@@ -193,12 +199,10 @@ function EditFeeModal({ open, fee, onClose, onUpdate }) {
           open={showPasswordModal}
           onClose={handlePasswordModalClose}
           onSubmit={handlePasswordSubmit}
-          password={activityPin}       
+          password={activityPin}
           setPassword={setactivityPin}
           loading={loading}
         />
-
-
       </Box>
     </Modal>
   );

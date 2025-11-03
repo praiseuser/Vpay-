@@ -63,11 +63,10 @@ const AddForm = ({
         mt: 4,
       }}
     >
-      {/* Title & Description - Left aligned and close together */}
       {title && (
         <Typography
-          variant="h5"
-          sx={{ textAlign: "left", mb: 0.5, fontWeight: 700 }}
+          variant="h6"
+          sx={{ textAlign: "left", mb: 0.5, fontWeight: 500 }}
         >
           {title}
         </Typography>

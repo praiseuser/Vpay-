@@ -1,48 +1,62 @@
 import React, { useState } from "react";
-import CreateFaqForm from "../AddFaq";
-import EditFaq from "../EditFaq";
-import Faq from "../index";
-import { useGetFaq } from "../../../../Hooks/useFaq";
+import CreateProvidersForm from "../AddProviders";
+import Providers from "../index";
+import EditProviders from "../EditProviders";
+import { useGetProviders } from "../../../../Hooks/useProviderName";
 
 const ProvidersParent = () => {
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editFaqData, setEditFaqData] = useState(null);
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [editingProvider, setEditingProvider] = useState(null);
+    const { providersData, loading, refetch } = useGetProviders();
 
-  const { faqData, loading, refetch } = useGetFaq();
+    const handleOpenAddForm = () => {
+        setEditingProvider(null);
+        setShowAddForm(true);
+    };
 
-  const handleOpenAddForm = () => setShowAddForm(true);
-  const handleOpenEditForm = (faq) => setEditFaqData(faq);
+    const handleEditClick = (provider) => {
+        setEditingProvider(provider);
+        setShowAddForm(true);
+    };
 
-  const handleSuccess = () => {
-    setShowAddForm(false);
-    setEditFaqData(null);
-    refetch();
-  };
+    const handleSuccess = () => {
+        setShowAddForm(false);
+        setEditingProvider(null);
+        refetch();
+    };
 
-  return (
-    <div>
-      {showAddForm ? (
-        <CreateFaqForm
-          handleCancel={() => setShowAddForm(false)}
-          onSuccess={handleSuccess}
-        />
-      ) : editFaqData ? (
-        <EditFaq
-          faqData={editFaqData}
-          onCancel={() => setEditFaqData(null)}
-          onUpdateSuccess={handleSuccess}
-        />
-      ) : (
-        <Faq
-          faqs={faqData || []}
-          loading={loading}
-          onAddButtonClick={handleOpenAddForm}
-          onEditClick={handleOpenEditForm}
-          onDeleteSuccess={refetch}
-        />
-      )}
-    </div>
-  );
+    return (
+        <div>
+            {showAddForm ? (
+                editingProvider ? (
+                    <EditProviders
+                        providerData={editingProvider}
+                        onUpdateSuccess={handleSuccess}
+                        onCancel={() => {
+                            setShowAddForm(false);
+                            setEditingProvider(null);
+                        }}
+                    />
+                ) : (
+                    <CreateProvidersForm
+                        handleCancel={() => {
+                            setShowAddForm(false);
+                        }}
+                        onSuccess={handleSuccess}
+                    />
+                )
+            ) : (
+                <Providers
+                    providers={providersData || []}
+                    loading={loading}
+                    onAddButtonClick={handleOpenAddForm}
+                    onEditClick={handleEditClick}
+                    onDeleteClick={refetch}
+                />
+            )}
+        </div>
+
+    );
 };
 
 export default ProvidersParent;

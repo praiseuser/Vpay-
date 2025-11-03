@@ -1,10 +1,9 @@
 import { Box, Typography, Chip, IconButton, Tooltip } from "@mui/material";
 import CustomTable from "../../../../components/CustomTable";
 import { styled } from "@mui/material/styles";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import VisibilityIcon from "@mui/icons-material/Visibility"; // 👈 correct icon
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import BouncingLoader from "../../../../components/BouncingLoader";
-import { useNavigate } from "react-router-dom"; // 👈 navigation
+import { useNavigate } from "react-router-dom"; 
 
 const userStyles = {
   styledTableCell: {
@@ -44,14 +43,13 @@ const UserTable = ({ users, loading, error }) => {
 
   const formatRows = (data) => {
     if (!data || data.length === 0) {
-      console.warn("⚠️ No users passed into UserTable");
       return [];
     }
 
     return data.map((item, index) => {
       const handleViewClick = () => {
         console.log("👁 Navigating to details page for user id:", item.id);
-        navigate(`/dashboard/details-page/${item.id}`); // ✅ Now includes id
+        navigate(`/dashboard/details-page/${item.id}`);
       };
 
       return {
@@ -111,9 +109,6 @@ const UserTable = ({ users, loading, error }) => {
                   <VisibilityIcon style={{ color: "#1976d2" }} />
                 </IconButton>
               </Tooltip>
-              <ArrowForwardIosIcon
-                style={{ width: "15px", height: "15px", color: "#73757C" }}
-              />
             </div>
           </StyledTableCell>
         ),
@@ -121,14 +116,6 @@ const UserTable = ({ users, loading, error }) => {
     });
   };
 
-  console.log(
-    "📊 Rendering UserTable. Users length:",
-    users?.length || 0,
-    "Loading:",
-    loading,
-    "Error:",
-    error
-  );
 
   if (error)
     return (

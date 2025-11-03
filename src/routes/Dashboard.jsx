@@ -26,6 +26,9 @@ import BlogPage from "../pages/Dashboard/Blog/BlogPage";
 import CategoryPage from "../pages/Dashboard/BlogCategory/CategoryPage";
 import ProviderPage from "../pages/Dashboard/ProviderCategory/ProviderPage";
 import FaqPage from "../pages/Dashboard/Faq/FaqPage";
+import ProvidersParent from "../pages/Dashboard/Providers/ProvidersParent";
+import ContractPage from "../pages/Dashboard/ContractFees/ContractPage";
+import User from "../pages/Dashboard/ManageUser";
 
 const DashboardRoutes = () => {
   return (
@@ -54,7 +57,9 @@ const DashboardRoutes = () => {
           <Route path="details-page/:id" element={<DetailsPage />} />
           <Route path="blog-category" element={<CategoryPage />} />
           <Route path="provider-category" element={<ProviderPage />} />
+          <Route path="provider" element={<ProvidersParent />} />
           <Route path="faq" element={<FaqPage />} />
+          <Route path="contract-fees" element={<ContractPage />} />
         </Routes>
       </DashboardLayout>
     </ProtectedRoute>

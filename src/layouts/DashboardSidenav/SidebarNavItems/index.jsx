@@ -1,6 +1,9 @@
-import { Box, Tooltip } from "@mui/material";
+import { useState } from "react";
+import { Box, Tooltip, Collapse } from "@mui/material";
 import { motion } from "framer-motion";
 import { styles } from "../styles";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 const itemVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -17,10 +20,19 @@ export default function SidebarNavItems({
   isActive,
   onClick,
 }) {
+  const [openItems, setOpenItems] = useState({});
+
+  const toggleOpen = (label) => {
+    setOpenItems((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
+
   return (
     <>
       {navItems.map((item, i) => {
         const active = isActive(item.path);
+        const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+        const isOpen = openItems[item.label];
+
         return (
           <Tooltip
             title={collapsed ? item.label : ""}
@@ -33,8 +45,11 @@ export default function SidebarNavItems({
               animate="visible"
               variants={itemVariants}
             >
+              {/* MAIN ITEM */}
               <Box
-                onClick={() => onClick(item.path)}
+                onClick={() =>
+                  hasChildren ? toggleOpen(item.label) : onClick(item.path)
+                }
                 sx={{
                   position: "relative",
                   ...styles.navItem,
@@ -71,11 +86,72 @@ export default function SidebarNavItems({
 
                 {item.icon}
                 {!collapsed && (
-                  <span style={{ ...styles.navText, marginLeft: 8 }}>
-                    {item.label}
-                  </span>
+                  <>
+                    <span style={{ ...styles.navText, marginLeft: 8 }}>
+                      {item.label}
+                    </span>
+                    {hasChildren && (
+                      <Box sx={{ ml: "auto" }}>
+                        {isOpen ? (
+                          <ExpandLessIcon sx={{ fontSize: 18, color: "#00FFCC" }} />
+                        ) : (
+                          <ExpandMoreIcon sx={{ fontSize: 18, color: "#B0B3B8" }} />
+                        )}
+                      </Box>
+                    )}
+                  </>
                 )}
               </Box>
+
+              {/* CHILDREN (Dropdown Items) */}
+              {hasChildren && (
+                <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                  {item.children.map((child, idx) => {
+                    const childActive = isActive(child.path);
+                    return (
+                      <Box
+                        key={child.label}
+                        onClick={() => onClick(child.path)}
+                        sx={{
+                          ...styles.navItem,
+                          justifyContent: "flex-start", // ✅ left aligned
+                          alignItems: "center",
+                          ml: collapsed ? 0 : 4, // ✅ start where parent text starts
+                          my: 0.5,
+                          py: 0.5,
+                          pl: 1,
+                          borderRadius: "8px",
+                          fontSize: "13px", // ✅ smaller text
+                          background: childActive
+                            ? "rgba(0,255,204,0.1)"
+                            : "transparent",
+                          color: childActive ? "#00FFCC" : "#B0B3B8",
+                          "&:hover": {
+                            background: "rgba(0,255,204,0.15)",
+                            color: "#fff",
+                          },
+                          gap: 1.2,
+                        }}
+                      >
+                        {/* Smaller icon for child */}
+                        <Box sx={{ fontSize: "16px", display: "flex", alignItems: "center" }}>
+                          {child.icon}
+                        </Box>
+
+                        <span
+                          style={{
+                            ...styles.navText,
+                            fontSize: "13px",
+                            letterSpacing: "0.3px",
+                          }}
+                        >
+                          {child.label}
+                        </span>
+                      </Box>
+                    );
+                  })}
+                </Collapse>
+              )}
             </motion.div>
           </Tooltip>
         );

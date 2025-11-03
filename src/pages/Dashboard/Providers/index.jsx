@@ -5,128 +5,122 @@ import CustomTable from "../../../components/CustomTable";
 import CustomLoader from "../../../components/CustomLoader";
 import CustomButton from "../../../components/CustomButton";
 import PasswordModal from "../Card/PasswordModal";
+import { useDeleteProviders } from "../../../Hooks/useProviderName";
 import CustomSuccessToast from "../../../components/CustomSuccessToast";
 import CustomErrorToast from "../../../components/CustomErrorToast";
-import ViewFaqModal from "./ViewFaqModal";
-import { useDeleteFaq } from "../../../Hooks/useFaq";
-import { useViewFaq } from "../../../Hooks/useFaq";
 
 const Providers = ({
-    faqs,
+    providers,
     onAddButtonClick,
     loading,
-    onDeleteSuccess,
     onEditClick,
+    onDeleteClick,
 }) => {
     const [rows, setRows] = useState([]);
-    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [selectedProvider, setSelectedProvider] = useState(null);
     const [activityPin, setActivityPin] = useState("");
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [passwordLoading, setPasswordLoading] = useState(false);
-    const [pendingAction, setPendingAction] = useState(null);
-    const [pendingId, setPendingId] = useState(null);
-    const [deletingId, setDeletingId] = useState(null);
-    const [selectedFaq, setSelectedFaq] = useState(null);
-    const [showViewModal, setShowViewModal] = useState(false);
 
-    const deleteFaq = useDeleteFaq();
-    const viewFaq = useViewFaq();
-
+    const deleteProvider = useDeleteProviders();
 
     const columns = [
         { id: "serial", label: "S/N", minWidth: 80 },
-        { id: "provider_name", label: "PROVIDER NAME", minWidth: 300 },
-        { id: "country", label: "COUNTRY", minWidth: 400 },
-        { id: "unit_rate", label: "UNIT RATE", minWidth: 400 },
-        { id: "provider_category", label: "PROVIDER CATEGORY", minWidth: 400 },
-        { id: "status", label: "STATUS", minWidth: 400 },
+        { id: "provider_name", label: "PROVIDER NAME", minWidth: 200 },
+        { id: "country", label: "COUNTRY", minWidth: 200 },
+        { id: "unit_rate", label: "UNIT RATE", minWidth: 200 },
+        { id: "provider_category", label: "PROVIDER CATEGORY", minWidth: 200 },
+        { id: "provider_image", label: "PROVIDER IMAGE", minWidth: 200 },
+        { id: "status", label: "STATUS", minWidth: 120 },
         { id: "action", label: "ACTIONS", minWidth: 180 },
     ];
 
-
-    const handleDeleteClick = (id) => {
-        setPendingId(id);
-        setPendingAction("delete");
-        setShowPasswordModal(true);
-    };
-
-    const handleViewClick = (id) => {
-        setPendingId(id);
-        setPendingAction("view");
-        setShowPasswordModal(true);
-    };
-
-    const handlePasswordSubmit = async () => {
-        if (!activityPin.trim()) return;
-        setPasswordLoading(true);
-
-        try {
-            if (pendingAction === "delete") {
-                const result = await deleteFaq(pendingId, activityPin);
-                if (result?.success || result?.code === 0) {
-                    CustomSuccessToast("Providers deleted successfully!");
-                    onDeleteSuccess?.(pendingId);
-                } else {
-                    CustomErrorToast(result?.message || "Failed to delete Providers!");
-                }
-            } else if (pendingAction === "view") {
-                const result = await viewFaq(pendingId, activityPin);
-                const faqData = result?.result?.[0];
-                if (faqData) {
-                    setSelectedFaq(faqData);
-                    setShowViewModal(true);
-                    CustomSuccessToast(result?.message || "FAQ retrieved successfully!");
-                } else {
-                    CustomErrorToast("No FAQ details found!");
-                }
-            }
-        } catch (error) {
-            console.error(error);
-            CustomErrorToast("An error occurred!");
-        } finally {
-            setPasswordLoading(false);
-            setActivityPin("");
-            setShowPasswordModal(false);
-            setPendingAction(null);
-            setPendingId(null);
-        }
-    };
-
-
-    const handlePasswordModalClose = () => {
-        setShowPasswordModal(false);
-        setPendingAction(null);
-        setPendingId(null);
-        setActivityPin("");
-    };
-
     useEffect(() => {
-        if (faqs && Array.isArray(faqs)) {
-            const formatted = faqs.map((item, index) => ({
+        if (providers && Array.isArray(providers)) {
+            const formatted = providers.map((item, index) => ({
                 serial: <span className="table-text font-weight-500">{index + 1}</span>,
-                question: (
+                provider_name: (
                     <span className="table-text font-weight-600">
-                        {item.question || "N/A"}
+                        {item.provider_name || "N/A"}
                     </span>
                 ),
-                answer: <span className="table-text">{item.answer || "N/A"}</span>,
+                country: <span className="table-text">{item.country_id ?? "N/A"}</span>,
+                unit_rate: <span className="table-text">{item.unit_rate || "N/A"}</span>,
+                provider_category: (
+                    <span className="table-text">
+                        {item.provider_category_id ?? "N/A"}
+                    </span>
+                ),
+                provider_image: (
+                    <span className="table-text">{item.provider_image || "N/A"}</span>
+                ),
+                status: (
+                    <CustomButton
+                        type={item.status === 1 ? "green" : "red"}
+                        title={item.status === 1 ? "Active" : "Inactive"}
+                    />
+                ),
                 action: (
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <CustomButton type="edit" onClick={() => onEditClick(item)} />
-                        {deletingId === item.id ? (
+                        <CustomButton
+                            type="edit"
+                            onClick={() => onEditClick?.(item)} 
+                        />
+                        {item.deleting ? (
                             <CircularProgress size={24} color="error" />
                         ) : (
                             <CustomButton
                                 type="delete"
-                                onClick={() => handleDeleteClick(item.id)}
+                                onClick={() => handleDeleteClick(item)}
                             />
                         )}
-                        <CustomButton type="view" onClick={() => handleViewClick(item.id)} />
                     </Box>
                 ),
+
             }));
             setRows(formatted);
         }
-    }, [faqs, loading, deletingId]);
+    }, [providers, loading, onEditClick]);
+
+    const handleDeleteClick = (provider) => {
+        setSelectedProvider(provider);
+        setShowPasswordModal(true);
+    };
+
+    // ✅ Submit deletion
+    const handlePasswordSubmit = async () => {
+        if (!activityPin.trim()) {
+            CustomErrorToast("Please enter your Activity PIN.");
+            return;
+        }
+
+        setPasswordLoading(true);
+        try {
+            const result = await deleteProvider(selectedProvider.id, activityPin);
+
+            if (result?.success || result?.error === 0 || result?.code === 0) {
+                CustomSuccessToast(result?.message || "Provider deleted successfully!");
+                onDeleteClick?.();
+            } else {
+                CustomErrorToast(result?.message || "Failed to delete provider!");
+            }
+        } catch (error) {
+            console.error("Delete Error:", error);
+            CustomErrorToast("An error occurred while deleting the provider!");
+        } finally {
+            setPasswordLoading(false);
+            setShowPasswordModal(false);
+            setActivityPin("");
+            setSelectedProvider(null);
+        }
+    };
+
+    // ✅ Close modal
+    const handlePasswordModalClose = () => {
+        setShowPasswordModal(false);
+        setSelectedProvider(null);
+        setActivityPin("");
+    };
 
     return (
         <Box>
@@ -137,7 +131,7 @@ const Providers = ({
                         ? [
                             {
                                 serial: "",
-                                question: (
+                                provider_name: (
                                     <Box
                                         sx={{
                                             display: "flex",
@@ -156,12 +150,13 @@ const Providers = ({
                         : rows
                 }
                 showAddButton={true}
-                addButtonTitle="Add FAQ"
+                addButtonTitle="Add Provider"
                 addButtonStyle={{ marginTop: "40px" }}
-                searchPlaceholder="Search frequently asked questions..."
+                searchPlaceholder="Search providers..."
                 onAddButtonClick={onAddButtonClick}
             />
 
+            {/* ✅ Password Modal for Delete */}
             <PasswordModal
                 open={showPasswordModal}
                 onClose={handlePasswordModalClose}
@@ -171,31 +166,33 @@ const Providers = ({
                 loading={passwordLoading}
                 error={null}
             />
-
-            <ViewFaqModal
-                open={showViewModal}
-                onClose={() => setShowViewModal(false)}
-                faq={selectedFaq}
-            />
         </Box>
     );
 };
 
-Faq.propTypes = {
-    Providers: PropTypes.arrayOf(
+Providers.propTypes = {
+    providers: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-            question: PropTypes.string,
-            answer: PropTypes.string,
+            provider_name: PropTypes.string,
+            provider_image: PropTypes.string,
+            country_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            provider_category_id: PropTypes.oneOfType([
+                PropTypes.string,
+                PropTypes.number,
+            ]),
+            unit_rate: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            status: PropTypes.number,
         })
     ),
     onAddButtonClick: PropTypes.func.isRequired,
+    onDeleteClick: PropTypes.func, // ✅ refetch function
+    onEditClick: PropTypes.func,
     loading: PropTypes.bool,
-    onDeleteSuccess: PropTypes.func,
 };
 
 Providers.defaultProps = {
-    faqs: [],
+    providers: [],
     loading: false,
 };
 

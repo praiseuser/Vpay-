@@ -4,10 +4,14 @@ import AddForm from "../../../../components/AddForm";
 import PasswordModal from "../../Card/PasswordModal";
 import CustomErrorToast from "../../../../components/CustomErrorToast";
 import CustomSuccessToast from "../../../../components/CustomSuccessToast";
-import { useAddProviders } from "../../../../Hooks/useProvider";
+import { useAddProvider } from "../../../../Hooks/useProviderName";
+import { useGetProviderCategory } from "../../../../Hooks/useProviderCategory";
+import { useFetchCountryCurrencies } from "../../../../Hooks/useCountryCurrency";
 
 const CreateProvidersForm = ({ handleCancel, onSuccess }) => {
-    const addProviders = useAddProviders(); // ✅ initialize the hook
+    const addProvider = useAddProvider();
+    const { categoryData, loading: categoryLoading } = useGetProviderCategory();
+    const { countryCurrencies, loading: countryLoading } = useFetchCountryCurrencies();
 
     const [activityPin, setActivityPin] = useState("");
     const [passwordLoading, setPasswordLoading] = useState(false);
@@ -15,31 +19,84 @@ const CreateProvidersForm = ({ handleCancel, onSuccess }) => {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [passwordVerified, setPasswordVerified] = useState(false);
 
-    // ✅ Initial form values
     const initialFormValues = useMemo(
         () => ({
             provider_name: "",
             provider_category_id: "",
             country_id: "",
             unit_rate: "",
+            status: "1",
             provider_image: "",
-            status: 1,
         }),
         []
     );
 
-    // ✅ Fields for AddForm
     const fields = useMemo(
         () => [
-            { name: "question", label: "Question", type: "text", required: true },
-            { name: "answer", label: "Answer", type: "text", required: true },
+            {
+                name: "provider_name",
+                label: "Provider Name",
+                type: "text",
+                required: true,
+            },
+            {
+                name: "provider_category_id",
+                label: "Provider Category",
+                select: true,
+                required: true,
+                options:
+                    categoryData?.map((cat) => ({
+                        label: cat.category_name,
+                        value: cat.id,
+                    })) || [],
+                loading: categoryLoading,
+            },
+            {
+                name: "country_id",
+                label: "Country",
+                select: true,
+                required: true,
+                options:
+                    countryCurrencies?.map((country) => ({
+                        label: country.Country_name,
+                        value: country.id,
+                    })) || [],
+                loading: countryLoading,
+            },
+            {
+                name: "unit_rate",
+                label: "Unit Rate",
+                type: "number",
+                required: true,
+            },
+            {
+                name: "status",
+                label: "Status",
+                select: true,
+                required: true,
+                options: [
+                    { label: "Active", value: "1" },
+                    { label: "Inactive", value: "0" },
+                ],
+            },
+            {
+                name: "provider_image",
+                label: "Provider Image",
+                type: "file",
+                accept: "image/*",
+                required: true,
+            },
         ],
-        []
+        [categoryData, categoryLoading, countryCurrencies, countryLoading]
     );
 
-    // ✅ Main form submission
     const handleSubmit = (data) => {
-        if (!data.question || !data.answer) {
+        if (
+            !data.provider_name ||
+            !data.provider_category_id ||
+            !data.country_id ||
+            !data.unit_rate
+        ) {
             CustomErrorToast("All required fields must be filled.");
             return;
         }
@@ -50,39 +107,47 @@ const CreateProvidersForm = ({ handleCancel, onSuccess }) => {
             return;
         }
 
-        submitFaq(data);
+        submitProvider(data);
     };
 
-    const submitFaq = async (ProviderData) => {
+    const submitProvider = async (providerData) => {
         const payload = {
-            question: faqData.question,
-            answer: faqData.answer,
+            provider_name: providerData.provider_name,
+            provider_category_id: String(providerData.provider_category_id),
+            country_id: String(providerData.country_id),
+            unit_rate: providerData.unit_rate,
+            status: String(providerData.status),
+            provider_image: providerData.provider_image,
         };
 
-        const result = await addFaq(payload, activityPin);
+        try {
+            const result = await addProvider(payload, activityPin);
 
-        if (result?.error === 0 || result?.success) {
-            CustomSuccessToast("Providers added successfully!");
-            handleCancel();
-            onSuccess?.();
+            if (result?.success || result?.code === 0 || result?.error === 0) {
+                CustomSuccessToast(result?.message || "Provider added successfully!");
+                handleCancel();
+                onSuccess?.();
+                setPasswordVerified(true);
+                setPendingFormData(null);
+            } else {
+                CustomErrorToast(result?.message || "Failed to add provider!");
+            }
+        } catch (error) {
+            console.error(error);
+            CustomErrorToast("An error occurred while adding the provider!");
+        } finally {
             setActivityPin("");
-            setPasswordVerified(true);
-            setPendingFormData(null);
             setShowPasswordModal(false);
-        } else {
-            CustomErrorToast(result?.message || "Failed to add Providers");
+            setPasswordLoading(false);
         }
     };
 
-    // ✅ When password is submitted
     const handlePasswordSubmit = async () => {
         if (!activityPin.trim() || !pendingFormData) return;
         setPasswordLoading(true);
-        await submitFaq(pendingFormData);
-        setPasswordLoading(false);
+        await submitProvider(pendingFormData);
     };
 
-    // ✅ Close modal
     const handlePasswordModalClose = () => {
         setPendingFormData(null);
         setShowPasswordModal(false);
@@ -92,10 +157,11 @@ const CreateProvidersForm = ({ handleCancel, onSuccess }) => {
         <Box sx={{ width: "100%" }}>
             <AddForm
                 title="ADD PROVIDER"
-                description="Fill in the question and answer to add a new Provider."
+                description="Fill in the details below to add a new provider."
                 textFields={fields}
                 initialValues={initialFormValues}
                 onSubmit={handleSubmit}
+                onCancel={handleCancel}
             />
 
             <PasswordModal
