@@ -32,7 +32,7 @@ export default function UserContextProvider({ children }) {
 
   const value = {
     isAuthenticated,
-    user,    
+    user,
     login,
     logout,
     config,

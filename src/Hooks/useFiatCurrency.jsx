@@ -84,7 +84,6 @@ const useCreateFiatCurrency = () => {
     }
   };
 };
-
 const useUpdateFiat = () => {
   const { config } = useAuth();
 

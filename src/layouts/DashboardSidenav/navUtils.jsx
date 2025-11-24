@@ -16,7 +16,9 @@ import HelpIcon from "@mui/icons-material/Help";
 import LanguageIcon from "@mui/icons-material/Language";
 import WorkspacesIcon from "@mui/icons-material/Workspaces";
 import StoreIcon from "@mui/icons-material/Store";
-import LanIcon from "@mui/icons-material/Lan"; // ✅ Web3 parent icon
+import LanIcon from "@mui/icons-material/Lan"; // Web3 parent
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn"; // Contract Fees
+import TokenIcon from "@mui/icons-material/LocalAtm"; // Contract Token Types
 
 const idToName = {
   1: "USERS",
@@ -128,15 +130,22 @@ export const getNav = (role, subRoles) => {
       icon: <StoreIcon />,
     },
 
+    (isSuperAdmin || roleSet.has("TRANSACTION LIMIT")) && {
+      label: "Transaction Limit",
+      path: "/dashboard/transaction-limit",
+      icon: <MonetizationOnIcon />,
+    },
+
     (isSuperAdmin || roleSet.has("CARD")) && {
       label: "Manage Card",
       path: "/dashboard/card",
       icon: <CreditCardIcon />,
     },
+
     (isSuperAdmin || roleSet.has("USER")) && {
       label: "User",
       path: "/dashboard/user",
-      icon: <CreditCardIcon />,
+      icon: <PeopleIcon />,
     },
 
     isSuperAdmin && {
@@ -145,19 +154,20 @@ export const getNav = (role, subRoles) => {
       icon: <PeopleIcon />,
     },
 
-    (isSuperAdmin || hasAny(roleSet, "WEB3", "CONTRACT FEES", "CONTRACT TOKEN TYPES")) && {
+    (isSuperAdmin ||
+      hasAny(roleSet, "WEB3", "CONTRACT FEES", "CONTRACT TOKEN TYPES")) && {
       label: "Web3",
       icon: <LanIcon />,
       children: [
         {
           label: "Contract Fees",
           path: "/dashboard/contract-fees",
-          icon: <AttachMoneyIcon />,
+          icon: <MonetizationOnIcon />,
         },
         {
           label: "Contract Token Types",
           path: "/dashboard/contract-token-types",
-          icon: <CurrencyExchangeIcon />,
+          icon: <TokenIcon />,
         },
       ],
     },

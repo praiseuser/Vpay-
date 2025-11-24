@@ -4,6 +4,8 @@ import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../config/path';
 import CustomErrorToast from '../components/CustomErrorToast';
 import CustomSuccessToast from '../components/CustomSuccessToast';
+import { useAuth } from '../context/AuthContext';
+import updateConfig from '../utilities/updateConfig';
 
 const useFetchRateCurrencies = () => {
   const [rateCurrencies, setRateCurrencies] = useState([]);
@@ -26,6 +28,7 @@ const useFetchRateCurrencies = () => {
       });
 
       const data = response.data.result || response.data || [];
+      console.log('Fetched rate currencies:', data);
       const formattedCurrencies = Array.isArray(data)
         ? data.map((item) => {
           const rateField = item.rate || item.rate_value || item.exchange_rate || 'N/A';
@@ -69,138 +72,30 @@ const useFetchRateCurrencies = () => {
   return { rateCurrencies, loading, error, refetch: fetchRateCurrencies };
 };
 const useCreateRate = () => {
-  const [isCreating, setIsCreating] = useState(false);
-  const [error, setError] = useState(null);
-  const [currencies, setCurrencies] = useState([]);
-  const hasFetchedCurrencies = useRef(false);
-  const [passwordVerified, setPasswordVerified] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const { config } = useAuth();
 
-  const userState = useSelector((state) => state.user);
-  const token = userState?.token;
+  return async (formData, activityPin) => {
+    const updatedConfig = updateConfig(config, activityPin);
+    console.log("Creating crypto with data:", formData);
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/admin/rate/create`,
+        formData,
+        updatedConfig
+      );
 
-  useEffect(() => {
-    const fetchCurrencies = async () => {
-      if (!token) {
-        setError("Authentication token is missing");
-        CustomErrorToast("Authentication token is missing");
-        return;
+      CustomSuccessToast(response.data.message);
+      console.log("Create rate response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error:", error);
+
+      if (error?.response?.data?.message) {
+        CustomErrorToast(error.response.data.message);
+      } else {
+        CustomErrorToast("An error occurred!");
       }
-
-      try {
-        const response = await axios.get(`${API_BASE_URL}/admin/fiat-currencies`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const data = response.data.result || [];
-        const formattedCurrencies = Array.isArray(data)
-          ? data.map((item) => ({
-              id: item.id,
-              fiat_currency_name: item.fiat_currency_name,
-              fiat_currency_code: item.fiat_currency_code,
-              country_code: item.country_code,
-              status: item.status,
-            }))
-          : [];
-
-        setCurrencies(formattedCurrencies);
-
-        if (!hasFetchedCurrencies.current) {
-          CustomSuccessToast("Fiat currencies fetched successfully");
-          hasFetchedCurrencies.current = true;
-        }
-      } catch (err) {
-        const errorMessage =
-          err.response?.data?.message || err.message || "Failed to fetch fiat currencies";
-        setError(errorMessage);
-        CustomErrorToast(errorMessage);
-      }
-    };
-
-    fetchCurrencies();
-  }, [token]);
-
- 
-const createRate = async (currency, rate, status, activityPin) => {
-  if (!token || !currency || !rate) {
-    CustomErrorToast("Token, currency, or rate is missing");
-    return { success: false };
-  }
-
-  if (!activityPin?.trim()) {
-    CustomErrorToast("Account password is required");
-    return { success: false };
-  }
-
-  setIsCreating(true);
-  setError(null);
-
-  try {
-    const currencyStr = String(currency).trim();
-    const isId = /^\d+$/.test(currencyStr);
-
-    const payload = {
-      rate: String(rate),
-      status: status === "null" ? null : String(status),
-    };
-
-    if (isId) {
-      payload.currency_id = currencyStr;     
-    } else {
-      payload.currency_name = currencyStr;  
     }
-
-    const response = await axios.post(
-      `${API_BASE_URL}/admin/rate/create`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          activity_pin: activityPin,
-        },
-      }
-    );
-
-    const result = response.data;
-    if (result?.error === 0) {
-      const displayCurrency = isId
-        ? (currencies.find((c) => String(c.id) === currencyStr)?.fiat_currency_name ||
-           `ID ${currencyStr}`)
-        : currencyStr;
-
-      CustomSuccessToast(`Rate created successfully for ${displayCurrency}`);
-      setPasswordVerified(true);
-      setShowPasswordModal(false);
-}
-  } catch (err) {
-    const errorMessage =
-      err.response?.data?.message || err.message || "Failed to create rate";
-    CustomErrorToast(errorMessage);
-    setError(errorMessage);
-    return { success: false };
-  } finally {
-    setIsCreating(false);
-  }
-};
-
-
-  const resetState = () => {
-    setIsCreating(false);
-    setPasswordVerified(false);
-    setShowPasswordModal(false);
-    setError(null);
-  };
-
-  return {
-    createRate,
-    isCreating,
-    error,
-    currencies,
-    passwordVerified,
-    showPasswordModal,
-    setShowPasswordModal,
-    resetState,
   };
 };
 const useDeleteRate = () => {
@@ -364,5 +259,29 @@ const useViewRate = () => {
 
   return { rate, loading, error, fetchRate };
 };
+const useUpdatRate = () => {
+  const { config } = useAuth();
 
-export { useFetchRateCurrencies, useCreateRate, useDeleteRate, useViewRate };
+  return async (id, categoryData, activityPin) => {
+    const updatedConfig = updateConfig(config, activityPin)
+    try {
+
+      const response = await axios.post(
+        `${API_BASE_URL}/admin/rate/update/${id}`,
+        categoryData,
+        updatedConfig,
+      );
+      CustomSuccessToast(response.data.message);
+      console.log("Respone:", response.data)
+      return response.data;
+    } catch (error) {
+      console.error("Error:", error)
+      if (error?.response?.data?.error) {
+        CustomErrorToast(error.response.data.message)
+      } else {
+        CustomErrorToast("An error Occured while updating Rate")
+      }
+    }
+  };
+};
+export { useFetchRateCurrencies, useCreateRate, useDeleteRate, useViewRate, useUpdatRate };

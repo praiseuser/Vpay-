@@ -51,43 +51,39 @@ const TableHeader = ({
             {title}
           </Typography>
         )}
-        <TextField
-          variant="outlined"
-          size="small"
-          placeholder={searchPlaceholder}
-          value={searchTerm}
-          onChange={handleSearchChange}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ width: 20, height: 20, color: '#BDBDBD' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            width: isMobile ? '100%' : '308px',
-            height: '40px',
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '10px',
-              '& fieldset': {
-                borderColor: '#D9D9D9',
+        {handleSearchChange && (
+          <TextField
+            variant="outlined"
+            size="small"
+            placeholder={searchPlaceholder}
+            value={searchTerm}
+            onChange={handleSearchChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ width: 20, height: 20, color: '#BDBDBD' }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              width: isMobile ? '100%' : '308px',
+              height: '40px',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '10px',
+                '& fieldset': { borderColor: '#D9D9D9' },
+                '&.Mui-focused fieldset': { borderColor: '#28C3FF' },
               },
-              '&.Mui-focused fieldset': {
-                borderColor: '#28C3FF',
+              '& .MuiInputBase-input': {
+                fontFamily: 'Inter',
+                fontWeight: 400,
+                fontSize: '12px',
+                color: '#BDBDBD',
+                paddingLeft: '8px',
               },
-            },
-            '& .MuiInputBase-input': {
-              fontFamily: 'Inter',
-              fontWeight: 400,
-              fontSize: '12px',
-              color: '#BDBDBD',
-              paddingLeft: '8px',
-            },
-          }}
-        />
+            }}
+          />
+        )}
       </Box>
-
-      <Box sx={{ display: 'flex', gap: 1 }}></Box>
 
       {showAddButton && (
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -105,9 +101,7 @@ const TableHeader = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              '&:hover': {
-                backgroundColor: '#1AA3D6',
-              },
+              '&:hover': { backgroundColor: '#1AA3D6' },
               ...addButtonStyle,
             }}
           >

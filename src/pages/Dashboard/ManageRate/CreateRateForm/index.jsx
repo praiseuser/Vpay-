@@ -1,122 +1,113 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Box } from "@mui/material";
 import AddForm from "../../../../components/AddForm";
 import PasswordModal from "../../Card/PasswordModal";
-import { useCreateRate } from "../../../../Hooks/useRateCurrency";
 import CustomErrorToast from "../../../../components/CustomErrorToast";
 import CustomSuccessToast from "../../../../components/CustomSuccessToast";
+import { useCreateRate } from "../../../../Hooks/useRateCurrency";
+import { useFetchFiatCurrencies } from "../../../../Hooks/useFiatCurrency";
 
 const CreateRateForm = ({ handleCancel }) => {
-  const {
-    createRate,
-    isCreating,
-    error: hookError,
-    currencies = [],
-    passwordVerified,
-    showPasswordModal,
-    setShowPasswordModal,
-    resetState,
-  } = useCreateRate();
+  const { fiatCurrencies, loading: currenciesLoading } =
+    useFetchFiatCurrencies();
+  const createRate = useCreateRate();
 
-  const [accountPassword, setAccountPassword] = useState("");
+  const [activityPin, setActivityPin] = useState("");
+  const [pendingData, setPendingData] = useState(null);
   const [passwordLoading, setPasswordLoading] = useState(false);
-  const [pendingFormData, setPendingFormData] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
-  const fields = [
-    {
-      name: "currency_id",
-      label: "Currency",
-      type: "select",
-      required: true,
-      options: currencies.map((c) => ({
-        value: c.id,
-        label: `${c.fiat_currency_name} (${c.fiat_currency_code})`,
-      })),
-    },
-    {
-      name: "rate",
-      label: "Rate",
-      type: "number",
-      placeholder: "e.g., 50000",
-      required: true,
-    },
-    {
-      name: "status",
-      label: "Status",
-      type: "select",
-      required: true,
-      options: [
-        { value: "1", label: "Active" },
-        { value: "0", label: "Inactive" },
-      ],
-    },
-  ];
+  const fields = useMemo(
+    () => [
+      {
+        name: "currency_id",
+        label: "Currency",
+        type: "select",
+        required: true,
+        select: true,
+        options: currenciesLoading
+          ? [{ value: "", label: "Loading..." }]
+          : fiatCurrencies?.map((c) => ({
+              value: c.id,
+              label: `${c.fiat_currency_name} (${c.fiat_currency_code})`,
+            })) || [{ value: "", label: "No currencies found" }],
+      },
+      {
+        name: "rate",
+        label: "Rate",
+        type: "number",
+        required: true,
+      },
+      {
+        name: "status",
+        label: "Status",
+        type: "select",
+        required: true,
+        select: true,
+        options: [
+          { value: 1, label: "Active" },
+          { value: 0, label: "Inactive" },
+        ],
+      },
+    ],
+    [fiatCurrencies, currenciesLoading]
+  );
 
-  const handleSubmit = async (data) => {
-    const { currency_id, rate, status } = data;
+  const handleSubmit = (data) => {
+    const formattedData = {
+      currency_id: Number(data.currency_id),
+      rate: Number(data.rate),
+      status: Number(data.status),
+    };
 
-    if (!currency_id || !rate || !status) {
-      CustomErrorToast("All fields are required.");
+    if (
+      !formattedData.currency_id ||
+      !formattedData.rate ||
+      (formattedData.status !== 0 && formattedData.status !== 1)
+    ) {
+      CustomErrorToast("All fields are required");
       return;
     }
 
-    const statusValue = status === "null" ? null : status;
-
-    if (passwordVerified) {
-      const result = await createRate(currency_id, rate, statusValue, accountPassword);
-      if (result.success) {
-        CustomSuccessToast("Rate created successfully!");
-        handleCancel();
-      }
-    } else {
-      setPendingFormData({ currency_id, rate, statusValue });
-      setShowPasswordModal(true);
-    }
+    setPendingData(formattedData);
+    setShowPasswordModal(true);
   };
 
   const handlePasswordSubmit = async () => {
-    if (!accountPassword.trim() || !pendingFormData) return;
+    if (!activityPin.trim() || !pendingData) return;
 
     setPasswordLoading(true);
-    const result = await createRate(
-      pendingFormData.currency_id,
-      pendingFormData.rate,
-      pendingFormData.statusValue,
-      accountPassword
-    );
+    const result = await createRate(pendingData, activityPin);
     setPasswordLoading(false);
 
-    if (result.success) {
+    if (result?.error === 0 || result?.success) {
       CustomSuccessToast("Rate created successfully!");
-      setAccountPassword("");
-      setPendingFormData(null);
+      setShowPasswordModal(false);
       handleCancel();
     }
   };
 
   const handlePasswordModalClose = () => {
-    setPendingFormData(null);
-    resetState();
-    handleCancel();
+    setShowPasswordModal(false);
+    setActivityPin("");
   };
 
   return (
     <Box sx={{ width: "100%" }}>
       <AddForm
         title="ADD RATE"
-        description="Add a new fiat rate to the system."
+        description="Create a new rate for a fiat currency."
         textFields={fields}
         onSubmit={handleSubmit}
+        onCancel={handleCancel}
       />
-
       <PasswordModal
         open={showPasswordModal}
         onClose={handlePasswordModalClose}
         onSubmit={handlePasswordSubmit}
-        password={accountPassword}
-        setPassword={setAccountPassword}
-        loading={passwordLoading || isCreating}
-        error={hookError}
+        password={activityPin}
+        setPassword={setActivityPin}
+        loading={passwordLoading}
       />
     </Box>
   );

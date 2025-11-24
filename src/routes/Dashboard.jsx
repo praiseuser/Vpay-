@@ -22,13 +22,14 @@ import Support from "../pages/Dashboard/Support";
 import AccountPassword from "../pages/Dashboard/AccountPassword";
 import ProtectedRoute from "../ProtectedRoute";
 import DetailsPage from "../pages/Dashboard/DetailsPage";
-import BlogPage from "../pages/Dashboard/Blog/BlogPage"; 
+import BlogPage from "../pages/Dashboard/Blog/BlogPage";
 import CategoryPage from "../pages/Dashboard/BlogCategory/CategoryPage";
 import ProviderPage from "../pages/Dashboard/ProviderCategory/ProviderPage";
 import FaqPage from "../pages/Dashboard/Faq/FaqPage";
 import ProvidersParent from "../pages/Dashboard/Providers/ProvidersParent";
 import ContractPage from "../pages/Dashboard/ContractFees/ContractPage";
 import User from "../pages/Dashboard/ManageUser";
+import TransactionLimitPage from "../pages/Dashboard/TransactionLimit/TransactionLimitParent";
 
 const DashboardRoutes = () => {
   return (
@@ -52,7 +53,7 @@ const DashboardRoutes = () => {
           <Route path="card" element={<Card />} />
           <Route path="transaction" element={<Transaction />} />
           <Route path="support" element={<Support />} />
-          <Route path="blog" element={<BlogPage />} /> 
+          <Route path="blog" element={<BlogPage />} />
           <Route path="account-password" element={<AccountPassword />} />
           <Route path="details-page/:id" element={<DetailsPage />} />
           <Route path="blog-category" element={<CategoryPage />} />
@@ -60,6 +61,7 @@ const DashboardRoutes = () => {
           <Route path="provider" element={<ProvidersParent />} />
           <Route path="faq" element={<FaqPage />} />
           <Route path="contract-fees" element={<ContractPage />} />
+          <Route path="transaction-limit" element={<TransactionLimitPage />} />
         </Routes>
       </DashboardLayout>
     </ProtectedRoute>

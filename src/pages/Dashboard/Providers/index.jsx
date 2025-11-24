@@ -64,7 +64,7 @@ const Providers = ({
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <CustomButton
                             type="edit"
-                            onClick={() => onEditClick?.(item)} 
+                            onClick={() => onEditClick?.(item)}
                         />
                         {item.deleting ? (
                             <CircularProgress size={24} color="error" />

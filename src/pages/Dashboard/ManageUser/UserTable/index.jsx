@@ -1,31 +1,10 @@
-import { Box, Typography, Chip, IconButton, Tooltip } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import CustomTable from "../../../../components/CustomTable";
-import { styled } from "@mui/material/styles";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import BouncingLoader from "../../../../components/BouncingLoader";
-import { useNavigate } from "react-router-dom"; 
-
-const userStyles = {
-  styledTableCell: {
-    fontFamily: "Mada",
-    "&.table-text": {
-      color: "#888B93",
-      "&.font-weight-600": { fontWeight: 600 },
-      "&.font-weight-400": { fontWeight: 400 },
-    },
-  },
-};
-
-const StyledTableCell = styled("span")(({ theme }) => userStyles.styledTableCell);
-
-const StyledEmailPhoneCell = styled("span")({
-  fontFamily: "Mada",
-  "&.table-text": {
-    color: "#888B93",
-    "&.font-weight-600": { fontWeight: 600 },
-    "&.font-weight-400": { fontWeight: 400 },
-  },
-});
+import CustomLoader from "../../../../components/CustomLoader";
+import { useState, useEffect } from "react";
+import { useSuspendUser } from "../../../../Hooks/useUsers";
+import { useActivateUser } from "../../../../Hooks/useUsers";
+import UserRow from "./UserRow";
 
 const columns = [
   { id: "id", label: "S/N", minWidth: 70 },
@@ -35,87 +14,50 @@ const columns = [
   { id: "status", label: "STATUS", minWidth: 120 },
   { id: "phone", label: "PHONE", minWidth: 150 },
   { id: "gender", label: "GENDER", minWidth: 120 },
-  { id: "action", label: "ACTIONS", minWidth: 100 }, 
+  { id: "action", label: "ACTIONS", minWidth: 140 },
 ];
 
-const UserTable = ({ users, loading, error }) => {
-  const navigate = useNavigate();
+const UserTable = ({
+  users = [],
+  loading,
+  error,
+  onViewDetails,
+  onUserUpdated,
+}) => {
+  const [localUsers, setLocalUsers] = useState(users);
+  const [switchLoading, setSwitchLoading] = useState({});
+  const { suspendUser } = useSuspendUser();
+  const { activateUser } = useActivateUser();
 
-  const formatRows = (data) => {
-    if (!data || data.length === 0) {
-      return [];
+  useEffect(() => setLocalUsers(users), [users]);
+
+  const handleToggleUser = async (userId, currentStatus) => {
+    setSwitchLoading((prev) => ({ ...prev, [userId]: true }));
+    setLocalUsers((prev) =>
+      prev.map((user) =>
+        user.id === userId
+          ? { ...user, status: currentStatus === 1 ? 0 : 1 }
+          : user
+      )
+    );
+
+    try {
+      if (currentStatus === 1) {
+        await suspendUser(userId);
+      } else {
+        await activateUser(userId); 
+      }
+      if (onUserUpdated) onUserUpdated();
+    } catch {
+      setLocalUsers((prev) =>
+        prev.map((user) =>
+          user.id === userId ? { ...user, status: currentStatus } : user
+        )
+      );
+    } finally {
+      setSwitchLoading((prev) => ({ ...prev, [userId]: false }));
     }
-
-    return data.map((item, index) => {
-      const handleViewClick = () => {
-        console.log("👁 Navigating to details page for user id:", item.id);
-        navigate(`/dashboard/details-page/${item.id}`);
-      };
-
-      return {
-        id: (
-          <StyledTableCell className="table-text font-weight-600">
-            {index + 1}
-          </StyledTableCell>
-        ),
-        firstname: (
-          <StyledTableCell className="table-text font-weight-400">
-            {item.firstname || "N/A"}
-          </StyledTableCell>
-        ),
-        lastname: (
-          <StyledTableCell className="table-text font-weight-400">
-            {item.lastname || "N/A"}
-          </StyledTableCell>
-        ),
-        email: (
-          <StyledEmailPhoneCell className="table-text font-weight-500">
-            {item.email || "N/A"}
-          </StyledEmailPhoneCell>
-        ),
-        status: (
-          <StyledTableCell>
-            <Chip
-              label={item.status === 1 ? "Active" : "Inactive"}
-              color={item.status === 1 ? "success" : "default"}
-              size="small"
-              variant="outlined"
-              sx={{ fontWeight: 500 }}
-            />
-          </StyledTableCell>
-        ),
-        phone: (
-          <StyledEmailPhoneCell className="table-text font-weight-500">
-            {item.phone || "N/A"}
-          </StyledEmailPhoneCell>
-        ),
-        gender: (
-          <StyledTableCell className="table-text font-weight-400">
-            {item.gender || "N/A"}
-          </StyledTableCell>
-        ),
-        action: (
-          <StyledTableCell>
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                justifyContent: "flex-end",
-                alignItems: "center",
-              }}
-            >
-              <Tooltip title="View Details">
-                <IconButton size="small" onClick={handleViewClick}>
-                  <VisibilityIcon style={{ color: "#1976d2" }} />
-                </IconButton>
-              </Tooltip>
-            </div>
-          </StyledTableCell>
-        ),
-      };
-    });
   };
-
 
   if (error)
     return (
@@ -128,33 +70,53 @@ const UserTable = ({ users, loading, error }) => {
     <Box sx={{ position: "relative", minHeight: "300px" }}>
       <CustomTable
         columns={columns}
-        rows={formatRows(users || [])}
+        rows={localUsers.map((user, index) =>
+          UserRow({
+            user,
+            index,
+            onSuspend: handleToggleUser,
+            loading: switchLoading,
+            onViewDetails,
+          })
+        )}
         showAddButton={false}
         sx={{
           "& .MuiTableCell-root": { padding: "12px" },
           opacity: loading ? 0.5 : 1,
-          position: "relative",
-          zIndex: 0,
         }}
       />
-      {(!users || users.length === 0 || loading) && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "65%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 1,
-            marginTop: "20px",
-          }}
-        >
-          <BouncingLoader />
-        </Box>
-      )}
+      {loading && <CustomLoaderOverlay />}
+      {!loading && localUsers.length === 0 && <NoUsersFound />}
     </Box>
   );
 };
 
+const CustomLoaderOverlay = () => (
+  <Box
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      zIndex: 1,
+    }}
+  >
+    <CustomLoader />
+  </Box>
+);
 
+const NoUsersFound = () => (
+  <Box
+    sx={{
+      position: "absolute",
+      top: "57%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      zIndex: 1,
+    }}
+  >
+    <Typography>No users found</Typography>
+  </Box>
+);
 
 export default UserTable;

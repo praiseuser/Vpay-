@@ -11,7 +11,7 @@ import ErrorMessage from "../FiatRate/ErrorMessage";
 import ViewRateModal from "../FiatRate/ViewRateModal";
 import PasswordModal from "../../Card/PasswordModal";
 
-const FiatRate = ({ onAddButtonClick }) => {
+const FiatRate = ({ onAddButtonClick, onEditRate }) => {
   const { rateCurrencies, loading, error } = useFetchRateCurrencies();
 
   const {
@@ -47,10 +47,10 @@ const FiatRate = ({ onAddButtonClick }) => {
     await deleteRate(id);
   };
 
-  const handleEditClick = (rateData) => {
-    setSelectedRate(rateData);
-    setModalOpen(true);
+  const handleEdit = (rateData) => {
+    onEditRate(rateData); // Pass the rate data to parent
   };
+
 
   const handleModalClose = () => {
     setModalOpen(false);
@@ -113,7 +113,7 @@ const FiatRate = ({ onAddButtonClick }) => {
           viewLoading={viewLoading}
           onAddButtonClick={onAddButtonClick}
           onDelete={handleDelete}
-          onEdit={handleEditClick}
+          onEdit={handleEdit}
           onView={handleViewClick}
         />
 

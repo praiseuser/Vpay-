@@ -1,374 +1,102 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  CircularProgress,
-  Grid,
-  Avatar,
-  Chip,
-  Button,
-  Stack,
-} from "@mui/material";
-import { useParams, useNavigate } from "react-router-dom";
-import { useFetchUserById } from "../../../Hooks/useUsers";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import CustomLoader from "../../../components/CustomLoader";
+import React from "react";
+import { Box, Typography, Divider, Skeleton } from "@mui/material";
+import FlagCardsCard from "./FlagCardsCard";
+import StatsCardsSection from "./StatsCardsSection";
+import PersonalDetailsCard from "./PersonalDetailsCard";
+import KYCInformationCard from "./KYCInformationCard";
+import VirtualCardsCard from "./VirtualCardsCard";
+import FiatCard from "./FiatCard";
+import CryptoCard from "./CryptoCard";
+import TransactionHistoryCard from "./TransactionHistoryCard";
+import ActivityLogsCard from "./ActivityLogsCard";
+import { useGetUserById } from "../../../Hooks/useUsers";
 
-export default function DetailsPage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { user, loading, error } = useFetchUserById(id);
+const DetailsPage = ({
+  userId,
+  onViewAllTransactions,
+  onViewAllExpenses,
+  onViewAllCrypto,
+  onViewAllFiat,
+  onViewAllReceived,
+  onViewAllWithdrawn,
+  onViewAllFiatReceived,
+  onViewAllFiatWithdrawn,
+}) => {
+  const { userData, loading } = useGetUserById(userId);
 
-  const pageTitle = "User Details";
-
-  if (loading)
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <CustomLoader />
-      </Box>
-    );
-
-  if (error)
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
-
-  if (!user)
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Typography>No user found</Typography>
-      </Box>
-    );
+  const fullName =
+    userData?.firstname && userData?.lastname
+      ? `${userData.firstname} ${userData.lastname}`
+      : "User";
 
   return (
-    <Box sx={{ width: "100%", p: 3, minHeight: "100vh" }}>
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: 700,
-          mb: 3,
-          textAlign: "center",
-          color: "#222",
-          fontSize: "26px",
-          fontFamily: "'Poppins', sans-serif",
-        }}
-      >
-        {pageTitle}
-      </Typography>
-
-      <Card sx={{ mb: 3, borderRadius: 2, boxShadow: 3 }}>
-        <CardContent sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-          <Avatar
-            sx={{ width: 90, height: 90, bgcolor: "#1976d2", fontSize: 28 }}
-            src={user.avatar || ""}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#f5f5f5",
+        p: 3,
+        borderRadius: "10px",
+      }}
+    >
+      <Box sx={{ maxWidth: "1280px", mx: "auto" }}>
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            sx={{
+              fontFamily: "Inter, sans-serif",
+              fontWeight: 700,
+              fontSize: "20px",
+              color: "#0F172A",
+              letterSpacing: "0.3px",
+            }}
           >
-            {user.firstname?.charAt(0) || "U"}
-          </Avatar>
-          <Box>
+            {loading ? <Skeleton width={150} /> : fullName}
             <Typography
-              variant="h5"
+              component="span"
               sx={{
-                fontWeight: 700,
-                fontFamily: "'Poppins', sans-serif",
-                fontSize: "19px",
-              }}
-            >
-              {user.firstname} {user.lastname}
-            </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{
-                fontSize: "17px",
-                fontFamily: "'Poppins', sans-serif",
                 fontWeight: 500,
+                fontSize: "18px",
+                color: "#64748B",
+                ml: 1,
               }}
             >
-              {user.email}
+              – Overview
             </Typography>
-            <Stack direction="row" spacing={1} mt={1}>
-              <Chip
-                label={user.role === "1" ? "Admin" : "User"}
-                color={user.role === "1" ? "primary" : "default"}
-                size="small"
-                sx={{
-                  fontSize: "14px",
-                  fontFamily: "'Poppins', sans-serif",
-                  fontWeight: 500,
-                }}
-              />
-              <Chip
-                label={user.status === 1 ? "Active" : "Inactive"}
-                color={user.status === 1 ? "success" : "error"}
-                size="small"
-                sx={{
-                  fontSize: "14px",
-                  fontFamily: "'Poppins', sans-serif",
-                  fontWeight: 500,
-                }}
-              />
-            </Stack>
-          </Box>
-        </CardContent>
-      </Card>
-
-
-      <Card sx={{ mb: 3, borderRadius: 2, boxShadow: 3 }}>
-        <CardContent>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              mb: 2,
-              fontSize: "22px",
-              fontFamily: "Poppins, sans-serif",
-            }}
-          >
-            Personal Info
           </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Firstname:</b> {user.firstname}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Lastname:</b> {user.lastname}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Phone:</b> {user.phone}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Gender:</b> {user.gender}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Country:</b> {user.country}
-              </Typography>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
 
-      <Card sx={{ mb: 3, borderRadius: 2, boxShadow: 3 }}>
-        <CardContent>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              mb: 2,
-              fontSize: "22px",
-              fontFamily: "Poppins, sans-serif",
-            }}
-          >
-            Account Info
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Username:</b> {user.username}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Role:</b> {user.role}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Created At:</b> {user.created_at || "N/A"}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Updated At:</b> {user.updated_at || "N/A"}
-              </Typography>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+          <Divider sx={{ mt: 1.5, borderColor: "#E2E8F0", width: "100%" }} />
+        </Box>
 
-      <Card sx={{ mb: 3, borderRadius: 2, boxShadow: 3 }}>
-        <CardContent>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              mb: 2,
-              fontSize: "22px",
-              fontFamily: "Poppins, sans-serif",
-            }}
-          >
-            KYC Info
-          </Typography>
-          <Grid container spacing={2}>
-            {/* Identity */}
-            <Grid item xs={12} md={4}>
-              <Chip
-                label={`Identity: ${user.kyc_identity_status || "Pending"}`}
-                color={user.kyc_identity_status === "approved" ? "success" : "warning"}
-              />
-              {user.kyc_identity_details && (
-                <Box mt={1}>
-                  <Typography
-                    sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-                  >
-                    <b>Type:</b> {user.kyc_identity_details.type}
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-                  >
-                    <b>Number:</b> {user.kyc_identity_details.number}
-                  </Typography>
-                </Box>
-              )}
-            </Grid>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 3 }}>
+          <FlagCardsCard />
 
-            {/* Address */}
-            <Grid item xs={12} md={4}>
-              <Chip
-                label={`Address: ${user.kyc_address_status || "Pending"}`}
-                color={user.kyc_address_status === "approved" ? "success" : "warning"}
-              />
-              {user.kyc_address_details && (
-                <Box mt={1}>
-                  <Typography
-                    sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-                  >
-                    <b>Street:</b> {user.kyc_address_details.street}
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-                  >
-                    <b>City:</b> {user.kyc_address_details.city}
-                  </Typography>
-                </Box>
-              )}
-            </Grid>
+          <StatsCardsSection
+            userId={userId}
+            onViewAllReceived={onViewAllReceived}
+            onViewAllWithdrawn={onViewAllWithdrawn}
+            onViewAllFiatReceived={onViewAllFiatReceived}
+            onViewAllFiatWithdrawn={onViewAllFiatWithdrawn}
+          />
 
-            {/* Business */}
-            <Grid item xs={12} md={4}>
-              <Chip
-                label={`Business: ${user.kyc_business_status || "Pending"}`}
-                color={user.kyc_business_status === "approved" ? "success" : "warning"}
-              />
-              {user.kyc_business_details && (
-                <Box mt={1}>
-                  <Typography
-                    sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-                  >
-                    <b>Company:</b> {user.kyc_business_details.company}
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-                  >
-                    <b>Reg No:</b> {user.kyc_business_details.reg_number}
-                  </Typography>
-                </Box>
-              )}
-            </Grid>
-          </Grid>
+          <PersonalDetailsCard userData={userData} loading={loading} />
 
-          {/* Action Buttons */}
-          <Stack direction="row" spacing={2} mt={3}>
-            <Button variant="contained" color="success">
-              Approve KYC
-            </Button>
-            <Button variant="outlined" color="error">
-              Decline KYC
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
+          <FiatCard userId={userId} onViewAll={onViewAllFiat} />
 
-      <Card sx={{ mb: 3, borderRadius: 2, boxShadow: 3 }}>
-        <CardContent>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              mb: 2,
-              fontSize: "22px",
-              fontFamily: "Poppins, sans-serif",
-            }}
-          >
-            Security Info
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Email Verified:</b> {user.email_verified ? "Yes" : "No"}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>2FA Enabled:</b> {user.authenticator_enabled ? "Yes" : "No"}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Last Login:</b> {user.last_login || "N/A"}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{ fontSize: "17px", fontFamily: "Poppins, sans-serif", fontWeight: 500 }}
-              >
-                <b>Login Attempts:</b> {user.login_attempts}
-              </Typography>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+          <CryptoCard userId={userId} />
 
-      <Box display="flex" justifyContent="center" mt={4}>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate("/dashboard/user")}
-          sx={{
-            fontSize: "17px",
-            fontFamily: "Poppins, sans-serif",
-            fontWeight: 500,
-          }}
-        >
-          Go Back
-        </Button>
+          <KYCInformationCard userData={userData} loading={loading} />
+
+          <VirtualCardsCard userData={userData} loading={loading} />
+
+          <TransactionHistoryCard
+            userId={userId}
+            onViewAllTransactions={onViewAllTransactions}
+          />
+
+          <ActivityLogsCard userId={userId} />
+        </Box>
       </Box>
-
     </Box>
   );
-}
+};
+
+export default DetailsPage;

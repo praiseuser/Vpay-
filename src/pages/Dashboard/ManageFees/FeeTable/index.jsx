@@ -1,17 +1,10 @@
-import { Typography, Box, Chip } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import CustomTable from '../../../../components/CustomTable';
 import CustomButton from '../../../../components/CustomButton';
 import CustomLoader from '../../../../components/CustomLoader';
 
-function FeeTable({
-  fees,
-  fetchLoading,
-  isFeeLoading,
-  onAddFeeClick,
-  onEditFee,
-  onDeleteFee,
-}) {
+function FeeTable({ fees, fetchLoading, isFeeLoading, onAddFeeClick, onEditFee, onDeleteFee }) {
   const columns = [
     { id: 'sno', label: 'S/N', minWidth: 60 },
     { id: 'fee_name', label: 'FEE NAME', minWidth: 150 },
@@ -30,47 +23,42 @@ function FeeTable({
     letterSpacing: '0.3%',
   };
 
+  const rows = fees.map((fee, index) => ({
+    sno: index + 1,
+    fee_name: fee.fee_name || 'N/A',
+    fee_type: fee.fee_type || 'N/A',
+    fee_amount: fee.fee_type === 'percentage' ? `${fee.fee_amount}%` : fee.fee_amount || 'N/A',
+    status: <CustomButton type={fee.status ? 'green' : 'red'} />,
+    has_max_limit: fee.has_max_limit ? 'Yes' : 'No',
+    max_limit: fee.has_max_limit ? fee.max_limit : 'N/A',
+    action: (
+      <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+        <CustomButton type="edit" onClick={() => onEditFee(fee)} disabled={fetchLoading} />
+        <CustomButton
+          type="delete"
+          onClick={() => onDeleteFee(fee.id)}
+          loading={isFeeLoading?.(fee.id)}
+          disabled={fetchLoading || isFeeLoading?.(fee.id)}
+        />
+
+      </div>
+    ),
+  }));
+
+
   return (
     <Box sx={{ position: 'relative', minHeight: '300px' }}>
       <CustomTable
         columns={columns}
-        rows={fees.map((fee, index) => ({
-          sno: index + 1,
-          fee_name: fee.fee_name || 'N/A',
-          fee_type: fee.fee_type || 'N/A',
-          fee_amount: fee.fee_amount ? `${fee.fee_amount}%` : 'N/A',
-          status: (
-            <CustomButton type={fee.status === '1' ? 'red' : 'green'} />
-          ),
-          has_max_limit: fee.has_max_limit ? 'Yes' : 'No',
-          max_limit: fee.max_limit || 'N/A',
-          action: (
-            <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
-              <CustomButton
-                type="edit"
-                onClick={() => {
-                  onEditFee(fee);
-                }}
-                disabled={fetchLoading}
-              />
-              <CustomButton
-                type="delete"
-                onClick={() => {
-                  onDeleteFee(fee.id);
-                }}
-                loading={isFeeLoading(fee.id)}
-                disabled={fetchLoading || isFeeLoading(fee.id)}
-              />
-            </div>
-          ),
-        }))}
+        rows={rows}
         rowStyle={rowStyle}
         showAddButton
         addButtonTitle="Add Fee"
         addButtonStyle={{ marginTop: '40px' }}
-        searchPlaceholder="search"
+        searchPlaceholder="Search"
         onAddButtonClick={onAddFeeClick}
       />
+
       {fetchLoading && (
         <Box
           sx={{
@@ -93,19 +81,15 @@ FeeTable.propTypes = {
   fees: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       fee_name: PropTypes.string,
       fee_type: PropTypes.string,
       fee_amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      status: PropTypes.oneOfType([PropTypes.string, PropTypes.boolean]),
-      has_max_limit: PropTypes.boolean,
+      status: PropTypes.bool,
+      has_max_limit: PropTypes.bool,
       max_limit: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     })
   ).isRequired,
   fetchLoading: PropTypes.bool.isRequired,
-  fetchError: PropTypes.string,
-  deleteError: PropTypes.string,
-  successMessage: PropTypes.string,
   isFeeLoading: PropTypes.func.isRequired,
   onAddFeeClick: PropTypes.func.isRequired,
   onEditFee: PropTypes.func.isRequired,

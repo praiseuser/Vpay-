@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Grid,
@@ -19,12 +19,14 @@ const AddForm = ({
   initialValues = {},
   submitText = "Add",
 }) => {
-  const [formValues, setFormValues] = useState(initialValues);
+  // FIXED: Use initializer function instead of useEffect
+  const [formValues, setFormValues] = useState(() => initialValues);
   const [previewImages, setPreviewImages] = useState({});
 
-  useEffect(() => {
-    setFormValues(initialValues);
-  }, [initialValues]);
+  // REMOVED the problematic useEffect that was causing infinite loop
+  // useEffect(() => {
+  //   setFormValues(initialValues);
+  // }, [initialValues]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -134,7 +136,7 @@ const AddForm = ({
                     sx: {
                       height: 45,
                       fontSize: 14,
-                      padding: "0 14px", 
+                      padding: "0 14px",
                     },
                   }}
                 >
@@ -143,19 +145,14 @@ const AddForm = ({
                       <option key={j} value={String(opt.value)}>
                         {opt.label}
                       </option>
-
                     ))}
                 </TextField>
-
-
               )}
             </Grid>
           ))}
         </Grid>
 
         <Divider sx={{ mt: 5, mb: 3 }} />
-
-        {/* Buttons */}
         <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
           <Button
             variant="contained"

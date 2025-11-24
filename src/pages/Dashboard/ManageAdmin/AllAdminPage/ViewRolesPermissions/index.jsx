@@ -10,13 +10,25 @@ import HeaderBar from "../ViewRolesPermissions/HeaderBar";
 import PermissionGrid from "../ViewRolesPermissions/PermissionGrid";
 import ActionButtons from "../ViewRolesPermissions/ActionButtons";
 
-const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
+const ViewRolesPermissions = ({
+  adminId,
+  firstName,
+  lastName,
+  onBack,
+  onSuccess,
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [accountPassword, setAccountPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const { permissions, setPermissions, loading, error: fetchError, refetchPermissions } =
-    useFetchAdminPermissions(adminId);
+  const [forceRefresh, setForceRefresh] = useState(0);
+
+  const {
+    permissions,
+    loading,
+    error: fetchError,
+    refetchPermissions,
+  } = useFetchAdminPermissions(adminId);
 
   const {
     roles: allRoles,
@@ -28,62 +40,105 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
   const {
     isUpdating,
     error: updateError,
-    handlePermissionChange,
-    handleAdminTypeToggle,
     updatePermissions,
-  } = useUpdateAdminPermissions(adminId, permissions, setPermissions);
+  } = useUpdateAdminPermissions();
 
   const [formattedPermissions, setFormattedPermissions] = useState({});
 
+  // THIS USEEFFECT WILL TELL US THE TRUTH
   useEffect(() => {
-    if (!allRoles || !permissions) return;
+    console.log("🔥🔥 USE-EFFECT TRIGGERED — REBUILDING UI");
+    console.log("   Raw permissions:", permissions);
+    console.log("   All roles:", allRoles);
+    console.log("   Force refresh counter:", forceRefresh);
+
+    if (!allRoles || !permissions) {
+      console.log("⏳ Waiting for data...");
+      return;
+    }
 
     const formatted = {};
-
     allRoles.forEach((role) => {
-      // ✅ Find permission data for this specific role
       const perm = permissions[String(role.id)] || {};
-
-      // ✅ Merge backend data and local state (this fixes the issue)
       formatted[role.id] = {
-        admin_id: adminId,
         admin_type_id: role.id,
         displayName: role.admin_type || `Module-${role.id}`,
         create: Boolean(perm.create),
         read: Boolean(perm.read),
         update: Boolean(perm.update),
         delete: Boolean(perm.delete),
-
-        // ✅ Automatically mark as checked if any permission is true
-        checked: Boolean(
-          perm.checked ||
-          perm.create ||
-          perm.read ||
-          perm.update ||
-          perm.delete
-        ),
+        checked:
+          Boolean(perm.checked) ||
+          Boolean(perm.create) ||
+          Boolean(perm.read) ||
+          Boolean(perm.update) ||
+          Boolean(perm.delete),
       };
     });
 
+    console.log("✅ FINAL FORMATTED PERMISSIONS SET TO STATE:", formatted);
     setFormattedPermissions(formatted);
-  }, [permissions, allRoles, adminId]);
+  }, [permissions, allRoles, forceRefresh]); // ← forceRefresh forces it EVERY time
+
+  const handleAdminTypeToggle = (adminTypeId, checked) => {
+    setFormattedPermissions((prev) => ({
+      ...prev,
+      [adminTypeId]: {
+        ...prev[adminTypeId],
+        checked,
+        create: checked ? prev[adminTypeId]?.create || false : false,
+        read: checked ? prev[adminTypeId]?.read || false : false,
+        update: checked ? prev[adminTypeId]?.update || false : false,
+        delete: checked ? prev[adminTypeId]?.delete || false : false,
+      },
+    }));
+  };
+
+  const handlePermissionChange = (adminTypeId, perm, value) => {
+    setFormattedPermissions((prev) => ({
+      ...prev,
+      [adminTypeId]: { ...prev[adminTypeId], [perm]: value },
+    }));
+  };
 
   const handlePasswordSubmit = async () => {
     if (!accountPassword.trim()) return;
 
     setPasswordLoading(true);
-    const updateFunc = updatePermissions(formattedPermissions);
-    const success = await updateFunc(accountPassword);
-    setPasswordLoading(false);
+
+    const payload = {};
+    Object.values(formattedPermissions).forEach((perm) => {
+      payload[String(perm.admin_type_id)] = {
+        create: perm.checked ? !!perm.create : false,
+        read: perm.checked ? !!perm.read : false,
+        update: perm.checked ? !!perm.update : false,
+        delete: perm.checked ? !!perm.delete : false,
+      };
+    });
+
+    console.log("🚀 SUBMITTING PAYLOAD:", payload);
+
+    const success = await updatePermissions(adminId, payload, accountPassword);
 
     if (success) {
+      console.log("🎉 BACKEND SUCCESS — NOW REFETCHING...");
+
       setAccountPassword("");
       setModalOpen(false);
 
-      console.log("Update successful, now refetching permissions...");
+      // Refetch fresh data
       await refetchPermissions();
       await refetchRoles();
+
+      // THIS IS THE NUCLEAR FIX
+      setForceRefresh((prev) => prev + 1);
+
+      console.log("🔥 FORCE REFRESH TRIGGERED — UI WILL REBUILD NOW");
+
+      if (onSuccess) onSuccess();
     }
+
+    setPasswordLoading(false);
   };
 
   const displayError = fetchError || rolesError || updateError;
@@ -128,9 +183,8 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
           ) : (
             <PermissionGrid
               formattedPermissions={formattedPermissions}
-              setFormattedPermissions={setFormattedPermissions}
-              handlePermissionChange={handlePermissionChange}
               handleAdminTypeToggle={handleAdminTypeToggle}
+              handlePermissionChange={handlePermissionChange}
             />
           )}
         </Paper>
@@ -138,7 +192,7 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
         <ActionButtons
           onBack={onBack}
           onSave={() => setModalOpen(true)}
-          isUpdating={isUpdating}
+          isUpdating={isUpdating || passwordLoading}
         />
 
         <PasswordModal
@@ -147,7 +201,7 @@ const ViewRolesPermissions = ({ adminId, firstName, lastName, onBack }) => {
           onSubmit={handlePasswordSubmit}
           password={accountPassword}
           setPassword={setAccountPassword}
-          loading={passwordLoading || isUpdating}
+          loading={isUpdating || passwordLoading}
           error={updateError}
         />
       </Box>

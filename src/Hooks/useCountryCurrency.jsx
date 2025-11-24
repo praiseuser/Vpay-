@@ -4,6 +4,8 @@ import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../config/path';
 import CustomErrorToast from '../components/CustomErrorToast';
 import CustomSuccessToast from '../components/CustomSuccessToast';
+import { useAuth } from '../context/AuthContext';
+import updateConfig from '../utilities/updateConfig';
 
 const useFetchCountryCurrencies = () => {
   const [countryCurrencies, setCountryCurrencies] = useState([]);
@@ -374,5 +376,38 @@ const useViewCountryById = () => {
 
   return { viewCountry, country, loading, error };
 };
+const useUpdateCountries = () => {
+     const [loading, setLoading] = useState(false);
+     const { config } = useAuth();
 
-export { useFetchCountryCurrencies, useAddCountry, useDeleteCountry, useViewCountryById };
+     const updateCountry = async (id, countryData, activityPin) => {
+          const updatedConfig = updateConfig(config, activityPin)
+          setLoading(true);
+          try {
+               const response = await axios.post(`${API_BASE_URL}/admin/countries/update/${id}`, countryData, updatedConfig);
+               const data = response.data;
+
+               console.log("Update Response:", data)
+
+               if (data && data.success) {
+                    CustomSuccessToast(data.message);
+                    return true
+               } else {
+                    CustomErrorToast(data.message);
+               }
+          } catch (error) {
+               console.error("Error:", error)
+               if (error?.response?.data?.error) {
+                    CustomErrorToast(error.response.data.message)
+               } else {
+                    CustomErrorToast("An error occurred!")
+               }
+          } finally {
+               setLoading(false);
+          }
+     };
+
+     return { updateCountry, loading };
+};
+
+export { useFetchCountryCurrencies, useAddCountry, useDeleteCountry, useViewCountryById, useUpdateCountries };

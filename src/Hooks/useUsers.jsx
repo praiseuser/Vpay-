@@ -1,10 +1,12 @@
-import axios from 'axios';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import { API_BASE_URL } from '../config/path';
-import { toast } from 'react-toastify';
-import CustomErrorToast from '../components/CustomErrorToast';
-import CustomSuccessToast from '../components/CustomSuccessToast';
+import axios from "axios";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { API_BASE_URL } from "../config/path";
+import { toast } from "react-toastify";
+import CustomErrorToast from "../components/CustomErrorToast";
+import CustomSuccessToast from "../components/CustomSuccessToast";
+import { useAuth } from "../context/AuthContext";
+import updateConfig from "../utilities/updateConfig";
 
 export const useFetchUsers = (page = 1) => {
   const [users, setUsers] = useState([]);
@@ -17,45 +19,54 @@ export const useFetchUsers = (page = 1) => {
     setError(null);
 
     if (!token) {
-      setError('Authentication token is missing');
+      setError("Authentication token is missing");
       toast(<CustomErrorToast message="Authentication token is missing" />);
       setLoading(false);
       return;
     }
 
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/users/all/${page}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/admin/users/all/${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      console.log('Fetch users response:', response.data);
+      console.log("Fetch users response:", response.data);
 
       const data = response.data.result || [];
       const formattedUsers = Array.isArray(data)
         ? data.map((item) => ({
-          id: item.id || null,
-          firstname: item.firstname || 'N/A',
-          lastname: item.lastname || 'N/A',
-          email: item.email || 'N/A',
-          status: item.status || 'N/A',
-          phone: item.phone || 'N/A',
-          gender: item.gender || 'N/A',
-          created_at: item.created_at || null,
-        }))
+            id: item.id || null,
+            firstname: item.firstname || "N/A",
+            lastname: item.lastname || "N/A",
+            email: item.email || "N/A",
+            status: item.status || "N/A",
+            phone: item.phone || "N/A",
+            gender: item.gender || "N/A",
+            created_at: item.created_at || null,
+          }))
         : [];
 
       if (formattedUsers.length === 0) {
-        setError('No users available');
+        setError("No users available");
         toast(<CustomErrorToast message="No users found" />);
       } else {
         setUsers(formattedUsers);
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch users';
-      console.error('Error fetching users:', err.response ? { status: err.response.status, data: err.response.data } : err.message);
+      const errorMessage =
+        err.response?.data?.message || err.message || "Failed to fetch users";
+      console.error(
+        "Error fetching users:",
+        err.response
+          ? { status: err.response.status, data: err.response.data }
+          : err.message
+      );
       setError(errorMessage);
       toast(<CustomErrorToast message={errorMessage} />);
     } finally {
@@ -69,114 +80,40 @@ export const useFetchUsers = (page = 1) => {
 
   return { users, loading, error, fetchUsers };
 };
-export const useFetchUserById = (id) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const token = useSelector((state) => state.user.token);
-  const hasShownToast = useRef(false);
+export const useGetUserById = (id) => {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { config } = useAuth();
 
-  const fetchUserById = useCallback(async () => {
-    console.log("Hook triggered: useFetchUserById called");
-    console.log("Received ID:", id);
-
-    if (!id) {
-      console.warn("No user ID provided to useFetchUserById");
-      setUser(null);
-      return;
-    }
-
-    if (!token) {
-      const msg = "Authentication token is missing";
-      console.error(msg);
-      setError(msg);
-      toast(<CustomErrorToast message={msg} />);
-      setUser(null);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    hasShownToast.current = false; // reset before fetch
-
+  const fetchUserById = async () => {
     try {
-      console.log(`Fetching user from: ${API_BASE_URL}/admin/user/${id}`);
-      const response = await axios.get(`${API_BASE_URL}/admin/user/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/admin/user/${id}`,
+        config
+      );
+      const data = response.data;
 
-      console.log("API Raw Response:", response.data);
+      console.log("Fetched User Response:", data);
 
-      const result = response.data?.result;
-      if (!result) {
-        const msg = "User not found in response";
-        console.error(msg);
-        setError(msg);
-        toast(<CustomErrorToast message={msg} />);
-        setUser(null);
-        return;
+      if (data?.success || data?.code === 0) {
+        setUserData(data.result[0] || null);
+      } else {
+        setUserData(null);
+        CustomErrorToast(data?.message || "Failed to fetch user data!");
       }
-
-      const data = Array.isArray(result) ? result[0] : result;
-
-      const formattedUser = {
-        id: data.id || null,
-        firstname: data.firstname || "N/A",
-        lastname: data.lastname || "N/A",
-        email: data.email || "N/A",
-        status: data.status ?? "N/A",
-        phone: data.phone || "N/A",
-        gender: data.gender || "N/A",
-        country: data.country || "N/A",
-        username: data.username || "N/A",
-        role: data.role || "N/A",
-        created_at: data.created_at || null,
-        updated_at: data.updated_at || null,
-        avatar: data.avatar || null,
-        authenticator_enabled: data.authenticator_enabled ?? false,
-        authenticator_secret: data.authenticator_secret || null,
-        authenticator_otpauth_url: data.authenticator_otpauth_url || null,
-        email_verified: data.email_verified ?? false,
-        email_verified_token: data.email_verified_token || null,
-        kyc_address_status: data.kyc_address_status || null,
-        kyc_business_status: data.kyc_business_status || null,
-        kyc_identity_status: data.kyc_identity_status || null,
-        last_login: data.last_login || null,
-        last_login_attempt: data.last_login_attempt || null,
-        login_attempts: data.login_attempts ?? 0,
-        network: data.network || "N/A",
-        referral_code: data.referral_code || null,
-        sms_2fa_enabled: data.sms_2fa_enabled ?? false,
-      };
-
-      console.log("Formatted user for state:", formattedUser);
-      setUser(formattedUser);
-
-      if (!hasShownToast.current) {
-        toast(<CustomSuccessToast message={`User ${formattedUser.firstname} fetched successfully`} />);
-        hasShownToast.current = true;
-      }
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || err.message || "Failed to fetch user";
-      console.error("Error fetching user by ID:", err.response || err.message);
-      setError(errorMessage);
-      toast(<CustomErrorToast message={errorMessage} />);
-      setUser(null);
+    } catch (error) {
+      console.error("Fetch User Error:", error);
+      CustomErrorToast("Something went wrong while fetching user data!");
     } finally {
       setLoading(false);
-      console.log("Finished fetching user by ID");
     }
-  }, [token, id]);
+  };
 
   useEffect(() => {
-    fetchUserById();
-  }, [fetchUserById, id]);
+    if (id) fetchUserById();
+  }, [id]);
 
-  return { user, loading, error, fetchUserById };
+  return { userData, loading, fetchUserById };
 };
 export const useSearchUsers = () => {
   const [results, setResults] = useState([]);
@@ -192,7 +129,7 @@ export const useSearchUsers = () => {
       setError(null);
 
       if (!token) {
-        const msg = 'Authentication token is missing';
+        const msg = "Authentication token is missing";
         setError(msg);
         toast(<CustomErrorToast message={msg} />);
         setLoading(false);
@@ -200,38 +137,40 @@ export const useSearchUsers = () => {
       }
 
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/admin/search/users`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            params: { query },
-          }
-        );
+        const response = await axios.get(`${API_BASE_URL}/admin/search/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          params: { query },
+        });
 
-        console.log('Search users response:', response.data);
+        console.log("Search users response:", response.data);
 
         const result = response.data?.result || [];
 
         const formattedResults = result.map((user) => ({
           id: user.id || null,
-          firstname: user.firstname || 'N/A',
-          lastname: user.lastname || 'N/A',
-          email: user.email || 'N/A',
-          phone: user.phone || 'N/A',
-          gender: user.gender || 'N/A',
-          status: user.status ?? 'N/A',
+          firstname: user.firstname || "N/A",
+          lastname: user.lastname || "N/A",
+          email: user.email || "N/A",
+          phone: user.phone || "N/A",
+          gender: user.gender || "N/A",
+          status: user.status ?? "N/A",
           created_at: user.created_at || null,
         }));
 
         setResults(formattedResults);
       } catch (err) {
-        const errorMessage = err.response?.data?.message || err.message || 'Failed to search users';
+        const errorMessage =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to search users";
         console.error(
-          'Error searching users:',
-          err.response ? { status: err.response.status, data: err.response.data } : err.message
+          "Error searching users:",
+          err.response
+            ? { status: err.response.status, data: err.response.data }
+            : err.message
         );
         setError(errorMessage);
         toast(<CustomErrorToast message={errorMessage} />);
@@ -254,17 +193,28 @@ export const useFetchActiveUsers = (page = 1) => {
     setLoading(true);
     setError(null);
     if (!token) {
-      setError('Authentication token is missing');
+      setError("Authentication token is missing");
       setLoading(false);
       return;
     }
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/users/active/${page}`, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/admin/users/active/${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       setUsers(response.data.result || []);
+      console.log("Fetch active users response:", response.data);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to fetch active users');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to fetch active users"
+      );
     } finally {
       setLoading(false);
     }
@@ -277,34 +227,123 @@ export const useFetchActiveUsers = (page = 1) => {
   return { users, loading, error, fetchUsers };
 };
 export const useFetchBannedUsers = (page = 1) => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const token = useSelector((state) => state.user.token);
+  const [bannedUsers, setBannedUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { config } = useAuth();
 
-  const fetchUsers = useCallback(async () => {
+  const fetchBannedUsers = async () => {
     setLoading(true);
-    setError(null);
-    if (!token) {
-      setError('Authentication token is missing');
-      setLoading(false);
-      return;
-    }
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/users/banned/${page}`, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      });
-      setUsers(response.data.result || []);
+      const { data } = await axios.get(
+        `${API_BASE_URL}/admin/users/banned/${page}`,
+        config
+      );
+      setBannedUsers(Array.isArray(data?.result) ? data.result : []);
     } catch (err) {
-      setError(err.response?.status === 404 ? null : err.response?.data?.message || err.message || 'Failed to fetch banned users');
+      setBannedUsers([]);
     } finally {
       setLoading(false);
     }
-  }, [token, page]);
+  };
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchBannedUsers();
+  }, [page]);
 
-  return { users, loading, error, fetchUsers };
+  return { bannedUsers, loading, refetch: fetchBannedUsers };
+};
+export const useSuspendUser = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { config } = useAuth();
+
+  const suspendUser = async (id) => {
+    const updatedConfig = updateConfig(config);
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await axios.post(
+        `${API_BASE_URL}/admin/user/suspend/${id}`,
+        {},
+        updatedConfig
+      );
+      console.log("Suspend User Response:", data);
+      return data;
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to suspend user");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { suspendUser, loading, error };
+};
+export const useActivateUser = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { config } = useAuth();
+
+  const activateUser = async (id) => {
+    const updatedConfig = updateConfig(config);
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await axios.post(
+        `${API_BASE_URL}/admin/user/activate/${id}`,
+        {},
+        updatedConfig
+      );
+      console.log("Activate User Response:", data);
+      return data;
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to suspend user");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { activateUser, loading, error };
+};
+export const useGetUserAssets = (userId, network = "testnet") => {
+  const [userAssets, setUserAssets] = useState({ crypto: [], fiat: [] });
+  const [loading, setLoading] = useState(true);
+  const { config } = useAuth();
+
+  const fetchUserAssets = async () => {
+    if (!userId) return;
+
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/admin/user-balances/${userId}/${network}`,
+        config
+      );
+      const data = response.data;
+      console.log("Response from server:", data);
+
+      if (data?.success) {
+        setUserAssets({
+          crypto: data.result.crypto || [],
+          fiat: data.result.fiat || [],
+        });
+      } else {
+        setUserAssets({ crypto: [], fiat: [] });
+        CustomErrorToast(data?.message || "Failed to fetch user assets!");
+      }
+    } catch (error) {
+      console.error("Fetch User Assets Error:", error);
+      CustomErrorToast("Something went wrong while fetching user assets!");
+      setUserAssets({ crypto: [], fiat: [] });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserAssets();
+  }, [userId, network]);
+
+  return { userAssets, loading, fetchUserAssets };
 };

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import CustomTable from '../../../../components/CustomTable';
 import CustomButton from '../../../../components/CustomButton';
 import { Box } from '@mui/material';
-import { rowStyle, tableTitleStyle } from '../countryStyles';
+import { rowStyle } from '../countryStyles';
 import {
   useDeleteCountry,
   useFetchCountryCurrencies,
@@ -16,6 +16,7 @@ import { BASE_IMAGE_URL } from '../../../../utilities/constants';
 const CountryTable = ({
   countryCurrencies: initialCurrencies,
   onAddButtonClick,
+  onEditButtonClick, // <-- NEW
   loading: fetchLoading,
 }) => {
   const [selectedId, setSelectedId] = useState(null);
@@ -24,7 +25,7 @@ const CountryTable = ({
   const [modalCountry, setModalCountry] = useState(null);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
-  const { deleteCountry, loading: deleteLoading, error, success } = useDeleteCountry();
+  const { deleteCountry, loading: deleteLoading, success } = useDeleteCountry();
   const { countryCurrencies, loading: fetchLoadingFromHook, refetch } = useFetchCountryCurrencies();
   const { viewCountry, country: viewedCountry, loading: viewLoading, error: viewError } =
     useViewCountryById();
@@ -77,14 +78,15 @@ const CountryTable = ({
     { id: 'country', label: 'COUNTRY NAME', minWidth: 150 },
     { id: 'code', label: 'COUNTRY CODE', minWidth: 150 },
     { id: 'dial_code', label: 'DIAL CODE', minWidth: 120 },
-     { id: 'currency_code', label: 'CURRENCY CODE', minWidth: 150 },
+    { id: 'currency_code', label: 'CURRENCY CODE', minWidth: 150 },
+    { id: 'international', label: 'INTERNATIONAL', minWidth: 120 },
+    { id: 'mobile_money', label: 'MOBILE MONEY', minWidth: 120 },
     { id: 'flag', label: 'COUNTRY FLAG', minWidth: 120 },
     { id: 'status', label: 'STATUS', minWidth: 120 },
     { id: 'action', label: '', minWidth: 180 },
   ];
 
   const formatRows = (data) =>
-    console.log(data) ||
     data.map((item, index) => {
       const isDeleteLoading = deleteLoading && selectedId === item.id;
       const isViewLoading = viewLoading && viewId === item.id;
@@ -97,6 +99,8 @@ const CountryTable = ({
         serial: <span className="table-text font-weight-500">{index + 1}</span>,
         currency_code: <span className="table-text font-weight-700">{item.Currency_code}</span>,
         country: <span className="table-text font-weight-400">{item.Country_name}</span>,
+        international: <span className="table-text font-weight-400">{item.international}</span>,
+        mobile_money: <span className="table-text font-weight-400">{item.mobile_money}</span>,
         code: <span className="table-text font-weight-400">{item.Country_code}</span>,
         dial_code: (
           <span className="table-text font-weight-500">
@@ -122,7 +126,10 @@ const CountryTable = ({
         status: <CustomButton type={item.status === 'active' ? 'red' : 'green'} />,
         action: (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CustomButton type="edit" />
+            <CustomButton
+              type="edit"
+              onClick={() => onEditButtonClick(item)}
+            />
             <CustomButton
               type="delete"
               onClick={() => handleDeleteClick(item.id)}
@@ -174,18 +181,9 @@ const CountryTable = ({
 };
 
 CountryTable.propTypes = {
-  countryCurrencies: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      Currency_code: PropTypes.string.isRequired,
-      Country_name: PropTypes.string.isRequired,
-      Country_code: PropTypes.string.isRequired,
-      Country_dial_code: PropTypes.string,
-      Country_Flag: PropTypes.string,
-      status: PropTypes.string.isRequired,
-    })
-  ),
+  countryCurrencies: PropTypes.array,
   onAddButtonClick: PropTypes.func.isRequired,
+  onEditButtonClick: PropTypes.func, // <-- NEW
   loading: PropTypes.bool.isRequired,
 };
 

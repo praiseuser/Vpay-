@@ -1,17 +1,14 @@
 import { useState } from 'react';
 import CustomTabs from '../../../components/CustomTabs/CustomTabs';
 import CreateRateForm from '../ManageRate/CreateRateForm';
+import EditRate from './EditRate';
 import FiatRate from '../ManageRate/FiatRate';
 
 const ManageRate = () => {
   const [tabValue, setTabValue] = useState(0);
   const [showAddRateForm, setShowAddRateForm] = useState(false);
-  const [rates, setRates] = useState([]);
-  const [formData, setFormData] = useState({
-    currency_id: '',
-    Rate: '',
-    status: '1',
-  });
+  const [showEditRateForm, setShowEditRateForm] = useState(false);
+  const [selectedRate, setSelectedRate] = useState(null);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -19,28 +16,25 @@ const ManageRate = () => {
 
   const handleAddRateForm = () => {
     setShowAddRateForm(true);
+    setShowEditRateForm(false);
   };
 
-  const handleCreateRate = () => {
-    if (!formData.currency_id || !formData.Rate) {
-      alert("Please fill in all required fields.");
-      return;
-    }
-
-    const newRate = {
-      currency_id: formData.currency_id,
-      Rate: formData.Rate,
-      status: parseInt(formData.status),
-    };
-
-    setRates((prev) => [...prev, newRate]);
-    setFormData({ currency_id: '', Rate: '', status: '1' });
+  const handleEditRate = (rateData) => {
+    setSelectedRate(rateData);
+    setShowEditRateForm(true);
     setShowAddRateForm(false);
+  };
+
+  const handleUpdateSuccess = () => {
+    setShowEditRateForm(false);
+    setSelectedRate(null);
+    // Add your refresh logic here if needed
   };
 
   const handleCancel = () => {
-    setFormData({ currency_id: '', Rate: '', status: '1' });
     setShowAddRateForm(false);
+    setShowEditRateForm(false);
+    setSelectedRate(null);
   };
 
   return (
@@ -63,14 +57,18 @@ const ManageRate = () => {
 
       <div className="manage-rate-content-box">
         {showAddRateForm ? (
-          <CreateRateForm
-            formData={formData}
-            setFormData={setFormData}
-            handleCreateRate={handleCreateRate}
-            handleCancel={handleCancel}
+          <CreateRateForm handleCancel={handleCancel} />
+        ) : showEditRateForm ? (
+          <EditRate
+            rateData={selectedRate}
+            onUpdateSuccess={handleUpdateSuccess}
+            onCancel={handleCancel}
           />
         ) : (
-          <FiatRate rates={rates} onAddButtonClick={handleAddRateForm} />
+          <FiatRate 
+            onAddButtonClick={handleAddRateForm}
+            onEditRate={handleEditRate}
+          />
         )}
       </div>
     </div>

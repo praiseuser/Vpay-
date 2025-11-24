@@ -1,150 +1,106 @@
-import { useState } from 'react';
-import { useMediaQuery } from '@mui/material';
-import PropTypes from 'prop-types';
-import FeeTable from '../ManageFees/FeeTable';
-import AddFeeForm from '../ManageFees/AddFeeForm';
-import EditFeeModal from '../ManageFees/EditFeeModal';
-import Box from '@mui/material/Box';
-import { useFetchFees, useDeleteTransactionFee } from '../../../Hooks/useFeeCurrency';
-
+import { useState, useEffect } from "react";
+import { Box, useMediaQuery } from "@mui/material";
+import FeeTable from "../ManageFees/FeeTable";
+import CreateFeeForm from "./AddFee";
+import EditFeeForm from "./EditFeeForm";
+import PasswordModal from "../Card/PasswordModal";
+import { useGetFees, useDeleteFee } from "../../../Hooks/useFeeCurrency";
 
 export default function ManageFees() {
+  const isMobile = useMediaQuery("(max-width: 600px)");
+  const { feesData, loading: fetchLoading, refetch } = useGetFees();
+  const deleteFee = useDeleteFee();
+
+  const [fees, setFees] = useState([]);
   const [showAddFeeForm, setShowAddFeeForm] = useState(false);
-  const [editFee, setEditFee] = useState(null);
-  const [formData, setFormData] = useState({
-    fee_name: '',
-    fee_type: '',
-    fee_amount: '',
-    status: false,
-    has_max_limit: false,
-    max_limit: '',
-  });
-  const isMobile = useMediaQuery('(max-width: 600px)');
-  const { fees, fetchFees, loading: fetchLoading, error: fetchError } = useFetchFees();
-  const { deleteTransactionFee, isFeeLoading, error: deleteError, successMessage } = useDeleteTransactionFee();
+  const [editingFee, setEditingFee] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [activityPin, setActivityPin] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
 
-  const handleAddFeeClick = () => {
-    console.log('Add Fee button clicked in ManageFees');
-    setFormData({
-      fee_name: '',
-      fee_type: '',
-      fee_amount: '',
-      status: false,
-      has_max_limit: false,
-      max_limit: '',
-    });
-    setShowAddFeeForm(true);
-  };
+  useEffect(() => {
+    setFees(feesData || []);
+  }, [feesData]);
 
-  const handleCreateFee = () => {
-    console.log('handleCreateFee called in ManageFees');
-    setFormData({
-      fee_name: '',
-      fee_type: '',
-      fee_amount: '',
-      status: false,
-      has_max_limit: false,
-      max_limit: '',
-    });
+  const handleAddFeeClick = () => setShowAddFeeForm(true);
+  const handleCancelAddFee = () => setShowAddFeeForm(false);
+  const handleSuccessAddFee = () => {
     setShowAddFeeForm(false);
-    fetchFees();
+    refetch();
   };
 
-  const handleCancel = () => {
-    console.log('handleCancel called in ManageFees');
-    setFormData({
-      fee_name: '',
-      fee_type: '',
-      fee_amount: '',
-      status: false,
-      has_max_limit: false,
-      max_limit: '',
-    });
-    setShowAddFeeForm(false);
-    setEditFee(null);
-  };
 
   const handleEditFee = (fee) => {
-    console.log('Edit fee clicked:', fee);
-    setEditFee(fee);
+    setEditingFee(fee);
+  };
+  const handleCancelEditFee = () => setEditingFee(null);
+  const handleSuccessEditFee = () => {
+    setEditingFee(null);
+    refetch();
   };
 
-  const handleUpdateFee = () => {
-    console.log('handleUpdateFee called in ManageFees');
-    setEditFee(null);
-    fetchFees();
+  const handleDeleteClick = (id) => {
+    setPendingDeleteId(id);
+    setShowPasswordModal(true);
   };
 
-  const handleDeleteFee = async (feeId) => {
-    console.log('handleDeleteFee started with feeId:', feeId);
-    if (!feeId) {
-      console.error('No feeId provided for deletion in ManageFees');
-      return;
-    }
+  const handlePasswordSubmit = async () => {
+    if (!activityPin.trim() || !pendingDeleteId) return;
 
-    const deleteResult = await deleteTransactionFee(feeId);
-    if (deleteResult) {
-      console.log('Delete successful in ManageFees, refreshing fees list');
-      setShowAddFeeForm(false);
-      setEditFee(null);
-      setFormData({
-        fee_name: '',
-        fee_type: '',
-        fee_amount: '',
-        status: false,
-        has_max_limit: false,
-        max_limit: '',
-      });
-      fetchFees();
-    } else {
-    }
+    setPasswordLoading(true);
+    await deleteFee(pendingDeleteId, activityPin);
+    setPasswordLoading(false);
+    setActivityPin("");
+    setPendingDeleteId(null);
+    setShowPasswordModal(false);
+    refetch();
+  };
+
+  const handlePasswordModalClose = () => {
+    setShowPasswordModal(false);
+    setPendingDeleteId(null);
+    setActivityPin("");
   };
 
   return (
     <Box
-      className={`p-${isMobile ? '2' : '6'} w-full`}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: isMobile ? '100vh' : 'auto',
-        overflow: 'hidden',
-      }}
+      className={`p-${isMobile ? "2" : "6"} w-full`}
+      sx={{ display: "flex", flexDirection: "column", height: "100%" }}
     >
-      <Box style={{ flexGrow: 1, overflowY: 'auto', marginTop: '32px' }}>
+      <Box sx={{ flexGrow: 1, mt: 4 }}>
         {showAddFeeForm ? (
-          <AddFeeForm
-            formData={formData}
-            setFormData={setFormData}
-            handleCreateFee={handleCreateFee}
-            handleCancel={handleCancel}
+          <CreateFeeForm
+            handleCancel={handleCancelAddFee}
+            onSuccess={handleSuccessAddFee}
+          />
+        ) : editingFee ? (
+          <EditFeeForm
+            feeData={editingFee}
+            handleCancel={handleCancelEditFee}
+            onSuccess={handleSuccessEditFee}
           />
         ) : (
           <FeeTable
             fees={fees}
             fetchLoading={fetchLoading}
-            fetchError={fetchError}
-            deleteError={deleteError}
-            successMessage={successMessage}
-            isFeeLoading={isFeeLoading}
             onAddFeeClick={handleAddFeeClick}
             onEditFee={handleEditFee}
-            onDeleteFee={handleDeleteFee}
+            onDeleteFee={handleDeleteClick}
           />
         )}
-        <EditFeeModal
-          open={!!editFee}
-          fee={editFee}
-          onClose={handleCancel}
-          onUpdate={handleUpdateFee}
-        />
       </Box>
+
+      <PasswordModal
+        open={showPasswordModal}
+        onClose={handlePasswordModalClose}
+        onSubmit={handlePasswordSubmit}
+        password={activityPin}
+        setPassword={setActivityPin}
+        loading={passwordLoading}
+        error={null}
+      />
     </Box>
   );
 }
-
-ManageFees.propTypes = {
-};
